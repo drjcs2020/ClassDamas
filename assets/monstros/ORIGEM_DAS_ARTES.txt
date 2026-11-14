@@ -1,0 +1,11 @@
+Arquivos oficiais esperados:
+hero_fada.png
+hero_chama.png
+hero_lobo.png
+hero_cavaleiro.png
+hero_dragao.png
+hero_maga.png
+
+Fonte: https://github.com/drjcs2020/classmana-batalha-dos-monstros-V2/tree/main/assets
+
+Estas imagens originais NAO foram embutidas no pacote porque o ambiente de montagem nao conseguiu baixar os binarios do GitHub. O jogo tenta carregar as imagens oficiais pela internet. Para disponibiliza-las localmente, rode INSTALAR_ARTES.bat com conexao ativa.
