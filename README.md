@@ -4,7 +4,9 @@
 
 **Para alunos:** abrir o link público do Railway, escolher Casa e nome, desafiar ou aceitar convite, jogar. **Sem senha, login ou PIN.**
 
-**Para manutenção:** editar a branch `main` no GitHub. O Railway realiza o deploy automaticamente. Não baixar ZIP.
+**Para manutenção:** editar a branch `main` no GitHub. Quando o serviço Railway estiver conectado, cada push fará o deploy automaticamente. Não baixar ZIP.
+
+**Status de publicação:** código e testes enviados ao GitHub. A implantação da API no Railway está **pendente**: a conta respondeu `Free plan resource provision limit exceeded` ao tentar criar um projeto novo. Ainda não há endereço público para duelos entre computadores.
 
 Veja [`DEPLOY_GITHUB_RAILWAY.md`](DEPLOY_GITHUB_RAILWAY.md) para a configuração inicial e os cuidados com o volume SQLite.
 
