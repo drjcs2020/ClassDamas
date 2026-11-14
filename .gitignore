@@ -1,0 +1,19 @@
+# Banco exclusivo: nunca publicar o arquivo com partidas e estudantes
+/data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+.env
+.env.*
+!.env.example
+node_modules/
+.DS_Store
+Thumbs.db
+# Binários históricos locais; UI usa URLs oficiais dos assets publicados
+/assets/*.png
+/assets/*.webp
+/assets/*.jpg
+/preview-*.png
+*.bat
+LEIA-ME.txt
