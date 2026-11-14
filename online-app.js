@@ -59,21 +59,21 @@ async function faceLoad(){
    }
    if(!source)return;
    try{
-     const c=document.createElement('canvas');c.width=c.height=256;
+     const c=document.createElement('canvas');c.width=c.height=768;
      const ctx=c.getContext('2d',{willReadFrequently:true});
-     const sc=256/Math.max(source.naturalWidth,source.naturalHeight),w=source.naturalWidth*sc,h=source.naturalHeight*sc;
+     const sc=768/Math.max(source.naturalWidth,source.naturalHeight),w=source.naturalWidth*sc,h=source.naturalHeight*sc;
      ctx.drawImage(source,(256-w)/2,(256-h)/2,w,h);
-     const pixels=ctx.getImageData(0,0,256,256).data;
-     let x0=256,y0=256,x1=0,y1=0,count=0;
-     for(let y=0;y<256;y+=2)for(let x=0;x<256;x+=2){if(pixels[(y*256+x)*4+3]>80){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);count++}}
-     if(count<90){x0=0;y0=0;x1=255;y1=255;}
+     const pixels=ctx.getImageData(0,0,768,768).data;
+     let x0=768,y0=768,x1=0,y1=0,count=0;
+     for(let y=0;y<768;y+=2)for(let x=0;x<768;x+=2){if(pixels[(y*768+x)*4+3]>80){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);count++}}
+     if(count<400){x0=0;y0=0;x1=767;y1=767;}
      const bw=x1-x0+1,bh=y1-y0+1;
-     const side=Math.min(256,Math.max(55,Math.min(bw*.67,bh*.51)));
-     const sx=Math.max(0,Math.min(256-side,(x0+x1)/2-side/2));
-     const sy=Math.max(0,Math.min(256-side,y0+bh*.31-side/2));
-     const out=document.createElement('canvas');out.width=out.height=256;
-     out.getContext('2d').drawImage(c,sx,sy,side,side,0,0,256,256);
-     faceURLs.set(g[2],out.toDataURL('image/webp',.9));
+     const side=Math.min(768,Math.max(160,Math.min(bw*.67,bh*.51)));
+     const sx=Math.max(0,Math.min(768-side,(x0+x1)/2-side/2));
+     const sy=Math.max(0,Math.min(768-side,y0+bh*.31-side/2));
+     const out=document.createElement('canvas');out.width=out.height=512;
+     out.getContext('2d').drawImage(c,sx,sy,side,side,0,0,512,512);
+     faceURLs.set(g[2],out.toDataURL('image/webp',.95));
    }catch{faceURLs.set(g[2],source.src)}
    renderAll();
  }));
