@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101521"><meta name="description" content="Dama ClassMana: duelo de estratégia entre as Três Casas, com peças dos personagens originais e tabuleiro personalizado.">
+<title>Dama ClassMana | Desafio das Três Casas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#f5ce69;--gold-lite:#ffe8a6;--wood:#53301d;--ink:#090d17;--cream:#fff4da;--muted:#dfd3bd;--house:#2e86ee;--house-soft:#83c6ff;--font-title:Cinzel,Georgia,serif;color-scheme:dark}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--cream);background:#101520;font-family:'Nunito Sans',Arial,sans-serif;overflow-x:hidden}body[data-casa=leao]{--house:#d74624;--house-soft:#ffae6f}body[data-casa=dragao]{--house:#159c63;--house-soft:#8be6ab}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.42}a{color:inherit}button:focus-visible,select:focus-visible,.cell:focus-visible{outline:3px solid #fff0b1;outline-offset:3px}.site-header{height:78px;background:linear-gradient(90deg,#0c172e,#1a1d24 65%,#0a1419);border-bottom:2px solid #9d7636;box-shadow:0 2px 13px #000b;position:relative;z-index:4}.header-content{max-width:1490px;height:100%;margin:auto;display:flex;align-items:center;gap:25px;padding:0 22px}.site-logo{width:264px;display:block;flex:none}.site-logo img{width:100%;display:block;max-height:58px;object-fit:contain}.brand-subtitle{border-left:1px solid #775a30;padding-left:22px;display:flex;flex-direction:column;gap:4px}.brand-subtitle span{font-family:var(--font-title);color:#f3d28c;font-size:12px;letter-spacing:2.1px}.brand-subtitle strong{font-size:10px;letter-spacing:3.1px;color:#afc4db}.header-status{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:11px;color:#e4cb95;letter-spacing:1.5px;border:1px solid #75613e;background:#17222a;padding:9px 16px;border-radius:50px}.status-orb{background:#d3a954;width:8px;height:8px;box-shadow:0 0 12px #eac966;border-radius:100%}.hero-banner{height:246px;position:relative;overflow:hidden;border-bottom:5px ridge #ac8140;background:#244663}.hero-world{position:absolute;inset:0;background-image:linear-gradient(90deg,#04152783 0%,#09172b23 25%,#06152619 60%,#0211208a 100%),linear-gradient(0deg,#040f1d89,transparent 58%),url('https://raw.githubusercontent.com/drjcs2020/classmana-torneio-arco-e-flecha-V2/main/assets/scenes/aguia.webp');background-size:cover;background-position:center 57%;filter:saturate(1.2)}body[data-casa=leao] .hero-world{background-image:linear-gradient(90deg,#160b0883 0%,#19100b23 25%,#17110919 60%,#1708068a 100%),linear-gradient(0deg,#16090789,transparent 58%),url('https://raw.githubusercontent.com/drjcs2020/classmana-torneio-arco-e-flecha-V2/main/assets/scenes/leao.webp')}body[data-casa=dragao] .hero-world{background-image:linear-gradient(90deg,#02190b83 0%,#04190b23 25%,#02170819 60%,#0415088a 100%),linear-gradient(0deg,#02140c89,transparent 58%),url('https://raw.githubusercontent.com/drjcs2020/classmana-torneio-arco-e-flecha-V2/main/assets/scenes/dragao.webp')}.hero-world:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,#1f294800 6%,#070d1a88 92%)}.hero-figure{position:absolute;z-index:1;height:350px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 16px #010714ba);bottom:-74px;pointer-events:none}.hero-figure-blue{left:clamp(12px,8vw,170px)}.hero-figure-red{right:clamp(24px,12vw,260px);height:300px;bottom:-92px}.hero-figure-green{right:clamp(-50px,2vw,40px);height:315px;bottom:-84px}.hero-copy{position:absolute;z-index:2;left:50%;top:48%;transform:translate(-50%,-50%);text-align:center;width:min(690px,78%);filter:drop-shadow(0 4px 13px #000d)}.hero-overline{color:var(--gold-lite);font-weight:900;font-size:12px;letter-spacing:4px}.hero-overline span{color:#ffe8a6;padding:0 6px}.hero-copy h1{font-family:var(--font-title);font-size:clamp(33px,4.2vw,65px);line-height:1.1;margin:9px 0 10px;white-space:nowrap;font-weight:900;letter-spacing:1px;color:#fff2c2;text-shadow:0 3px 0 #653616,0 5px 5px #000,0 0 16px #502b0c}.hero-copy h1 span{color:#ffdf67}.ribbon{position:relative;display:flex;justify-content:center;align-items:center;margin:auto;width:min(400px,85%);height:40px;background:linear-gradient(#9c222b,#761421);border:2px solid #ffd27a;box-shadow:0 3px 0 #4e1d16,0 6px 20px #0008;clip-path:polygon(0% 0%,100% 0%,95% 50%,100% 100%,0% 100%,5% 50%)}.ribbon span{font-family:var(--font-title);letter-spacing:2px;font-weight:800;font-size:13px}.hero-copy p{font-size:13px;font-weight:800;letter-spacing:1px;margin:16px 0 0;color:#fff5d7}.content-wrap{max-width:1500px;margin:0 auto;padding:28px 24px 70px}.arena-heading{display:flex;justify-content:space-between;align-items:end;padding-bottom:17px;gap:15px}.eyebrow{display:block;color:var(--gold);font-weight:900;font-size:10px;letter-spacing:3.2px}.arena-heading h2,.bottom-title h2{font-family:var(--font-title);font-size:clamp(24px,2.2vw,31px);margin:5px 0 0;color:#f7db96}.arena-heading-right{color:#b7c0ca;font-weight:900;letter-spacing:1.8px;font-size:10px;display:flex;align-items:center;gap:12px}.dot{color:#cf9747}.match-setup{display:grid;grid-template-columns:1fr 100px 1fr;gap:10px;align-items:center;margin-bottom:20px;min-height:122px}.house-team{border:2px solid #d2a75b;border-radius:10px;display:flex;gap:14px;align-items:center;padding:11px 18px;background:linear-gradient(110deg,#112b52,#091725);box-shadow:inset 0 0 0 1px #f4cf7f28,0 5px 16px #0006;min-width:0}.house-team-right{background:linear-gradient(120deg,#2b1118,#1b1419)}.house-team[data-house=aguia]{background:linear-gradient(110deg,#153d71,#091a30)}.house-team[data-house=leao]{background:linear-gradient(110deg,#632018,#221011)}.house-team[data-house=dragao]{background:linear-gradient(110deg,#104e32,#0d211e)}.house-crest{height:92px;width:70px;object-fit:contain;filter:drop-shadow(0 3px 6px #000a);flex:none}.team-info{min-width:0;flex:1}.team-info label{display:block;font-size:10px;letter-spacing:2px;font-weight:900;color:#d8bb7d;margin-bottom:6px}.team-info select{border:1px solid #b69a5c;color:#fff4dd;background:#071321b5;border-radius:6px;padding:10px 12px;font-size:14px;font-weight:900;width:100%;outline-offset:2px}.team-info select option{background:#0d1d2e;color:white}.team-color{font-family:var(--font-title);font-size:12px;font-weight:800;color:#f5d79e;margin-top:8px}.team-color span{font:600 10px 'Nunito Sans',sans-serif;letter-spacing:.3px;color:#c5d3e1;margin-left:8px}.setup-vs{font-family:var(--font-title);display:grid;place-items:center;text-align:center;color:#ffe2a1;text-shadow:0 3px 12px #e7973b80;font-weight:900;font-size:33px;position:relative}.setup-vs small{display:block;font:900 9px 'Nunito Sans',sans-serif;letter-spacing:2px;color:#dfbe7a}.game-layout{display:grid;grid-template-columns:minmax(215px,280px) minmax(380px,1fr) minmax(230px,295px);gap:19px;align-items:start}.gilded-panel{padding:18px 16px 19px;border:2px solid #a9834e;border-radius:8px;background:linear-gradient(160deg,#172638 0%,#101a29 52%,#1b2027 100%);box-shadow:inset 0 0 0 1px #ffd99114,0 15px 25px #0006}.gilded-panel h3{font-family:var(--font-title);font-size:14px;letter-spacing:.5px;margin:0;padding-bottom:16px;border-bottom:1px solid #80653c;color:#ffe2a5}.panel-icon{color:#f3c75b;font-size:19px;margin-right:8px}.panel-desc{font-size:11px;line-height:1.6;margin:12px 0 13px;color:#beccda}.hero-roster{display:grid;grid-template-columns:1fr 1fr;gap:10px}.roster-unit{border:1px solid #765633;border-radius:7px;min-width:0;overflow:hidden;text-align:center;background:linear-gradient(140deg,#2a2b36,#101b2c);box-shadow:inset 0 0 0 1px #deb9701c}.roster-portrait{height:90px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,#b38b4e83,#2b2646 47%,#101a2b 85%);overflow:hidden}.roster-portrait img{height:114px;width:112%;object-fit:contain;object-position:center 22%;filter:drop-shadow(0 4px 8px #000b)}.roster-unit strong{display:block;font-family:var(--font-title);font-size:9px;color:#ffe1a1;line-height:1.4;padding:8px 4px 2px}.roster-unit small{display:block;font-size:9px;color:#a5b8c4;padding-bottom:8px}.note-panel{border:1px solid #7a633c;background:#182a2bd9;padding:11px;margin-top:16px;border-radius:5px}.note-panel strong{font-size:11px;color:#f1d289}.note-panel p{font-size:10px;color:#c0d1c7;line-height:1.55;margin:7px 0 0}.arena-main{background:linear-gradient(160deg,#11243a,#111d2c);border:2px solid #be9149;border-radius:8px;padding:12px 14px 16px;box-shadow:0 15px 30px #0008,inset 0 0 0 1px #f0cc7b1f;min-width:0}.board-topline{display:flex;justify-content:space-between;align-items:center;margin:1px 2px 12px;color:#ebd2a0;font-size:10px;letter-spacing:1.7px;font-weight:900;gap:5px}.board-topline b{color:#f1ca65}.board-topline span:last-child{color:#c1d6dc;font-size:9px}.board-stage{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:1.09/1;min-height:440px;border:2px solid #846837;background-image:linear-gradient(#0e1f2980,#10283b6e),url('https://raw.githubusercontent.com/drjcs2020/classmana-torneio-arco-e-flecha-V2/main/assets/scenes/aguia.webp');background-size:cover;background-position:center;overflow:hidden;border-radius:7px;box-shadow:inset 0 0 55px #0008;touch-action:manipulation}body[data-casa=leao] .board-stage{background-image:linear-gradient(#250e0b80,#2b16146e),url('https://raw.githubusercontent.com/drjcs2020/classmana-torneio-arco-e-flecha-V2/main/assets/scenes/leao.webp')}body[data-casa=dragao] .board-stage{background-image:linear-gradient(#0b241880,#132b1b6e),url('https://raw.githubusercontent.com/drjcs2020/classmana-torneio-arco-e-flecha-V2/main/assets/scenes/dragao.webp')}.board-stage:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 32%,#060c1ec4 100%);pointer-events:none}.board-wings{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:space-between;opacity:.66;padding:6px;gap:8px}.board-wings img{width:8%;max-height:90px;object-fit:contain;filter:drop-shadow(0 0 4px #090907)}.board-frame{width:min(84%,520px);aspect-ratio:1;position:relative;background:linear-gradient(145deg,#dbae57,#5c371e 12%,#dba75a 50%,#4c2d22 92%,#f0c97d);border:5px solid #b18445;border-radius:5px;padding:11px;box-shadow:0 15px 32px #000a,0 0 0 2px #40240f,0 0 0 4px #d9a958a6,inset 0 0 0 2px #eac477;z-index:1;transform:perspective(900px) rotateX(2deg)}.board-frame[hidden]{display:none!important}.wood-trim{height:100%;padding:3px;background:linear-gradient(#2b1515,#865028);border:3px solid #271819;box-shadow:inset 0 0 0 2px #e1b36b}.board-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));border:1px solid #1a0d16}.cell{border:1px solid #60402146;position:relative;display:grid;place-items:center;min-width:0;padding:0;min-height:0;overflow:visible}.cell.light{background:linear-gradient(135deg,#eadba8,#c5ab79 62%,#eddcb1);box-shadow:inset 0 0 0 1px #fff5c43b}.cell.dark{background:radial-gradient(ellipse at 36% 30%,#315a6b,#203448 70%,#122438);cursor:pointer;box-shadow:inset 0 0 0 1px #91c4c024,inset 0 2px 8px #07131b4d}.cell.dark:before{content:"";position:absolute;inset:5px;border:1px solid #d2b66b15;pointer-events:none}.cell.dark:hover{filter:brightness(1.15)}.cell.source{box-shadow:inset 0 0 0 3px #92f5fb,inset 0 0 15px #60a5e8}.cell.selected{box-shadow:inset 0 0 0 4px #ffd76f,inset 0 0 23px #eed56a}.cell.legal:after{content:"";position:absolute;z-index:3;width:37%;height:37%;border-radius:50%;background:#f5d56bb5;border:2px solid #fff3c5;box-shadow:0 0 14px #f5d55f;pointer-events:none;animation:destination 1.2s infinite alternate}.cell.last:not(.selected){background-image:linear-gradient(#e1c36533,#e1c36533)}@keyframes destination{to{transform:scale(1.16);opacity:.7}}.unit-piece{width:94%;aspect-ratio:1;position:relative;border-radius:50%;z-index:2;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 47% 34%,#f3c979 0%,#9a6c2c 71%,#2f1e17 100%);border:2px solid #f9e6a7;box-shadow:0 3px 3px #000b,0 5px 9px #0007,inset 0 0 0 2px #634526,inset 0 0 0 4px #d9aa59;overflow:hidden}.unit-piece.black{background:radial-gradient(circle at 45% 35%,#d2ad68,#765228 74%,#1b1721);border-color:#eec578;box-shadow:0 3px 3px #000b,0 5px 9px #0007,inset 0 0 0 2px #352624,inset 0 0 0 4px #c59e5d}.unit-portrait{position:absolute;width:82%;height:82%;top:9%;left:9%;border-radius:50%;overflow:hidden;border:1px solid #ffed9b91;background:radial-gradient(circle at center,#6192bf,#111b32)}.unit-piece.black .unit-portrait{background:radial-gradient(circle at center,#b26a4b,#1d111e)}.unit-portrait img{position:absolute;height:155%;width:155%;max-width:none;object-fit:contain;left:-27%;top:-20%;filter:drop-shadow(0 1px 2px #0005)}.unit-piece:after{content:"";position:absolute;inset:0;border-radius:50%;border:3px dotted #f9e6a73e;pointer-events:none}.unit-piece.king{border:3px solid #fff8b6;box-shadow:0 0 9px #edc24f,0 4px 10px #000a,inset 0 0 0 3px #d7a44a}.king-crown{position:absolute;z-index:3;top:-4%;left:50%;transform:translateX(-50%);font-size:clamp(14px,1.8vw,23px);filter:drop-shadow(0 1px 2px #000);text-shadow:0 0 6px #ffb32e;pointer-events:none}.unit-piece.marked{opacity:.4}.corner{position:absolute;color:#f9d97d;text-shadow:0 0 8px #241309;z-index:2;font-size:21px}.c1{left:0;top:0}.c2{right:0;top:0}.c3{left:0;bottom:0}.c4{right:0;bottom:0}#game-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;touch-action:manipulation;cursor:pointer}#game-canvas[hidden]{display:none}.turn-card{display:flex;align-items:center;gap:12px;background:linear-gradient(100deg,#20324b,#0d1c2b);border:1px solid #967646;margin-top:13px;padding:12px;border-radius:5px}.turn-gem{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;border:2px solid #e1be72;background:radial-gradient(circle,#316bba,#0b1c38);color:#ffeab8;font-size:22px;box-shadow:0 0 13px #ca9b45a3;flex:none}.turn-copy{min-width:0;flex:1}.turn-copy span,.turn-counter span{font-size:9px;font-weight:900;color:#c3bdac;letter-spacing:1.5px;display:block}.turn-copy strong{display:block;font-family:var(--font-title);color:#ffdc8e;font-size:14px;margin:3px 0}.turn-copy small{font-size:10px;color:#b8c9dd}.turn-counter{text-align:center;min-width:54px}.turn-counter b{font-size:25px;font-family:var(--font-title);color:var(--gold)}.game-message{min-height:31px;text-align:center;font-size:12px;color:#e7dcb9;font-weight:700;padding:11px 5px 5px}.game-message.important{color:#ffcb5d}.game-actions{display:grid;grid-template-columns:1.12fr 1fr 1fr;gap:9px}.fantasy-btn{height:44px;min-width:0;border:2px solid #deb55c;border-radius:7px;color:#fff2ba;font-size:11px;font-weight:900;letter-spacing:.7px;text-shadow:0 1px #0009;box-shadow:inset 0 1px #fff6,0 3px #2e180d,0 7px 11px #0006;transition:filter .15s,transform .15s}.fantasy-btn:hover:not(:disabled){filter:brightness(1.2)}.fantasy-btn:active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 1px #fff4,0 1px #2e180d}.fantasy-btn.primary{background:linear-gradient(#1ac16a,#087341 44%,#096235);border-color:#f6db7b}.fantasy-btn.secondary{background:linear-gradient(#3b6697,#1b3b65 55%,#1b2a49)}.fantasy-btn.outline{background:linear-gradient(#7b5e34,#47361f 55%,#29202a)}.duel-status{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#314228aa,#172d24);border:1px solid #7c7641;border-radius:6px;padding:13px 9px;margin:15px 0}.status-icon{font-size:27px;color:#fad67d}.duel-status strong{font-family:var(--font-title);font-size:11px;color:#f2da9d}.duel-status p{font-size:10px;line-height:1.5;color:#c1d3bf;margin:5px 0 0}.match-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.match-stats>div{background:linear-gradient(130deg,#1b2e40,#111925);border:1px solid #546073;border-radius:4px;padding:9px}.match-stats small{font-size:8px;letter-spacing:.5px;color:#a9bdce;display:block}.match-stats strong{font-family:var(--font-title);font-size:25px;color:#ffde96}.results-panel h4{font-family:var(--font-title);color:#ecd29a;margin:18px 0 10px;font-size:11px}.move-log{padding:0;list-style:none;max-height:153px;overflow:auto;margin:0}.move-log li{font-size:10px;line-height:1.5;color:#d6d9dc;padding:8px 4px;border-bottom:1px solid #40506b}.divider{height:1px;background:#6e593a;margin:16px 0}.rules-lines{display:grid;gap:4px}.rules-lines p{display:flex;gap:11px;font-size:10px;line-height:1.4;margin:3px 0;color:#c5d0dc}.rules-lines span{font-family:var(--font-title);color:#e0b863}.server-note{margin-top:19px;border:1px solid #ab8350;border-radius:5px;padding:11px;background:#59401e35}.server-note strong{font-size:10px;letter-spacing:1px;color:#ffcf87}.server-note p{font-size:10px;line-height:1.6;color:#d5c7b4;margin:6px 0 0}.bottom-section{margin:28px 0 4px;border-top:1px solid #755c39;padding-top:24px}.bottom-title{display:flex;justify-content:space-between;align-items:end;gap:10px}.small-btn{background:#19263b;border:1px solid #8d7142;color:#f1d695;padding:10px 14px;border-radius:5px;font-size:11px;font-weight:800}.local-board{margin-top:17px;background:linear-gradient(120deg,#19263a,#152030);border:1px solid #886f46;border-radius:6px;min-height:70px}.score-empty{padding:23px;color:#bac6d1;font-size:12px;text-align:center}.score-rows{display:grid}.score-row{display:flex;gap:14px;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #554a3b;font-size:12px}.score-row b{color:#f9d380}.score-row span{color:#a6b7c2}footer{display:flex;justify-content:space-between;gap:15px;padding:21px max(24px,calc((100vw - 1450px)/2));background:#0b1420;border-top:2px solid #8d6838;color:#a9b7c9;font-weight:800;letter-spacing:.7px;font-size:10px}
+@media(max-width:1230px){.game-layout{grid-template-columns:205px minmax(360px,1fr) 224px;gap:12px}.content-wrap{padding:22px 15px 55px}.gilded-panel{padding:13px}.house-team{padding:9px}.board-frame{width:min(88%,520px)}.hero-roster{gap:7px}.roster-portrait{height:78px}.roster-portrait img{height:104px}.hero-figure-blue{left:3vw}.hero-figure-green{right:-7vw}.hero-figure-red{right:10vw}}
+@media(max-width:985px){.game-layout{grid-template-columns:minmax(0,1fr) 250px}.arena-main{grid-column:1;grid-row:1}.right-side{grid-column:2;grid-row:1}.left-side{grid-column:1/-1;grid-row:2}.hero-roster{grid-template-columns:repeat(6,minmax(0,1fr))}.roster-portrait{height:100px}.gilded-panel.character-panel{padding:16px}.board-stage{min-height:420px}.hero-figure-blue{left:-4vw}.hero-figure-red{right:4vw}.hero-figure-green{right:-13vw}.hero-copy h1{font-size:clamp(28px,5vw,45px)}.header-status{display:none}}
+@media(max-width:740px){.site-header{height:65px}.header-content{padding:0 10px;gap:8px}.site-logo{width:180px}.brand-subtitle{padding-left:11px}.brand-subtitle span{font-size:8px;letter-spacing:1px}.brand-subtitle strong{font-size:8px;letter-spacing:1.2px}.hero-banner{height:207px}.hero-figure-blue{height:245px;left:-18px;bottom:-47px}.hero-figure-red{height:220px;right:-6px;bottom:-75px}.hero-figure-green{display:none}.hero-copy{width:93%;top:44%}.hero-overline{font-size:8px;letter-spacing:1.5px}.hero-copy h1{font-size:clamp(25px,7vw,43px);margin:7px 0}.ribbon{width:min(320px,76%);height:30px}.ribbon span{font-size:10px;letter-spacing:.8px}.hero-copy p{font-size:10px;margin-top:9px}.content-wrap{padding:18px 10px 40px}.arena-heading{align-items:start}.arena-heading h2{font-size:23px}.arena-heading-right{display:none}.match-setup{grid-template-columns:1fr 45px 1fr;gap:3px;margin-bottom:11px}.house-team{padding:7px;gap:4px;min-height:99px}.house-crest{width:39px;height:61px}.team-info label{font-size:8px;letter-spacing:.5px}.team-info select{font-size:10px;padding:8px 2px}.team-color{font-size:9px}.team-color span{display:none}.setup-vs{font-size:20px}.setup-vs small{font-size:7px;letter-spacing:.5px}.game-layout{display:flex;flex-direction:column}.arena-main{width:100%;padding:10px 8px 14px}.right-side,.left-side{width:100%}.right-side{order:2}.left-side{order:1}.arena-main{order:0}.board-topline{font-size:8px}.board-stage{aspect-ratio:1.02/1;min-height:0}.board-frame{width:92%;padding:6px;border-width:3px;transform:none}.wood-trim{padding:2px;border-width:2px}.board-wings img{display:none}.unit-piece{border-width:1px}.unit-portrait{border:0}.unit-piece:after{border-width:1px}.corner{font-size:13px}.game-actions{gap:5px}.fantasy-btn{font-size:9px;letter-spacing:0;height:41px}.game-message{font-size:11px}.turn-card{padding:9px}.turn-copy strong{font-size:12px}.turn-gem{width:36px;height:36px}.hero-roster{grid-template-columns:repeat(3,minmax(0,1fr))}.roster-portrait{height:115px}.roster-portrait img{height:137px}.character-panel h3{font-size:13px}.match-stats{grid-template-columns:repeat(4,1fr)}.match-stats small{font-size:8px}.match-stats strong{font-size:22px}.score-row{flex-direction:column;align-items:start;gap:5px}footer{flex-direction:column;line-height:1.5;padding:15px 12px;font-size:9px}}
+@media(max-width:420px){.brand-subtitle span{font-size:7px}.site-logo{width:151px}.match-setup{grid-template-columns:1fr 30px 1fr}.house-crest{width:29px}.hero-copy p{font-size:9px}.board-stage{aspect-ratio:1/1}.house-team{padding:5px}.team-info select{font-size:9px}.hero-figure-blue{left:-44px}.hero-figure-red{right:-45px}}
+
+/* Peças identificadas pelo brasão e pelo halo da Casa de cada jogador. */
+.unit-piece{border-color:var(--token-accent,#e7c17c);box-shadow:0 3px 3px #000b,0 5px 10px #0008,0 0 7px var(--token-accent,#d8a45d),inset 0 0 0 2px #413126,inset 0 0 0 4px #bd9b5b}
+.unit-piece.black{border-color:var(--token-accent,#e5b877);box-shadow:0 3px 3px #000b,0 5px 10px #0008,0 0 7px var(--token-accent,#d8a45d),inset 0 0 0 2px #413126,inset 0 0 0 4px #bd9b5b}
+.unit-house{position:absolute;z-index:4;right:-1px;bottom:-1px;height:31%;width:27%;object-fit:contain;filter:drop-shadow(0 1px 2px #000);pointer-events:none}
+
+/* Dama ClassMana: identidade oficial da Batalha dos Monstros. Somente personagens desta batalha. */
+.hero-banner{height:258px}
+.banner-monsters{position:absolute;z-index:1;top:32px;display:flex;gap:11px;align-items:center;pointer-events:none}
+.banner-monsters-left{left:2.3%}
+.banner-monsters-right{right:2.3%}
+.banner-medal{width:clamp(78px,8vw,122px);aspect-ratio:1;position:relative;border:4px ridge #f3c876;border-radius:50%;overflow:hidden;box-shadow:inset 0 0 12px #000,0 5px 14px #000b,0 0 13px #b99349a8;background:radial-gradient(circle,#45647d,#101b2c 75%)}
+.banner-medal:nth-child(2){transform:translateY(34px)}
+.banner-medal img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 20%}
+.hero-copy{width:min(480px,48%);top:49%}
+.hero-copy h1{filter:drop-shadow(0 2px 5px #000);line-height:1.15}
+.unit-portrait img{inset:0!important;width:100%!important;height:100%!important;max-width:100%!important;object-fit:cover!important;object-position:center 22%;filter:drop-shadow(0 1px 1px #0005)!important}
+.roster-portrait{display:flex;align-items:center;justify-content:center;overflow:hidden}
+.roster-portrait img{height:100%!important;width:100%!important;object-fit:cover!important;object-position:center 20%!important;max-width:none}
+.unit-piece .unit-portrait{background:radial-gradient(circle at 40% 35%,#b5d8e9,#1c3551 80%)}
+.unit-piece.black .unit-portrait{background:radial-gradient(circle at 40% 35%,#efcaa2,#42283b 85%)}
+.unit-piece img[src*="hero_"]{object-fit:cover;object-position:center 19%}
+.roster-unit strong{min-height:2.9em;line-height:1.2;display:block}
+@media(max-width:1180px){.banner-medal{width:clamp(66px,7.3vw,104px)}.banner-monsters{gap:6px}.hero-copy{width:52%}}
+@media(max-width:740px){.hero-banner{height:190px}.banner-monsters{top:7px;gap:3px}.banner-medal{width:56px;border-width:2px}.banner-medal:nth-child(2){transform:translateY(23px)}.banner-monsters-left{left:-14px}.banner-monsters-right{right:-14px}.hero-copy{width:67%}.hero-copy h1{font-size:clamp(25px,6vw,38px)}.hero-copy p{font-size:9px}.hero-overline{font-size:7px}.banner-medal:nth-child(3){display:none}}
+@media(max-width:410px){.banner-medal{width:46px}.hero-copy{width:70%}.hero-copy h1{font-size:24px}.hero-copy p{max-width:250px;margin-inline:auto}}
+
+/* CORREÇÃO: a aparência das casas não depende de executar JavaScript. */
+.board-grid{background-color:#1b3c48;background-image:conic-gradient(#d8bd82 25%,#234555 0 50%,#d8bd82 0 75%,#234555 0);background-size:25% 25%}
+.unit-portrait{position:relative}
+.unit-portrait .face-letters{position:absolute;inset:0;display:grid;place-items:center;font:900 clamp(10px,1.15vw,17px) 'Cinzel',serif;color:#ffeca8;text-shadow:1px 2px 3px #000;background:radial-gradient(circle,#54788d,#1a2e3b);border-radius:50%}
+.unit-portrait img{position:absolute;z-index:2;inset:0;opacity:0;transition:opacity .2s}
+.unit-portrait img.is-loaded{opacity:1}
+.roster-portrait img{opacity:1}
+.asset-tip{padding:9px 12px;border-radius:6px;margin-top:10px;border:1px solid #b78f51;background:#172e35;color:#f1d8a1;font-size:12px;line-height:1.5}
+@media(max-width:740px){.unit-portrait .face-letters{font-size:11px}}
+
+
+.roster-portrait{position:relative}
+.roster-portrait .roster-monogram{position:absolute;inset:0;display:grid;place-items:center;font:900 26px 'Cinzel',serif;color:#ffe3a6;text-shadow:0 2px 5px #000;background:radial-gradient(circle at 50% 30%,#53758b,#192b47 65%,#111b2a)}
+.roster-portrait img{position:absolute;inset:0;z-index:2;opacity:0!important}
+.roster-portrait img.is-loaded{opacity:1!important}
+
+</style>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-casa="aguia">
+<a href="online.html" style="position:fixed;bottom:14px;right:14px;z-index:9999;padding:13px 20px;border:2px solid #ffe49c;border-radius:9px;background:linear-gradient(#edcf83,#b67f30);box-shadow:0 3px 19px #000a;color:#211408;text-decoration:none;font:900 14px Cinzel,Georgia,serif">⚔ DESAFIOS ONLINE E RANKING</a>
+
+<header class="site-header">
+  <div class="header-content">
+    <a class="site-logo" href="#inicio" aria-label="ClassMana, início"><img src="assets/logo_classmana.png" alt="ClassMana"></a>
+    <div class="brand-subtitle"><span>TORNEIO DAS TRÊS CASAS</span><strong>ARENA DAS DAMAS</strong></div>
+    <div class="header-status"><span class="status-orb"></span> <span>PARTIDA LOCAL</span></div>
+  </div>
+</header>
+<main id="inicio">
+  <section class="hero-banner" aria-label="Dama ClassMana">
+    <div class="hero-world" aria-hidden="true"></div>
+    <div class="banner-monsters banner-monsters-left" aria-hidden="true">
+      <div class="banner-medal"><img data-personagem="fada" src="https://raw.githubusercontent.com/drjcs2020/classmana-batalha-dos-monstros-V2/main/assets/hero_fada.png" alt=""></div>
+      <div class="banner-medal"><img data-personagem="lobo" src="https://raw.githubusercontent.com/drjcs2020/classmana-batalha-dos-monstros-V2/main/assets/hero_lobo.png" alt=""></div>
+      <div class="banner-medal"><img data-personagem="chama" src="https://raw.githubusercontent.com/drjcs2020/classmana-batalha-dos-monstros-V2/main/assets/hero_chama.png" alt=""></div>
+    </div>
+    <div class="banner-monsters banner-monsters-right" aria-hidden="true">
+      <div class="banner-medal"><img data-personagem="cavaleiro" src="https://raw.githubusercontent.com/drjcs2020/classmana-batalha-dos-monstros-V2/main/assets/hero_cavaleiro.png" alt=""></div>
+      <div class="banner-medal"><img data-personagem="dragao" src="https://raw.githubusercontent.com/drjcs2020/classmana-batalha-dos-monstros-V2/main/assets/hero_dragao.png" alt=""></div>
+      <div class="banner-medal"><img data-personagem="maga" src="https://raw.githubusercontent.com/drjcs2020/classmana-batalha-dos-monstros-V2/main/assets/hero_maga.png" alt=""></div>
+    </div>
+    <div class="hero-copy"><div class="hero-overline"><span>✦</span> O CONSELHO DAS TRÊS CASAS <span>✦</span></div>
+       <h1>DAMA <span>CLASSMANA</span></h1><div class="ribbon"><span>DESAFIO DAS TRÊS CASAS</span></div>
+       <p>Os seis heróis da Batalha dos Monstros no tabuleiro das Três Casas.</p>
+    </div>
+  </section>
+
+  <div class="content-wrap">
+    <section class="arena-heading" aria-label="Preparação do duelo">
+      <div><span class="eyebrow">✦ ARENA DE ESTRATÉGIA ✦</span><h2>O Duelo das Equipes</h2></div>
+      <div class="arena-heading-right"><span>24 PEÇAS</span><span class="dot">•</span><span>8 × 8</span><span class="dot">•</span><span>DAMAS BRASILEIRAS</span></div>
+    </section>
+
+    <section class="match-setup" aria-label="Escolher as Casas e os personagens das equipes">
+      <article class="house-team" id="team-white">
+        <img class="house-crest" id="crest-white" src="assets/brasao_aguia.png" alt="Brasão da Águia Dourada"><div class="chosen-portrait-frame"><img id="chosen-portrait-white" src="assets/monstros/hero_fada.png" alt="Rosto do personagem da equipe" class="chosen-portrait"/></div>
+        <div class="team-info"><label for="house-white">CASA DO JOGADOR 1</label>
+          <select id="house-white"><option value="aguia">4º A — Águia Dourada</option><option value="leao">4º B — Leão de Fogo</option><option value="dragao">4º C — Dragão de Esmeralda</option></select>
+          <label class="hero-choice-label" for="hero-white">PERSONAGEM DA EQUIPE</label>
+          <select id="hero-white" class="hero-select" aria-label="Personagem do jogador 1"><option value="fada" selected>Fada Guerreira</option><option value="chama">Chama Congelante</option><option value="lobo">Lobo Gatuno</option><option value="cavaleiro">Cavaleiro Guerreiro</option><option value="dragao">Dragão de Combate</option><option value="maga">Maga Engenheira</option></select>
+          <div class="hero-team-caption" id="hero-caption-white">12 peças · Fada Guerreira</div>
+          <div class="team-color" id="house-label-white">Águia Dourada <span>• Inicia a partida</span></div>
+        </div>
+      </article>
+      <div class="setup-vs" aria-hidden="true"><span>VS</span><small>DESAFIO</small></div>
+      <article class="house-team house-team-right" id="team-black">
+        <img class="house-crest" id="crest-black" src="assets/brasao_leao.png" alt="Brasão do Leão de Fogo"><div class="chosen-portrait-frame"><img id="chosen-portrait-black" src="assets/monstros/hero_chama.png" alt="Rosto do personagem da equipe" class="chosen-portrait"/></div>
+        <div class="team-info"><label for="house-black">CASA DO JOGADOR 2</label>
+          <select id="house-black"><option value="aguia">4º A — Águia Dourada</option><option value="leao" selected>4º B — Leão de Fogo</option><option value="dragao">4º C — Dragão de Esmeralda</option></select>
+          <label class="hero-choice-label" for="hero-black">PERSONAGEM DA EQUIPE</label>
+          <select id="hero-black" class="hero-select" aria-label="Personagem do jogador 2"><option value="fada">Fada Guerreira</option><option value="chama" selected>Chama Congelante</option><option value="lobo">Lobo Gatuno</option><option value="cavaleiro">Cavaleiro Guerreiro</option><option value="dragao">Dragão de Combate</option><option value="maga">Maga Engenheira</option></select>
+          <div class="hero-team-caption" id="hero-caption-black">12 peças · Chama Congelante</div>
+          <div class="team-color" id="house-label-black">Leão de Fogo <span>• Segundo jogador</span></div>
+        </div>
+      </article>
+    </section>
+
+    <div class="game-layout">
+      <aside class="game-side left-side">
+        <section class="gilded-panel character-panel"><h3><span class="panel-icon">❖</span> HERÓIS DO TABULEIRO</h3>
+          <p class="panel-desc">Cada jogador escolhe UM dos seis personagens da Batalha dos Monstros. Todas as 12 peças de sua equipe têm o mesmo rosto. Exemplo: 12 Fadas Guerreiras contra 12 Chamas Congelantes.</p>
+          <div class="hero-roster" id="hero-roster"></div>
+          <div class="note-panel"><strong>✦ Uma peça, uma jornada</strong><p>Ao chegar ao extremo adversário, o herói é promovido a Dama e recebe a coroa dourada.</p></div>
+        </section>
+      </aside>
+
+      <section class="arena-main" aria-label="Tabuleiro ClassMana">
+        <div class="board-topline"><span><b>✦</b> TABULEIRO DO CONSELHO</span><span id="view-status">MODO ILUSTRADO</span></div>
+        <div id="board-stage" class="board-stage">
+          <div class="board-wings" aria-hidden="true"><img id="stage-crest-left" src="assets/brasao_aguia.png" alt=""><img id="stage-crest-right" src="assets/brasao_leao.png" alt=""></div>
+          <canvas id="game-canvas" aria-label="Tabuleiro em PlayCanvas" hidden></canvas>
+          <div id="board-frame" class="board-frame"><div class="wood-trim"><div id="board-grid" class="board-grid" role="grid" aria-label="Tabuleiro de damas personalizado"><button type="button" class="cell light" data-r="0" data-c="0" role="gridcell" aria-label="Casa A8"></button><button type="button" class="cell dark" data-r="0" data-c="1" role="gridcell" aria-label="Casa B8"></button><button type="button" class="cell light" data-r="0" data-c="2" role="gridcell" aria-label="Casa C8"></button><button type="button" class="cell dark" data-r="0" data-c="3" role="gridcell" aria-label="Casa D8"></button><button type="button" class="cell light" data-r="0" data-c="4" role="gridcell" aria-label="Casa E8"></button><button type="button" class="cell dark" data-r="0" data-c="5" role="gridcell" aria-label="Casa F8"></button><button type="button" class="cell light" data-r="0" data-c="6" role="gridcell" aria-label="Casa G8"></button><button type="button" class="cell dark" data-r="0" data-c="7" role="gridcell" aria-label="Casa H8"></button><button type="button" class="cell dark" data-r="1" data-c="0" role="gridcell" aria-label="Casa A7"></button><button type="button" class="cell light" data-r="1" data-c="1" role="gridcell" aria-label="Casa B7"></button><button type="button" class="cell dark" data-r="1" data-c="2" role="gridcell" aria-label="Casa C7"></button><button type="button" class="cell light" data-r="1" data-c="3" role="gridcell" aria-label="Casa D7"></button><button type="button" class="cell dark" data-r="1" data-c="4" role="gridcell" aria-label="Casa E7"></button><button type="button" class="cell light" data-r="1" data-c="5" role="gridcell" aria-label="Casa F7"></button><button type="button" class="cell dark" data-r="1" data-c="6" role="gridcell" aria-label="Casa G7"></button><button type="button" class="cell light" data-r="1" data-c="7" role="gridcell" aria-label="Casa H7"></button><button type="button" class="cell light" data-r="2" data-c="0" role="gridcell" aria-label="Casa A6"></button><button type="button" class="cell dark" data-r="2" data-c="1" role="gridcell" aria-label="Casa B6"></button><button type="button" class="cell light" data-r="2" data-c="2" role="gridcell" aria-label="Casa C6"></button><button type="button" class="cell dark" data-r="2" data-c="3" role="gridcell" aria-label="Casa D6"></button><button type="button" class="cell light" data-r="2" data-c="4" role="gridcell" aria-label="Casa E6"></button><button type="button" class="cell dark" data-r="2" data-c="5" role="gridcell" aria-label="Casa F6"></button><button type="button" class="cell light" data-r="2" data-c="6" role="gridcell" aria-label="Casa G6"></button><button type="button" class="cell dark" data-r="2" data-c="7" role="gridcell" aria-label="Casa H6"></button><button type="button" class="cell dark" data-r="3" data-c="0" role="gridcell" aria-label="Casa A5"></button><button type="button" class="cell light" data-r="3" data-c="1" role="gridcell" aria-label="Casa B5"></button><button type="button" class="cell dark" data-r="3" data-c="2" role="gridcell" aria-label="Casa C5"></button><button type="button" class="cell light" data-r="3" data-c="3" role="gridcell" aria-label="Casa D5"></button><button type="button" class="cell dark" data-r="3" data-c="4" role="gridcell" aria-label="Casa E5"></button><button type="button" class="cell light" data-r="3" data-c="5" role="gridcell" aria-label="Casa F5"></button><button type="button" class="cell dark" data-r="3" data-c="6" role="gridcell" aria-label="Casa G5"></button><button type="button" class="cell light" data-r="3" data-c="7" role="gridcell" aria-label="Casa H5"></button><button type="button" class="cell light" data-r="4" data-c="0" role="gridcell" aria-label="Casa A4"></button><button type="button" class="cell dark" data-r="4" data-c="1" role="gridcell" aria-label="Casa B4"></button><button type="button" class="cell light" data-r="4" data-c="2" role="gridcell" aria-label="Casa C4"></button><button type="button" class="cell dark" data-r="4" data-c="3" role="gridcell" aria-label="Casa D4"></button><button type="button" class="cell light" data-r="4" data-c="4" role="gridcell" aria-label="Casa E4"></button><button type="button" class="cell dark" data-r="4" data-c="5" role="gridcell" aria-label="Casa F4"></button><button type="button" class="cell light" data-r="4" data-c="6" role="gridcell" aria-label="Casa G4"></button><button type="button" class="cell dark" data-r="4" data-c="7" role="gridcell" aria-label="Casa H4"></button><button type="button" class="cell dark" data-r="5" data-c="0" role="gridcell" aria-label="Casa A3"></button><button type="button" class="cell light" data-r="5" data-c="1" role="gridcell" aria-label="Casa B3"></button><button type="button" class="cell dark" data-r="5" data-c="2" role="gridcell" aria-label="Casa C3"></button><button type="button" class="cell light" data-r="5" data-c="3" role="gridcell" aria-label="Casa D3"></button><button type="button" class="cell dark" data-r="5" data-c="4" role="gridcell" aria-label="Casa E3"></button><button type="button" class="cell light" data-r="5" data-c="5" role="gridcell" aria-label="Casa F3"></button><button type="button" class="cell dark" data-r="5" data-c="6" role="gridcell" aria-label="Casa G3"></button><button type="button" class="cell light" data-r="5" data-c="7" role="gridcell" aria-label="Casa H3"></button><button type="button" class="cell light" data-r="6" data-c="0" role="gridcell" aria-label="Casa A2"></button><button type="button" class="cell dark" data-r="6" data-c="1" role="gridcell" aria-label="Casa B2"></button><button type="button" class="cell light" data-r="6" data-c="2" role="gridcell" aria-label="Casa C2"></button><button type="button" class="cell dark" data-r="6" data-c="3" role="gridcell" aria-label="Casa D2"></button><button type="button" class="cell light" data-r="6" data-c="4" role="gridcell" aria-label="Casa E2"></button><button type="button" class="cell dark" data-r="6" data-c="5" role="gridcell" aria-label="Casa F2"></button><button type="button" class="cell light" data-r="6" data-c="6" role="gridcell" aria-label="Casa G2"></button><button type="button" class="cell dark" data-r="6" data-c="7" role="gridcell" aria-label="Casa H2"></button><button type="button" class="cell dark" data-r="7" data-c="0" role="gridcell" aria-label="Casa A1"></button><button type="button" class="cell light" data-r="7" data-c="1" role="gridcell" aria-label="Casa B1"></button><button type="button" class="cell dark" data-r="7" data-c="2" role="gridcell" aria-label="Casa C1"></button><button type="button" class="cell light" data-r="7" data-c="3" role="gridcell" aria-label="Casa D1"></button><button type="button" class="cell dark" data-r="7" data-c="4" role="gridcell" aria-label="Casa E1"></button><button type="button" class="cell light" data-r="7" data-c="5" role="gridcell" aria-label="Casa F1"></button><button type="button" class="cell dark" data-r="7" data-c="6" role="gridcell" aria-label="Casa G1"></button><button type="button" class="cell light" data-r="7" data-c="7" role="gridcell" aria-label="Casa H1"></button></div></div>
+            <span class="corner c1" aria-hidden="true">✦</span><span class="corner c2" aria-hidden="true">✦</span><span class="corner c3" aria-hidden="true">✦</span><span class="corner c4" aria-hidden="true">✦</span>
+          </div>
+        </div>
+        <div class="turn-card"><div class="turn-gem" id="turn-gem">✦</div><div class="turn-copy"><span>É A VEZ DE</span><strong id="turn-title">Águia Dourada</strong><small id="turn-subtitle">Selecione um herói destacado para começar</small></div><div class="turn-counter"><span>JOGADAS</span><b id="turn-counter">0</b></div></div>
+        <div class="game-message" role="status" id="game-message">Selecione um dos heróis destacados no tabuleiro.</div><div class="asset-tip" id="assets-tip" hidden></div>
+        <div class="game-actions"><button id="new-game" class="fantasy-btn primary">⚔ NOVO DUELO</button><button id="undo-move" class="fantasy-btn secondary">↶ DESFAZER</button><button id="view-toggle" class="fantasy-btn outline" title="Alternar visualização de tabuleiro">◈ VISUAL 3D</button></div>
+      </section>
+
+      <aside class="game-side right-side">
+        <section class="gilded-panel results-panel"><h3><span class="panel-icon">♛</span> CRÔNICA DO DUELO</h3>
+          <div class="duel-status"><span class="status-icon">⚔</span><div><strong id="status-title">Duelo iniciado</strong><p id="status-description">Fada Guerreira (Águia Dourada) inicia contra Chama Congelante (Leão de Fogo).</p></div></div>
+          <div class="match-stats"><div><small>HERÓIS JOG. 1</small><strong id="pieces-white">12</strong></div><div><small>HERÓIS JOG. 2</small><strong id="pieces-black">12</strong></div><div><small>DAMAS JOG. 1</small><strong id="kings-white">0</strong></div><div><small>DAMAS JOG. 2</small><strong id="kings-black">0</strong></div></div>
+          <h4>ÚLTIMOS MOVIMENTOS</h4><ol class="move-log" id="move-log"><li>A partida ainda não começou.</li></ol>
+          <div class="divider"></div><h4>REGRAS DO CONSELHO</h4>
+          <div class="rules-lines"><p><span>01</span> Movimente nas diagonais.</p><p><span>02</span> Capture obrigatoriamente.</p><p><span>03</span> Priorize a maior captura.</p><p><span>04</span> Coroe seu herói como Dama.</p></div>
+          <div class="server-note"><strong>DESAFIOS ENTRE ALUNOS</strong><p>Para duelos entre alunos e ranking oficial, ainda é necessário conectar o serviço de partidas. Esta versão salva somente a partida local.</p></div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="bottom-section" id="placar"><div class="bottom-title"><div><span class="eyebrow">✦ RESULTADOS DESTA INSTALAÇÃO</span><h2>Placar Local</h2></div><button class="small-btn" id="clear-score">Limpar placar local</button></div>
+       <div class="local-board"><div class="score-empty" id="score-empty">O primeiro duelo concluído aparecerá aqui. Nenhum resultado é apresentado como ranking online.</div>
+          <div class="score-rows" id="score-rows"></div></div>
+    </section>
+  </div>
+</main>
+<footer><span>CLASSMANA · DAMA DAS TRÊS CASAS</span><span>Rostos oficiais da Batalha dos Monstros V2 · Dados locais neste protótipo</span></footer>
+<script id="dama-game-script">
+window.addEventListener('error',function(e){const x=document.getElementById('assets-tip');if(x){x.hidden=false;x.textContent='Erro ao iniciar o jogo: '+(e.message||'verifique o console');}});
+
+/**
+ * Dama ClassMana — núcleo determinístico de regras brasileiras (tabuleiro 8x8).
+ * Sem DOM, rede, dependências e sem dados de estudantes.
+ * O núcleo poderá ser usado no backend para validar jogadas oficiais.
+ */
+const SIZE = 8;
+const SIDES = Object.freeze({ WHITE: 'white', BLACK: 'black' });
+const DIAGONALS = [[-1,-1],[-1,1],[1,-1],[1,1]];
+
+const inside = (r,c) => r>=0 && r<SIZE && c>=0 && c<SIZE;
+const isDark = (r,c) => (r+c)%2===1;
+const opposite = side => side===SIDES.WHITE ? SIDES.BLACK : SIDES.WHITE;
+const copyBoard = board => board.map(row => row.map(p => p ? {...p, king:!!p.king} : null));
+const keyOf = (r,c) => `${r},${c}`;
+const copyPoint = p => ({r:p.r,c:p.c});
+
+function initialBoard(whiteHero=0, blackHero=1) {
+  // Um conjunto completo de 12 peças do mesmo personagem por jogador.
+  const board = Array.from({length:SIZE},()=>Array(SIZE).fill(null));
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) {
+    if(!isDark(r,c)) continue;
+    if(r<=2) board[r][c]={side:SIDES.BLACK,king:false,hero:blackHero};
+    if(r>=5) board[r][c]={side:SIDES.WHITE,king:false,hero:whiteHero};
+  }
+  return board;
+}
+
+function targets(board, r, c, captured) {
+  const p=board[r][c];
+  if(!p) return [];
+  const results=[];
+  for(const [dr,dc] of DIAGONALS) {
+    if(!p.king) {
+      const mr=r+dr, mc=c+dc, nr=r+2*dr, nc=c+2*dc;
+      if(!inside(nr,nc) || !inside(mr,mc)) continue;
+      const victim=board[mr][mc];
+      if(victim && victim.side!==p.side && !captured.has(keyOf(mr,mc)) && !board[nr][nc]) {
+        results.push({to:{r:nr,c:nc}, taken:{r:mr,c:mc}});
+      }
+      continue;
+    }
+    // Dama voadora: uma única peça adversária na trajetória e pouso
+    // em qualquer casa vazia posterior. Peças já capturadas bloqueiam
+    // a trajetória até o fim da sequência, como nas regras brasileiras.
+    let rr=r+dr, cc=c+dc;
+    while(inside(rr,cc) && !board[rr][cc]) {rr+=dr;cc+=dc;}
+    if(!inside(rr,cc)) continue;
+    const victim=board[rr][cc];
+    if(!victim || victim.side===p.side || captured.has(keyOf(rr,cc))) continue;
+    const taken={r:rr,c:cc};
+    rr+=dr; cc+=dc;
+    while(inside(rr,cc) && !board[rr][cc]) {
+      results.push({to:{r:rr,c:cc},taken});
+      rr+=dr;cc+=dc;
+    }
+  }
+  return results;
+}
+
+function capturePaths(board, from) {
+  const p=board[from.r][from.c];
+  if(!p) return [];
+  const results=[];
+  const dfs=(b,at,path,captures,marked)=>{
+    const options=targets(b,at.r,at.c,marked);
+    if(!options.length) {
+      if(captures.length) results.push({from:copyPoint(from),to:copyPoint(at),path:path.map(copyPoint),captures:captures.map(copyPoint)});
+      return;
+    }
+    for(const {to,taken} of options) {
+      const next=copyBoard(b);
+      next[at.r][at.c]=null;
+      next[to.r][to.c]={...p};
+      // A peça capturada permanece fisicamente até acabar a sequência.
+      const nextMarked=new Set(marked);
+      nextMarked.add(keyOf(taken.r,taken.c));
+      dfs(next,to,[...path,to],[...captures,taken],nextMarked);
+    }
+  };
+  dfs(board,from,[from],[],new Set());
+  return results;
+}
+
+function quietMoves(board,from) {
+  const p=board[from.r][from.c], moves=[];
+  if(!p) return moves;
+  const dirs=p.king ? DIAGONALS : (p.side===SIDES.WHITE ? DIAGONALS.slice(0,2):DIAGONALS.slice(2,4));
+  for(const [dr,dc] of dirs) {
+    let r=from.r+dr,c=from.c+dc;
+    while(inside(r,c) && !board[r][c]) {
+      const to={r,c};
+      moves.push({from:copyPoint(from),to,path:[copyPoint(from),to],captures:[]});
+      if(!p.king) break;
+      r+=dr;c+=dc;
+    }
+  }
+  return moves;
+}
+
+/** Apenas lances completos legais, respeitando a captura obrigatória e a Lei da Maioria. */
+function legalMoves(board, side) {
+  const captures=[], quiet=[];
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) {
+    if(board[r][c]?.side!==side) continue;
+    const pos={r,c};
+    captures.push(...capturePaths(board,pos));
+    quiet.push(...quietMoves(board,pos));
+  }
+  if(captures.length) {
+    const max=Math.max(...captures.map(m=>m.captures.length));
+    return captures.filter(m=>m.captures.length===max);
+  }
+  return quiet;
+}
+
+function serializeMove(m) {
+  return m.path.map(p=>keyOf(p.r,p.c)).join('>')+'|'+m.captures.map(p=>keyOf(p.r,p.c)).join(';');
+}
+
+/** Valida novamente o lance recebido, antes de alterar o estado. */
+function applyMove(board,side,move) {
+  const valid=legalMoves(board,side).find(m=>serializeMove(m)===serializeMove(move));
+  if(!valid) throw new Error('Jogada inválida: respeite a captura obrigatória e a Lei da Maioria.');
+  const next=copyBoard(board);
+  const piece=next[valid.from.r][valid.from.c];
+  next[valid.from.r][valid.from.c]=null;
+  for(const at of valid.captures) next[at.r][at.c]=null;
+  const final={...piece};
+  if(!piece.king && ((piece.side===SIDES.WHITE && valid.to.r===0)||(piece.side===SIDES.BLACK && valid.to.r===7))) final.king=true;
+  next[valid.to.r][valid.to.c]=final;
+  return next;
+}
+
+const boardSignature=(b,side)=>side+':'+b.map(row=>row.map(p=>p ? (p.side==='white'?'W':'B')+(p.king?'K':'m') : '--').join('')).join('/');
+
+class LocalMatch {
+  constructor() {this.reset();}
+  reset(whiteHero=0, blackHero=1) {
+    if(!Number.isInteger(whiteHero)||!Number.isInteger(blackHero)||whiteHero===blackHero||whiteHero<0||blackHero<0||whiteHero>5||blackHero>5) throw new Error('Selecione duas equipes de personagens diferentes.');
+    this.teams={white:whiteHero,black:blackHero};
+    this.board=initialBoard(whiteHero,blackHero); this.turn=SIDES.WHITE; this.ply=0; this.outcome=null;
+    this.moves=[]; this.history=[]; this.positions=new Map();
+    this.positions.set(boardSignature(this.board,this.turn),1);
+  }
+  possible() {return this.outcome ? [] : legalMoves(this.board,this.turn);}
+  play(move) {
+    if(this.outcome) throw new Error('A partida já foi encerrada.');
+    const valid=this.possible().find(m=>serializeMove(m)===serializeMove(move));
+    if(!valid) throw new Error('Jogada inválida.');
+    this.history.push({board:copyBoard(this.board),turn:this.turn,ply:this.ply,outcome:this.outcome,moves:this.moves.slice(),positions:new Map(this.positions)});
+    const crowned = !this.board[valid.from.r][valid.from.c].king && ((this.turn==='white'&&valid.to.r===0)||(this.turn==='black'&&valid.to.r===7));
+    this.board=applyMove(this.board,this.turn,valid);
+    this.moves.push({side:this.turn,move:valid,crowned});
+    this.turn=opposite(this.turn);this.ply++;
+    const signature=boardSignature(this.board,this.turn);
+    const count=(this.positions.get(signature)||0)+1;
+    this.positions.set(signature,count);
+    if(!legalMoves(this.board,this.turn).length) this.outcome={type:'win',winner:opposite(this.turn),reason:'captura total ou bloqueio das jogadas'};
+    else if(count>=5) this.outcome={type:'draw',reason:'posição repetida cinco vezes'};
+    else if(this.ply>=300) this.outcome={type:'draw',reason:'limite de 300 meios-lances do protótipo'};
+    return {move:valid,outcome:this.outcome};
+  }
+  undo() {
+    if(!this.history.length) return false;
+    const h=this.history.pop();
+    this.board=h.board;this.turn=h.turn;this.ply=h.ply;this.outcome=h.outcome;
+    this.moves=h.moves;this.positions=h.positions;
+    return true;
+  }
+}
+
+
+
+// Seis personagens OFICIAIS da Batalha dos Monstros V2 — somente os heróis desta batalha.
+// Origem: github.com/drjcs2020/classmana-batalha-dos-monstros-V2/tree/main/assets
+const BATALHA_BASE='https://raw.githubusercontent.com/drjcs2020/classmana-batalha-dos-monstros-V2/main/assets/';
+const HEROES=[
+ {id:'fada',name:'Fada Guerreira',file:'hero_fada.png',abbr:'FG'},
+ {id:'chama',name:'Chama Congelante',file:'hero_chama.png',abbr:'CC'},
+ {id:'lobo',name:'Lobo Gatuno',file:'hero_lobo.png',abbr:'LG'},
+ {id:'cavaleiro',name:'Cavaleiro Guerreiro',file:'hero_cavaleiro.png',abbr:'CG'},
+ {id:'dragao',name:'Dragão de Combate',file:'hero_dragao.png',abbr:'DC'},
+ {id:'maga',name:'Maga Engenheira',file:'hero_maga.png',abbr:'ME'}
+];
+// Em cada lado, 12 peças do MESMO personagem.
+// Os dois exércitos rivais têm personagens diferentes.
+// As Casas e os personagens são seleções independentes.
+const heroFaces=new Map();
+const heroPictures=new Map();
+function localFace(hero){return 'assets/monstros/rosto_'+hero.id+'.webp';}
+function officialHero(hero){return BATALHA_BASE+hero.file;}
+function assetFor(hero){return heroFaces.get(hero.id)||officialHero(hero);}
+function setHeroImage(img,hero){
+ img.dataset.personagem=hero.id;img.onload=()=>img.classList.add('is-loaded');img.src=assetFor(hero);
+ img.addEventListener('error',()=>{img.classList.remove('is-loaded');if(!img.dataset.fallback){img.dataset.fallback='yes';img.src=officialHero(hero);}}, {once:true});
+ return img;
+}
+function refreshHeroImages(){
+ document.querySelectorAll('img[data-personagem]').forEach(img=>{
+  const h=HEROES.find(h=>h.id===img.dataset.personagem);
+  if(h&&heroFaces.has(h.id))img.src=heroFaces.get(h.id);
+ });
+ if(view3d)view3d.refreshPortraits();
+}
+// Recorta um retrato quadrado priorizando a cabeça, em vez do personagem de corpo inteiro.
+// A extração acontece no navegador a partir do arquivo oficial, sem gerar personagem novo.
+function cutFace(source,hero){
+ const scan=document.createElement('canvas');scan.width=256;scan.height=256;
+ const sx=scan.getContext('2d',{willReadFrequently:true});
+ const ratio=256/Math.max(source.naturalWidth,source.naturalHeight);
+ const w=source.naturalWidth*ratio,h=source.naturalHeight*ratio;
+ sx.clearRect(0,0,256,256);sx.drawImage(source,(256-w)/2,(256-h)/2,w,h);
+ const pix=sx.getImageData(0,0,256,256).data;
+ let xmin=256,ymin=256,xmax=0,ymax=0,n=0;
+ for(let y=0;y<256;y+=2)for(let x=0;x<256;x+=2){
+  const i=(y*256+x)*4;
+  if(pix[i+3]>80){xmin=Math.min(xmin,x);ymin=Math.min(ymin,y);xmax=Math.max(xmax,x);ymax=Math.max(ymax,y);n++;}
+ }
+ if(n<90){xmin=0;ymin=0;xmax=255;ymax=255;}
+ const bw=xmax-xmin+1,bh=ymax-ymin+1;
+ const side=Math.min(256,Math.max(55,Math.min(bw*0.67,bh*0.51)));
+ const cx=(xmin+xmax)/2,cy=ymin+bh*0.31;
+ const x=Math.max(0,Math.min(256-side,cx-side/2));
+ const y=Math.max(0,Math.min(256-side,cy-side/2));
+ const out=document.createElement('canvas');out.width=256;out.height=256;
+ const g=out.getContext('2d');g.clearRect(0,0,256,256);
+ g.drawImage(scan,x,y,side,side,0,0,256,256);
+ return out.toDataURL('image/webp',0.92);
+}
+async function loadMonsterFaces(){
+  const tip=$('assets-tip');
+  const loadImg=src=>new Promise((resolve,reject)=>{
+    const img=new Image();if(/^https?:/.test(src))img.crossOrigin='anonymous';
+    img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('Imagem não carregada'));
+    img.src=src;
+  });
+  const failed=[];
+  await Promise.all(HEROES.map(async hero=>{
+    const cropped=localFace(hero);
+    try {await loadImg(cropped);heroFaces.set(hero.id,cropped);refreshHeroImages();return;} catch(e){}
+    for(const src of [`assets/monstros/${hero.file}`,officialHero(hero)]){
+      try {const picture=await loadImg(src);let face;try{face=cutFace(picture,hero);}catch(e){face=src;}heroFaces.set(hero.id,face);refreshHeroImages();return;}
+      catch(e){}
+    }
+    failed.push(hero.name);
+  }));
+  if(failed.length){
+    tip.hidden=false;
+    tip.textContent=`Retratos oficiais não carregados: ${failed.join(', ')}. As peças continuam jogáveis, mas é necessário acesso aos arquivos dos personagens. Execute INSTALAR_ARTES.bat no Windows para baixar as seis imagens oficiais.`;
+  }else tip.hidden=true;
+}
+
+const HOUSES={aguia:{name:'Águia Dourada',classroom:'4º A',color:'#52a8ff'},leao:{name:'Leão de Fogo',classroom:'4º B',color:'#ff7756'},dragao:{name:'Dragão de Esmeralda',classroom:'4º C',color:'#54da9a'}};
+const $=id=>document.getElementById(id);
+const match=new LocalMatch();
+const roundName=(p)=>p==='white'?'Jogador 1':'Jogador 2';
+const place=(p)=>String.fromCharCode(65+p.c)+(8-p.r);
+const pointEq=(a,b)=>!!a&&!!b&&a.r===b.r&&a.c===b.c;
+const getHouse=(side)=>HOUSES[$('house-'+side).value];
+let pending=null, view3d=null, displayMode='2d', statusText='Selecione um herói destacado no tabuleiro.';
+const STORE='dama-classmana-monstros-equipes-v3';
+const RESULTS='dama-classmana-placar-monstros-equipes-v3';
+let resultLogged=false;
+
+function selectedHeroIndex(side){return HEROES.findIndex(h=>h.id===$('hero-'+side).value);}
+function sideHero(side){return HEROES[match.teams[side]];}
+function teamName(side){return sideHero(side).name+' · '+getHouse(side).name;}
+function selectedTeamsValid(){return selectedHeroIndex('white')>=0&&selectedHeroIndex('black')>=0&&selectedHeroIndex('white')!==selectedHeroIndex('black');}
+function syncHeroSelection(){
+ for(const side of ['white','black']){
+  const h=HEROES.find(h=>h.id===$('hero-'+side).value);
+  const portrait=$('chosen-portrait-'+side);
+  if(h){if(portrait.dataset.personagem!==h.id)setHeroImage(portrait,h);portrait.alt='Rosto da equipe '+h.name;}
+  $('hero-caption-'+side).textContent=h?'12 peças · '+h.name:'';
+ }
+}
+function roster(){
+  const frag=document.createDocumentFragment();
+  HEROES.forEach(hero=>{
+    const card=document.createElement('div');card.className='roster-unit';
+    const art=document.createElement('div');art.className='roster-portrait';
+    const img=document.createElement('img');setHeroImage(img,hero);img.alt='';img.loading='lazy';const fallback=document.createElement('span');fallback.className='roster-monogram';fallback.textContent=hero.abbr;art.append(fallback,img);
+    const n=document.createElement('strong');n.textContent=hero.name;
+    const grp=document.createElement('small');grp.textContent='Batalha dos Monstros';
+    card.append(art,n,grp);frag.appendChild(card);
+  });
+  $('hero-roster').appendChild(frag);
+}
+function buildBoard(){
+  const frag=document.createDocumentFragment();
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const cell=document.createElement('button');cell.type='button';cell.className='cell '+(((r+c)%2)?'dark':'light');
+    cell.dataset.r=r;cell.dataset.c=c;cell.setAttribute('role','gridcell');
+    cell.setAttribute('aria-label',`Casa ${place({r,c})}`);
+    cell.addEventListener('click',()=>clickCell(r,c));frag.appendChild(cell);
+  }
+  $('board-grid').replaceChildren(frag);
+}
+function inProgressBoard(){
+  const b=copyBoard(match.board);
+  if(pending&&pending.path.length>1){
+    const from=pending.path[0],to=pending.path.at(-1);
+    b[to.r][to.c]=b[from.r][from.c];b[from.r][from.c]=null;
+  }
+  return b;
+}
+function highlights(){
+  const paths=match.possible();
+  const targets=pending?pending.candidates.filter(m=>m.path.length>pending.path.length).map(m=>m.path[pending.path.length]):[];
+  const marked=pending&&pending.path.length>1 ? pending.candidates[0].captures.slice(0,pending.path.length-1) : [];
+  return {targets:new Set(targets.map(p=>keyOf(p.r,p.c))),from:new Set(paths.map(m=>keyOf(m.from.r,m.from.c))),marked:new Set(marked.map(p=>keyOf(p.r,p.c))),selected:pending?.path.at(-1)||null,last:match.moves.at(-1)?.move||null};
+}
+function clickCell(r,c){
+  if(match.outcome)return;
+  const p={r,c};
+  if(pending){
+    const matches=pending.candidates.filter(m=>m.path.length>pending.path.length&&pointEq(m.path[pending.path.length],p));
+    if(matches.length){
+      pending={path:[...pending.path,p],candidates:matches};
+      const full=matches.find(m=>m.path.length===pending.path.length);
+      if(full && matches.every(m=>m.path.length===pending.path.length)){
+        try{match.play(full);pending=null;statusText=full.captures.length?`Captura confirmada: ${full.captures.length} peça(s).`:'Movimento confirmado.';saveLocal();maybeRecordResult();}
+        catch(e){pending=null;statusText=e.message;}
+      } else statusText='Continue a sequência de capturas. Os alvos dourados indicam as próximas casas.';
+      render();return;
+    }
+    if(pending.path.length>1){statusText='A sequência de capturas deve ser concluída. Pressione Esc para cancelar a seleção.';render();return;}
+    if(pointEq(p,pending.path[0])){pending=null;statusText='Seleção cancelada.';render();return;}
+  }
+  const next=match.possible().filter(m=>pointEq(m.from,p));
+  if(!next.length){statusText=match.possible().some(m=>m.captures.length)?'Captura obrigatória: selecione uma peça com destaque azul.':'Selecione uma peça destacada da vez.';render();return;}
+  pending={path:[p],candidates:next};
+  statusText=next[0].captures.length?'Captura obrigatória! Toque em uma casa dourada.':'Escolha a casa dourada para movimentar.';
+  render();
+}
+function tokenFor(p){
+  const root=document.createElement('span');root.className='unit-piece '+p.side+(p.king?' king':'');
+  root.dataset.hero=HEROES[p.hero??0]?.id||HEROES[0].id;
+  const houseKey=$('house-'+p.side).value;root.style.setProperty('--token-accent',HOUSES[houseKey].color);
+  const imgwrap=document.createElement('span');imgwrap.className='unit-portrait';
+  const img=document.createElement('img');const h=HEROES[p.hero??0]||HEROES[0];setHeroImage(img,h);img.alt='Rosto de '+h.name;img.draggable=false;const letters=document.createElement('span');letters.className='face-letters';letters.textContent=h.abbr;imgwrap.appendChild(letters);
+  imgwrap.appendChild(img);root.appendChild(imgwrap);
+  const badge=document.createElement('img');badge.className='unit-house';badge.src=({aguia:'assets/brasao_aguia.png',leao:'assets/brasao_leao.png',dragao:'assets/brasao_dragao.png'}[houseKey]);badge.alt='';badge.draggable=false;root.appendChild(badge);
+  if(p.king){const crown=document.createElement('span');crown.className='king-crown';crown.textContent='♛';root.appendChild(crown);}
+  return root;
+}
+function draw2d(board,h){
+ const last=new Set(h.last?[keyOf(h.last.from.r,h.last.from.c),keyOf(h.last.to.r,h.last.to.c)]:[]);
+ $('board-grid').querySelectorAll('.cell').forEach(cell=>{
+   const r=+cell.dataset.r,c=+cell.dataset.c,k=keyOf(r,c),p=board[r][c];
+   cell.classList.toggle('source',h.from.has(k)&&!pending);
+   cell.classList.toggle('selected',pointEq(h.selected,{r,c}));
+   cell.classList.toggle('legal',h.targets.has(k));
+   cell.classList.toggle('last',last.has(k));
+   cell.replaceChildren();
+   if(p){const tk=tokenFor(p);if(h.marked.has(k))tk.classList.add('marked');cell.appendChild(tk);}
+   cell.setAttribute('aria-label',`Casa ${place({r,c})}${p?', '+(HEROES[p.hero??0]?.name||'Herói')+', '+(p.side==='white'?'jogador 1':'jogador 2')+(p.king?', Dama':''):''}${h.targets.has(k)?', destino permitido':''}`);
+ });
+}
+function syncHouses(){
+ for(const side of ['white','black']){
+   const key=$('house-'+side).value,h=HOUSES[key];
+   $('team-'+side).dataset.house=key;
+   $('crest-'+side).src=({aguia:'assets/brasao_aguia.png',leao:'assets/brasao_leao.png',dragao:'assets/brasao_dragao.png'}[key]);
+   $('crest-'+side).alt=`Brasão ${h.name}`;
+   $('house-label-'+side).firstChild.nodeValue=h.name+' ';
+   $('stage-crest-'+(side==='white'?'left':'right')).src=({aguia:'assets/brasao_aguia.png',leao:'assets/brasao_leao.png',dragao:'assets/brasao_dragao.png'}[key]);
+ }
+ document.body.dataset.casa=$('house-white').value;
+}
+function render(){
+  syncHouses();syncHeroSelection();
+  const board=inProgressBoard(),h=highlights();draw2d(board,h);
+  if(view3d&&displayMode==='3d')view3d.update(board,h);
+  const white=board.flat().filter(p=>p?.side==='white');const black=board.flat().filter(p=>p?.side==='black');
+  $('pieces-white').textContent=white.length;$('pieces-black').textContent=black.length;
+  $('kings-white').textContent=white.filter(p=>p.king).length;
+  $('kings-black').textContent=black.filter(p=>p.king).length;
+  $('turn-counter').textContent=match.ply;
+  $('turn-title').textContent=match.outcome?'DUELO ENCERRADO':teamName(match.turn);
+  $('turn-subtitle').textContent=match.outcome?'Confira o resultado no placar':'Agora joga a equipe '+sideHero(match.turn).name;
+  $('turn-gem').style.background=`radial-gradient(circle,${getHouse(match.turn).color},#0b1c38)`;
+  $('game-message').textContent=statusText;
+  $('game-message').classList.toggle('important',!!match.outcome||match.possible().some(m=>m.captures.length));
+  $('undo-move').disabled=!pending&&!match.history.length;
+  const log=$('move-log');log.replaceChildren();
+  if(!match.moves.length){const li=document.createElement('li');li.textContent='A partida ainda não começou.';log.appendChild(li);}
+  else match.moves.slice(-7).reverse().forEach((entry,index)=>{
+    const li=document.createElement('li');const house=getHouse(entry.side);
+    li.textContent=`${match.moves.length-index}. ${sideHero(entry.side).name} (${house.name}) · ${entry.move.path.map(place).join(' → ')}${entry.move.captures.length?' · '+entry.move.captures.length+' captura(s)':''}${entry.crowned?' · ♛ DAMA':''}`;
+    log.appendChild(li);
+  });
+  if(match.outcome){
+    const tie=match.outcome.type==='draw';
+    $('status-title').textContent=tie?'Empate entre as equipes':`Vitória: ${teamName(match.outcome.winner)}`;
+    $('status-description').textContent=match.outcome.reason;
+    $('game-message').textContent=tie?'Empate registrado no placar local.':'🏆 Vitória da equipe '+sideHero(match.outcome.winner).name+'!';
+  } else if(match.possible().some(m=>m.captures.length)){
+    $('status-title').textContent='Captura obrigatória';$('status-description').textContent='Lei da Maioria ativa: escolha a sequência com mais capturas.';
+  } else {$('status-title').textContent='Duelo em andamento';$('status-description').textContent='O '+roundName(match.turn)+' deve mover a equipe '+sideHero(match.turn).name+' da '+getHouse(match.turn).name+'.';}
+}
+function saveLocal(){
+ try{localStorage.setItem(STORE,JSON.stringify({v:2,houses:{white:$('house-white').value,black:$('house-black').value},heroes:{white:sideHero('white').id,black:sideHero('black').id},moves:match.moves.map(x=>serializeMove(x.move)),resultLogged}));}catch(e){console.warn('Armazenamento local indisponível',e);}
+}
+function restore(){
+ try{
+   const raw=localStorage.getItem(STORE);if(!raw)return;
+   const data=JSON.parse(raw);if(data.v!==2||!Array.isArray(data.moves)||data.moves.length>300)return;
+   if(HOUSES[data.houses?.white])$('house-white').value=data.houses.white;
+   if(HOUSES[data.houses?.black])$('house-black').value=data.houses.black;
+   if(HEROES.some(h=>h.id===data.heroes?.white))$('hero-white').value=data.heroes.white;
+   if(HEROES.some(h=>h.id===data.heroes?.black))$('hero-black').value=data.heroes.black;
+   if(!selectedTeamsValid()) throw new Error('Duelo salvo com equipes inválidas');
+   match.reset(selectedHeroIndex('white'),selectedHeroIndex('black'));
+   for(const id of data.moves){const valid=match.possible().find(m=>serializeMove(m)===id);if(!valid)throw Error('Partida armazenada com movimento inválido.');match.play(valid);}
+   resultLogged=!!data.resultLogged;
+   if(match.ply)statusText='Partida local recuperada. Continue o duelo.';
+ }catch(e){console.warn('O estado local foi ignorado.',e);$('hero-white').value='fada';$('hero-black').value='chama';match.reset(0,1);}
+}
+function readResults(){try{const r=JSON.parse(localStorage.getItem(RESULTS)||'[]');return Array.isArray(r)?r:[];}catch(e){return [];}}
+function maybeRecordResult(){
+ if(!match.outcome||resultLogged)return;
+ const results=readResults(),entry={house1:$('house-white').value,house2:$('house-black').value,hero1:sideHero('white').id,hero2:sideHero('black').id,won:match.outcome.type==='win'?match.outcome.winner:'draw',moves:match.ply,date:new Date().toISOString()};
+ results.unshift(entry);try{localStorage.setItem(RESULTS,JSON.stringify(results.slice(0,60)));}catch(e){console.warn(e);}
+ resultLogged=true;saveLocal();drawResults();
+}
+function drawResults(){
+ const results=readResults();$('score-empty').hidden=!!results.length;
+ const output=$('score-rows');output.replaceChildren();
+ for(const r of results.slice(0,12)){
+   if(!HOUSES[r.house1]||!HOUSES[r.house2])continue;
+   const row=document.createElement('div');row.className='score-row';
+   const desc=document.createElement('b');desc.textContent=`${HEROES.find(h=>h.id===r.hero1)?.name||'Equipe 1'} (${HOUSES[r.house1].name}) × ${HEROES.find(h=>h.id===r.hero2)?.name||'Equipe 2'} (${HOUSES[r.house2].name})`;
+   const outcome=document.createElement('span');outcome.textContent=(r.won==='draw'?'Empate':`Vitória: ${HEROES.find(h=>h.id===(r.won==='white'?r.hero1:r.hero2))?.name||'Equipe'}`)+` · ${r.moves} jogadas · ${new Date(r.date).toLocaleDateString('pt-BR')}`;
+   row.append(desc,outcome);output.appendChild(row);
+ }
+}
+function toggle3D(force){
+ displayMode=force||((displayMode==='2d'&&view3d)?'3d':'2d');
+ const mode3=displayMode==='3d'&&!!view3d;
+ $('board-frame').hidden=mode3;$('game-canvas').hidden=!mode3;
+ $('view-toggle').textContent=mode3?'◈ VISUAL ILUSTRADO':'◈ VISUAL 3D';
+ $('view-status').textContent=mode3?'PLAYCANVAS ENGINE · 3D':'MODO ILUSTRADO · HERÓIS';
+ if(mode3){view3d.resize();view3d.update(inProgressBoard(),highlights());}
+}
+function newGame(){
+ if(match.ply&&!match.outcome&&!confirm('Iniciar um novo duelo? O progresso da partida atual será substituído.'))return;
+ if(!selectedTeamsValid()){statusText='Escolha dois personagens diferentes: um para cada equipe.';render();return;}
+ match.reset(selectedHeroIndex('white'),selectedHeroIndex('black'));pending=null;resultLogged=false;statusText='Duelo iniciado: '+sideHero('white').name+' contra '+sideHero('black').name+'.';
+ saveLocal();render();
+}
+$('new-game').addEventListener('click',newGame);
+$('undo-move').addEventListener('click',()=>{if(pending){pending=null;statusText='Seleção cancelada.';}else if(match.undo()){statusText='Movimento desfeito.';resultLogged=false;saveLocal();}render();});
+for(const side of ['white','black'])$('house-'+side).addEventListener('change',()=>{if(match.ply&&!match.outcome){statusText='Casa alterada apenas na aparência desta partida local.';}saveLocal();render();});
+for(const side of ['white','black'])$('hero-'+side).addEventListener('change',()=>{
+ const old=HEROES[match.teams[side]].id;
+ if(!selectedTeamsValid()){$('hero-'+side).value=old;statusText='Cada equipe deve ter um personagem diferente. Escolha outro herói.';render();return;}
+ if(match.ply&&!match.outcome&&!confirm('Trocar o personagem reiniciará a partida atual. Deseja continuar?')){$('hero-'+side).value=old;render();return;}
+ match.reset(selectedHeroIndex('white'),selectedHeroIndex('black'));pending=null;resultLogged=false;
+ statusText='Duelo entre equipes: '+sideHero('white').name+' × '+sideHero('black').name+'.';saveLocal();render();
+});
+$('view-toggle').addEventListener('click',()=>toggle3D());
+$('clear-score').addEventListener('click',()=>{if(confirm('Limpar apenas o placar de partidas locais deste navegador?')){localStorage.removeItem(RESULTS);drawResults();}});
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&pending){pending=null;statusText='Seleção cancelada.';render();}});
+
+// PlayCanvas Engine: o motor gráfico é compartilhado com o Torneio das Três Casas.
+// O núcleo legal do tabuleiro é único em 2D ou em 3D.
+async function init3D(){
+ try{
+   if(!window.pc){await new Promise((resolve,reject)=>{
+     const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/playcanvas@2.23.3/build/playcanvas.min.js';s.async=true;s.crossOrigin='anonymous';
+     const timeout=setTimeout(()=>{s.remove();reject(new Error('PlayCanvas não carregou.'));},8500);
+     s.onload=()=>{clearTimeout(timeout);resolve();};s.onerror=()=>{clearTimeout(timeout);reject(new Error('Biblioteca PlayCanvas indisponível.'));};document.head.appendChild(s);
+   });}
+   if(!window.pc)throw Error('PlayCanvas ausente.');
+   view3d=new Fantasy3DBoard($('game-canvas'),clickCell);
+   $('view-toggle').disabled=false;$('view-toggle').title='Alternar entre arte dos personagens e tabuleiro 3D do PlayCanvas';
+ }catch(e){console.info('O jogo ilustrado funciona sem carregar a biblioteca 3D:',e.message);$('view-toggle').disabled=true;$('view-toggle').title='PlayCanvas requer acesso à biblioteca pela internet';}
+}
+class Fantasy3DBoard{
+ constructor(canvas,onClick){
+   this.canvas=canvas;this.pc=window.pc;this.onClick=onClick;
+   const pc=this.pc;canvas.hidden=false;
+   const app=new pc.Application(canvas,{graphicsDeviceOptions:{antialias:true,alpha:true}});this.app=app;
+   app.setCanvasFillMode(pc.FILLMODE_NONE);app.setCanvasResolution(pc.RESOLUTION_AUTO);app.start();
+   app.scene.ambientLight=new pc.Color(.6,.55,.48);
+   this.cam=new pc.Entity('Câmera isométrica');this.cam.addComponent('camera',{projection:pc.PROJECTION_ORTHOGRAPHIC,orthoHeight:6.9,nearClip:.1,farClip:100,clearColor:new pc.Color(.06,.09,.13)});app.root.addChild(this.cam);
+   this.cam.setPosition(0,11,9.9);this.cam.lookAt(0,0,0);
+   const lamp=new pc.Entity('Luz dourada');lamp.addComponent('light',{type:'directional',color:new pc.Color(1,.88,.63),intensity:2});app.root.addChild(lamp);lamp.setEulerAngles(55,38,15);
+   const fill=new pc.Entity('Luz celeste');fill.addComponent('light',{type:'directional',color:new pc.Color(.52,.75,1),intensity:.75});app.root.addChild(fill);fill.setEulerAngles(20,-55,20);
+   this.gold=this.mat('#e4b858',.6);this.outer=this.mat('#3f201c',.3);this.dark=this.mat('#1b4755',.15);this.light=this.mat('#dbbc80',.16);
+   this.edge=this.mat('#e4c87c',.42);this.face0=this.mat('#295f8c',.26);this.face1=this.mat('#8c342e',.26);
+   this.target=this.mat('#f0d76b',0,true);this.selected=this.mat('#fff1a1',0,true);
+   this.root=new pc.Entity('Tabuleiro das Três Casas');app.root.addChild(this.root);
+   this.mesh('box',this.root,0,-.26,0,8.8,.46,8.8,this.outer);
+   this.mesh('box',this.root,0,-.07,0,8.45,.11,8.45,this.gold);
+   for(let r=0;r<8;r++)for(let c=0;c<8;c++)this.mesh('box',this.root,c-3.5,.02,r-3.5,.99,.08,.99,(r+c)%2?this.dark:this.light);
+   this.dynamic=new pc.Entity('Personagens');this.root.addChild(this.dynamic);
+   this.portraits=HEROES.map(()=>null);
+   this.refreshPortraits();
+   this.pick=ev=>{if(this.canvas.hidden)return;const box=this.canvas.getBoundingClientRect();const x=ev.clientX-box.left,y=ev.clientY-box.top;const near=this.cam.camera.screenToWorld(x,y,this.cam.camera.nearClip);const far=this.cam.camera.screenToWorld(x,y,this.cam.camera.farClip);const direction=far.clone().sub(near);if(Math.abs(direction.y)<.000001)return;const k=(.1-near.y)/direction.y;const pt=near.clone().add(direction.mulScalar(k));const c=Math.floor(pt.x+4),r=Math.floor(pt.z+4);if(r>=0&&r<8&&c>=0&&c<8)this.onClick(r,c);};
+   canvas.addEventListener('pointerdown',this.pick);this.observer=new ResizeObserver(()=>this.resize());this.observer.observe($('board-stage'));
+   canvas.hidden=true;
+ }
+ refreshPortraits(){
+   const pc=this.pc,app=this.app;
+   HEROES.forEach((hero,i)=>{
+     const img=new Image();img.crossOrigin='anonymous';
+     img.onload=()=>{try{
+       const tex=new pc.Texture(app.graphicsDevice,{mipmaps:true});tex.setSource(img);
+       const m=new pc.StandardMaterial();m.diffuse=new pc.Color(1,1,1);
+       m.emissive=new pc.Color(.3,.3,.3);m.diffuseMap=tex;
+       m.opacityMap=tex;m.blendType=pc.BLEND_NORMAL;m.cull=pc.CULLFACE_NONE;m.update();
+       this.portraits[i]=m;if(displayMode==='3d')this.update(inProgressBoard(),highlights());
+     }catch(e){console.info('Retrato oficial 3D indisponível',hero.name,e.message);}};
+     img.src=assetFor(hero);
+   });
+ }
+ mat(hex,metal=.15,glow=false){const rgb=hex.replace('#','');const color=new this.pc.Color(parseInt(rgb.slice(0,2),16)/255,parseInt(rgb.slice(2,4),16)/255,parseInt(rgb.slice(4,6),16)/255);const m=new this.pc.StandardMaterial();m.diffuse=color;m.useMetalness=true;m.metalness=metal;m.gloss=.6;if(glow)m.emissive=new this.pc.Color(color.r*.6,color.g*.6,color.b*.6);m.update();return m;}
+ mesh(type,parent,x,y,z,sx,sy,sz,material){const o=new this.pc.Entity(type);o.addComponent('render',{type});o.render.meshInstances[0].material=material;o.setLocalPosition(x,y,z);o.setLocalScale(sx,sy,sz);parent.addChild(o);return o;}
+ update(board,h){if(!this.app)return;this.dynamic.destroy();this.dynamic=new this.pc.Entity('Personagens');this.root.addChild(this.dynamic);for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+   const k=keyOf(r,c),x=c-3.5,z=r-3.5,p=board[r][c];
+   if(h.targets.has(k))this.mesh('cylinder',this.dynamic,x,.12,z,.28,.04,.28,this.target);
+   if(pointEq(h.selected,{r,c}))this.mesh('box',this.dynamic,x,.075,z,.96,.015,.96,this.selected);
+   if(!p)continue;
+   this.mesh('cylinder',this.dynamic,x,.165,z,.80,.22,.80,this.gold);
+   this.mesh('cylinder',this.dynamic,x,.29,z,.69,.08,.69,p.side==='white'?this.face0:this.face1);
+   if(this.portraits[p.hero??0])this.mesh('plane',this.dynamic,x,.345,z,.60,1,.60,this.portraits[p.hero??0]);
+   else this.mesh('cylinder',this.dynamic,x,.345,z,.36,.06,.36,this.edge);
+   if(p.king){this.mesh('cylinder',this.dynamic,x,.38,z,.72,.048,.72,this.gold);this.mesh('sphere',this.dynamic,x,.43,z,.23,.23,.23,this.target);}
+   if(h.from.has(k)&&!h.selected)this.mesh('sphere',this.dynamic,x,.46,z,.08,.08,.08,this.selected);
+ }}
+ resize(){if(this.canvas.clientWidth&&this.canvas.clientHeight)this.app.resizeCanvas(this.canvas.clientWidth,this.canvas.clientHeight);}
+}
+roster();buildBoard();restore();drawResults();render();toggle3D('2d');init3D();loadMonsterFaces();
+
+</script><noscript>Ative o JavaScript para movimentar as peças.</noscript>
+</body>
+</html>
