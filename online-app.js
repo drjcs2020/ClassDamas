@@ -62,7 +62,7 @@ async function faceLoad(){
      const c=document.createElement('canvas');c.width=c.height=768;
      const ctx=c.getContext('2d',{willReadFrequently:true});
      const sc=768/Math.max(source.naturalWidth,source.naturalHeight),w=source.naturalWidth*sc,h=source.naturalHeight*sc;
-     ctx.drawImage(source,(256-w)/2,(256-h)/2,w,h);
+     ctx.drawImage(source,(768-w)/2,(768-h)/2,w,h);
      const pixels=ctx.getImageData(0,0,768,768).data;
      let x0=768,y0=768,x1=0,y1=0,count=0;
      for(let y=0;y<768;y+=2)for(let x=0;x<768;x+=2){if(pixels[(y*768+x)*4+3]>80){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);count++}}
