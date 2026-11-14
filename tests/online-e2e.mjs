@@ -43,8 +43,24 @@ async function run(){
  let rank=await request('ranking');assert.equal(rank.games,0);assert.equal(rank.groups.length,6);
  let a=await request('identify',{body:{id:'A03'}}),b=await request('identify',{body:{id:'A07'}});
  const aToken=a.token,bToken=b.token;assert(aToken&&bToken);
- const rejectedSame=await request('challenge',{token:aToken,body:op({to:'A08'})});
- assert.equal(rejectedSame.statusCode,400,'same group should be blocked');
+ // Colegas da mesma turma podem jogar, inclusive quando pertencem à mesma equipe.
+ const sameGroup=await request('challenge',{token:aToken,body:op({to:'A08'})});
+ assert.equal(sameGroup.statusCode,200,'same group and same class should be allowed');
+ const teammate=await request('identify',{body:{id:'A08'}});
+ const declineSame=await request('answer',{token:teammate.token,body:op({id:sameGroup.match.id,decision:'decline'})});
+ assert.equal(declineSame.match.status,'RECUSADO');
+ // Eventos entre turmas: não permitir convidar um estudante offline.
+ const crossPlayer=roster.players.find(p=>p.house==='B');
+ assert(crossPlayer);
+ const offlineCross=await request('challenge',{token:aToken,body:op({to:crossPlayer.id})});
+ assert.equal(offlineCross.statusCode,409,'cross-class duel should require online presence');
+ const crossSession=await request('identify',{body:{id:crossPlayer.id}});
+ const onlineList=await request('presence',{token:aToken});
+ assert(onlineList.onlinePlayerIds.includes(crossPlayer.id));
+ const crossInvitation=await request('challenge',{token:aToken,body:op({to:crossPlayer.id})});
+ assert.equal(crossInvitation.statusCode,200,'online cross-class invitations should be supported');
+ const crossDecline=await request('answer',{token:crossSession.token,body:op({id:crossInvitation.match.id,decision:'decline'})});
+ assert.equal(crossDecline.match.status,'RECUSADO');
  const rejectedSelf=await request('challenge',{token:aToken,body:op({to:'A03'})});
  assert.equal(rejectedSelf.statusCode,400);
  const reqId=op({to:'A07'});
