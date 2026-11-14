@@ -1,5 +1,6 @@
 import {DAMA_API_URL} from './online-config.js';
-import {initialBoard, legalMoves} from './regras.js';
+import {initialBoard, legalMoves, applyMove, opposite} from './regras.js';
+import {chooseBotMove} from './bot-ai.js';
 
 const $=id=>document.getElementById(id);
 const GROUPS=[
@@ -20,6 +21,7 @@ const key=p=>`${p.r},${p.c}`;
 const square=p=>String.fromCharCode(65+p.c)+(8-p.r);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let players=[],apiReady=false,match=null,chosen=null,rankTab='groups',busy=false,notice='Selecione seu nome para consultar os desafios oficiais.';
+let gameMode='duel',onlinePlayerIds=new Set(),lastInviteCount=0;
 const faceURLs=new Map();
 const faceBase='https://raw.githubusercontent.com/drjcs2020/classmana-batalha-dos-monstros-V2/main/assets/';
 const api={url:DAMA_API_URL,token:sessionStorage.getItem(tokenKey)||'',user:null,teacherToken:'',
@@ -105,8 +107,11 @@ function renderPortraits(){
    $('crest-'+side).src=crestImages[house];
  }
 }
-function myTurn(){return match?.status==='EM_ANDAMENTO'&&api.user&&
-   (match.turn==='white'?match.creator.id:match.recipient.id)===api.user.id;}
+function myTurn(){
+ if(gameMode==='bot')return match?.status==='EM_ANDAMENTO'&&match?.turn==='white';
+ return match?.status==='EM_ANDAMENTO'&&api.user&&
+   (match.turn==='white'?match.creator.id:match.recipient.id)===api.user.id;
+}
 function paths(){return match&&myTurn()?legalMoves(match.board,match.turn):[]}
 function currentBoard(){return match?.board||initialBoard(0,1)}
 function selectCell(r,c){
@@ -130,7 +135,9 @@ function selectCell(r,c){
  chosen={path:[p],candidates:options};message('Escolha a casa iluminada para mover o herói.');renderBoard();
 }
 async function sendMove(path){
- if(!match)return;busy=true;renderBoard();message('Validando jogada no servidor…');
+ if(!match)return;
+ if(gameMode==='bot'){await playAgainstBot(path);return;}
+ busy=true;renderBoard();message('Validando jogada no servidor…');
  try{const result=await api.post('move',{id:match.id,path,expectedVersion:match.version});
    match=result.match;message(match.status==='CONCLUIDO'?'Partida concluída! Resultado confirmado pelo servidor.':'Jogada salva. Aguarde o adversário.');
    renderAll();await Promise.allSettled([loadInbox(),loadRanking()]);
@@ -138,6 +145,17 @@ async function sendMove(path){
  finally{busy=false;renderBoard();}
 }
 function renderBoard(){
+ const overlay=$('board-overlay');
+ if(overlay){
+  const blocked=!match||match.status==='PENDENTE'||match.status==='RECUSADO';
+  overlay.hidden=!blocked;
+  const statusTitle=overlay.querySelector('strong'),statusInfo=overlay.querySelector('span');
+  if(statusTitle&&statusInfo){
+   if(match?.status==='PENDENTE'){statusTitle.textContent='⏳ AGUARDANDO O CONVITE SER ACEITO';statusInfo.textContent=`${match.recipient.name} precisa entrar no jogo e aceitar pelo sininho.`;}
+   else if(match?.status==='RECUSADO'){statusTitle.textContent='✕ CONVITE RECUSADO';statusInfo.textContent='Escolha outro colega ou treine com o robô.';}
+   else{statusTitle.textContent='♟️ TABULEIRO EM ESPERA';statusInfo.textContent='Escolha um duelo aceito ou inicie treino contra o robô.';}
+  }
+ }
  const board=currentBoard(),allow=paths(),start=new Set(allow.map(m=>key(m.from)));
  const next=new Set(chosen?chosen.candidates.filter(m=>m.path.length>chosen.path.length).map(m=>key(m.path[chosen.path.length])):[]);
  const recent=match?.moves?.at(-1)?.path||[];
@@ -158,7 +176,7 @@ function renderBoard(){
      circle.style.setProperty('--accent',HOUSES[sideHouse].color);
      circle.append(faceImg(p.hero));
      const initials=document.createElement('span');initials.className='initial';initials.textContent=groupFor(p.hero)[3];circle.append(initials);
-     const crest=document.createElement('img');crest.className='mini-crest';crest.src=crestImages[sideHouse];crest.alt='';circle.append(crest);
+     // Brasões ficam nos painéis de cada casa: os rostos nas peças permanecem legíveis.
      if(p.king){const crown=document.createElement('span');crown.className='crown';crown.textContent='♛';circle.append(crown)}
      cell.append(circle);
    }
@@ -174,13 +192,87 @@ function renderBoard(){
  $('turn-label').textContent=title;
  $('ply').textContent=`${match?.ply||0} jogadas`;
  $('match-state').textContent=match?.status||'SELECIONE UM DUELO';
- $('reload-match').disabled=!match||!apiReady;
+ $('reload-match').disabled=!match||gameMode==='bot'||!apiReady;
+ const panel=$('duel-status');
+ if(panel){
+  let desc='♟️ Escolha um duelo ou comece o treino individual contra o robô.';
+  if(gameMode==='bot'&&match){desc=`🤖 TREINO ${$('bot-difficulty').selectedOptions[0].text} · ${myTurn()?'SUA VEZ':match.status==='CONCLUIDO'?'PARTIDA ENCERRADA':'O ROBÔ ESTÁ JOGANDO'} · Sem pontos oficiais`;}
+  else if(match){
+   const names=`${match.creator.name} (4º ${match.creator.house}) × ${match.recipient.name} (4º ${match.recipient.house})`;
+   desc=match.status==='PENDENTE'?`🔔 CONVITE ENVIADO · ${names} · Aguardando aceite`:
+    match.status==='EM_ANDAMENTO'?`⚔️ ${names} · ${myTurn()?'É A SUA VEZ!':'AGUARDANDO O OUTRO ALUNO'}`:
+    match.status==='CONCLUIDO'?`🏆 PARTIDA CONCLUÍDA · ${names}`:`✕ CONVITE RECUSADO · ${names}`;
+  }
+  panel.textContent=desc;
+  panel.dataset.phase=gameMode==='bot'?'bot':(match?.status||'sem-jogo').toLowerCase();
+ }
 }
 function renderHistory(){const list=$('moves');list.replaceChildren();if(!match?.moves?.length){list.innerHTML='<li>Aguardando movimentos oficiais.</li>';return;}
  for(const m of [...match.moves].reverse().slice(0,12)){
    const li=document.createElement('li');li.textContent=`${m.ply}. ${m.playerId} · ${m.path.map(square).join(' → ')}${m.captures.length?` · ${m.captures.length} capturas`:''}${m.crowned?' · ♛ DAMA':''}`;list.append(li);
  }}
-function renderAll(){renderPortraits();renderBoard();renderHistory();renderGallery()}
+function renderAll(){renderPortraits();renderBoard();renderHistory();if($('hero-gallery').children.length!==6)renderGallery()}
+
+// O robô usa o mesmo núcleo de regras, mas não cria duelos, convites ou pontos oficiais.
+function setMode(mode){
+ gameMode=mode;match=null;chosen=null;busy=false;
+ $('mode-duel').classList.toggle('active',mode==='duel');
+ $('mode-bot').classList.toggle('active',mode==='bot');
+ $('robot-settings').hidden=mode!=='bot';
+ $('challenge-panel').hidden=mode==='bot';
+ $('inbox-panel').hidden=mode==='bot';
+ if(mode==='bot')message('Treino individual: escolha a dificuldade e inicie uma partida contra o robô.');
+ else message('Duelo entre alunos: confirme seu nome, escolha a turma adversária e envie o convite.');
+ renderAll();
+}
+function startBot(){
+ const hero=api.user?.hero??0;
+ const level=$('bot-difficulty').value;
+ const opponentHero=(hero+1)%6;
+ gameMode='bot';busy=false;chosen=null;
+ match={id:crypto.randomUUID(),status:'EM_ANDAMENTO',turn:'white',ply:0,version:0,
+  creator:api.user||{id:'treino',name:'Você',house:'A',hero},
+  recipient:{id:'robot',name:'Robô · '+$('bot-difficulty').selectedOptions[0].text,house:'C',hero:opponentHero},
+  whiteHero:hero,blackHero:opponentHero,board:initialBoard(hero,opponentHero),moves:[],outcome:null,level};
+ renderAll();message('Treino iniciado! Você joga com as peças de baixo. Sua vez.');
+}
+function botApply(move,side){
+ const piece=match.board[move.from.r][move.from.c];
+ const next=applyMove(match.board,side,move);
+ const crowned=!piece.king&&!!next[move.to.r][move.to.c]?.king;
+ match.board=next;match.ply++;match.version++;
+ match.moves.push({ply:match.ply,playerId:side==='white'?'Você':'Robô',path:move.path,captures:move.captures,crowned});
+ match.turn=opposite(side);
+ if(!legalMoves(match.board,match.turn).length){
+  match.status='CONCLUIDO';
+  match.outcome={result:side,reason:'O adversário ficou sem jogadas legais.'};
+ }else if(match.ply>=160){
+  match.status='CONCLUIDO';match.outcome={result:'draw',reason:'Treino encerrado por limite de jogadas.'};
+ }
+}
+async function playAgainstBot(path){
+ if(!myTurn()||busy||!match)return;
+ busy=true;
+ const id=match.id;
+ try{
+  const legal=legalMoves(match.board,'white');
+  const wanted=legal.find(m=>JSON.stringify(m.path)===JSON.stringify(path));
+  if(!wanted)throw Error('Jogada inválida.');
+  botApply(wanted,'white');renderAll();
+  if(match.status==='CONCLUIDO'){message('Você venceu a partida de treino!');return;}
+  message('O robô está pensando…');
+  await new Promise(resolve=>setTimeout(resolve,420));
+  if(gameMode!=='bot'||match?.id!==id)return;
+  const answer=chooseBotMove(match.board,'black',match.level);
+  if(answer)botApply(answer,'black');
+  renderAll();
+  message(match.status==='CONCLUIDO'?
+   (match.outcome?.result==='draw'?'Treino empatado.':'O robô venceu este treino. Tente outra vez!'):
+   'O robô jogou. Agora é a sua vez!');
+ }catch(e){message(e.message,true)}
+ finally{busy=false;if(gameMode==='bot'&&match?.id===id)renderAll();}
+}
+
 function renderIdentity(){
  $('change-student').hidden=!api.user;
  $('confirm-student').disabled=!apiReady||!!api.user;
