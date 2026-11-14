@@ -1,0 +1,17 @@
+name: Testes Dama ClassMana
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  regras-e-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Testar regras e composição das equipes
+        run: npm test
+      - name: Testar API, SQLite, partidas, rankings e temporadas
+        run: npm run test:online
