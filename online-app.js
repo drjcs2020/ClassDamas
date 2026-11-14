@@ -284,6 +284,7 @@ function renderIdentity(){
    $('house').value=api.user.house;
    populatePlayers(api.user.id);
    populateOpponents();
+   renderHouseTiles();
  }
 }
 function populatePlayers(selectedId=''){
@@ -293,10 +294,52 @@ function populatePlayers(selectedId=''){
  for(const p of players.filter(p=>p.house===house))box.add(new Option(`${p.name} · ${p.team}`,p.id));
  if([...box.options].some(option=>option.value===previous))box.value=previous;
 }
-function populateOpponents(){const s=$('opponent'),previous=s.value;s.replaceChildren(new Option('Selecione outro grupo',''));
- for(const p of players){if(!api.user||p.id===api.user.id||p.team===api.user.team)continue;s.add(new Option(`${p.name} · 4º ${p.house} · ${p.team}`,p.id));}
- if([...s.options].some(x=>x.value===previous))s.value=previous;updateOpponent();}
-function updateOpponent(){const chosen=players.find(p=>p.id===$('opponent').value);$('opponent-note').textContent=chosen?`⚔ ${GROUPS[api.user.hero][1]} × ${GROUPS[chosen.hero][1]}`:'';}
+function renderHouseTiles(){
+ const host=$('target-house-tiles');if(!host)return;
+ const selected=$('target-house').value;
+ host.replaceChildren();
+ for(const house of ['A','B','C']){
+  const button=document.createElement('button');button.type='button';
+  button.className='house-tile '+(selected===house?'selected':'');
+  const icon=document.createElement('img');icon.src=crestImages[house];icon.alt='';
+  const text=document.createElement('span');text.innerHTML=`<b>4º ${house}</b><small>${esc(HOUSES[house].name)}</small>`;
+  button.append(icon,text);
+  const n=players.filter(p=>p.house===house&&onlinePlayerIds.has(p.id)).length;
+  const counter=document.createElement('small');counter.textContent=`${n} online`;button.append(counter);
+  button.addEventListener('click',()=>{$('target-house').value=house;populateOpponents();});
+  host.append(button);
+ }
+ $('cross-house-note').textContent=!api.user?'Confirme seu nome para convidar colegas.':
+   selected===api.user.house?'Duelo na mesma turma: você pode convidar colegas, mesmo quando estiverem offline.':
+   'EVENTO ENTRE TURMAS: esta opção fica disponível quando o aluno adversário estiver online.';
+}
+async function refreshPresence(){
+ if(!api.user)return;
+ try{
+  const r=await api.get('presence');onlinePlayerIds=new Set(r.onlinePlayerIds||[]);
+  populateOpponents();
+ }catch(e){console.warn('Presença indisponível:',e.message)}
+}
+function populateOpponents(){
+ const box=$('opponent'),previous=box.value;
+ const house=$('target-house').value;
+ box.replaceChildren(new Option('Escolha um colega da turma',''));
+ for(const p of players){
+  if(!api.user||p.id===api.user.id||p.house!==house)continue;
+  const online=onlinePlayerIds.has(p.id);
+  box.add(new Option(`${online?'🟢':'⚪'} ${p.name} · ${p.team} · ${online?'ONLINE':'offline'}`,p.id));
+ }
+ if([...box.options].some(x=>x.value===previous))box.value=previous;
+ renderHouseTiles();updateOpponent();
+}
+function updateOpponent(){
+ const opponent=players.find(p=>p.id===$('opponent').value);
+ if(!opponent){$('opponent-note').textContent='Escolha um adversário para enviar o desafio.';return;}
+ const cross=opponent.house!==api.user.house;
+ const online=onlinePlayerIds.has(opponent.id);
+ $('opponent-note').textContent=`⚔ ${GROUPS[api.user.hero][1]} × ${GROUPS[opponent.hero][1]} · ${online?'🟢 ONLINE':'⚪ OFFLINE'}${cross?' · EVENTO ENTRE TURMAS':''}`;
+ $('challenge').disabled=!api.user||(cross&&!online);
+}
 async function confirmStudent(){
  if(busy)return;
  try{
@@ -306,12 +349,15 @@ async function confirmStudent(){
    const result=await api.post('identify',{id});
    api.user=result.player;api.token=result.token;
    sessionStorage.setItem(tokenKey,result.token);
-   renderIdentity();message('Nome confirmado. Veja seus desafios ou convide um colega de outro grupo.');
-   await loadInbox();
+   $('target-house').value=api.user.house;
+   renderIdentity();message('Nome confirmado! Escolha um colega da turma ou prepare um evento entre turmas.');
+   await api.post('heartbeat');await refreshPresence();await loadInbox();
  }catch(e){message(e.message,true)}finally{busy=false;}
 }
 function changeStudent(){
  api.token='';api.user=null;sessionStorage.removeItem(tokenKey);
+ onlinePlayerIds=new Set();lastInviteCount=0;
+ $('notification-count').hidden=true;$('inbox-alert').hidden=true;
  match=null;chosen=null;
  $('player').value='';
  renderIdentity();
@@ -319,6 +365,14 @@ function changeStudent(){
  renderAll();message('Escolha sua turma e selecione outro nome.');
 }
 async function loadInbox(){if(!api.user)return;const r=await api.get('inbox');const host=$('inbox');host.replaceChildren();
+ const invites=r.matches.filter(m=>m.recipient.id===api.user.id&&m.status==='PENDENTE').length;
+ const bell=$('notification-bell'),badge=$('notification-count'),counter=$('inbox-alert');
+ badge.hidden=invites===0;counter.hidden=invites===0;
+ badge.textContent=String(invites);counter.textContent=String(invites);
+ bell.classList.toggle('ringing',invites>0);
+ if(invites>lastInviteCount)bell.classList.add('new-invite');
+ else bell.classList.remove('new-invite');
+ lastInviteCount=invites;
  if(!r.matches.length){host.innerHTML='<p class="muted">Nenhum desafio recebido ou enviado.</p>';return;}
  for(const m of r.matches){
    const mine=m.creator.id===api.user.id,opponent=mine?m.recipient:m.creator;
@@ -331,12 +385,20 @@ async function loadInbox(){if(!api.user)return;const r=await api.get('inbox');co
  }
 }
 async function sendChallenge(){const to=$('opponent').value;if(!to){message('Escolha o adversário.',true);return;}
- try{busy=true;const r=await api.post('challenge',{to});await openMatch(r.match.id);message(r.reused?'Desafio em andamento reaberto.':'Convite registrado no banco. Aguarde o aceite do adversário.');await loadInbox();}
+ try{busy=true;
+ await refreshPresence();
+ const opponent=players.find(p=>p.id===to);
+ if(!opponent)throw Error('Escolha um aluno da turma selecionada.');
+ if(opponent.house!==api.user.house&&!onlinePlayerIds.has(to))
+   throw Error('O aluno de outra turma está offline. Eventos entre turmas só funcionam com ambos online.');
+const r=await api.post('challenge',{to});await openMatch(r.match.id);message(r.reused?'Desafio em andamento reaberto.':'Convite registrado no banco. Aguarde o aceite do adversário.');await loadInbox();}
  catch(e){message(e.message,true)}finally{busy=false}}
 async function answer(id,decision){try{busy=true;const r=await api.post('answer',{id,decision});
  await openMatch(r.match.id);await loadInbox();message(decision==='accept'?'Convite aceito. A partida está aberta.':'Convite recusado.');
  }catch(e){message(e.message,true)}finally{busy=false}}
-async function openMatch(id){try{const r=await api.get('match',{id});match=r.match;chosen=null;renderAll();
+async function openMatch(id){try{
+ if(gameMode==='bot')setMode('duel');
+ const r=await api.get('match',{id});match=r.match;chosen=null;renderAll();
  if(match.status==='EM_ANDAMENTO')message(myTurn()?'Sua vez! Selecione uma peça do seu grupo.':'Aguarde a jogada do outro estudante.');
  else if(match.status==='CONCLUIDO')message(`Resultado confirmado: ${match.outcome?.result==='draw'?'empate':(match.outcome?.result==='white'?match.creator.name:match.recipient.name)+' venceu'}.`);
  else message(match.status==='PENDENTE'?'Convite enviado; aguardando aceite.':'Convite recusado.');
@@ -368,7 +430,16 @@ async function newSeason(){try{const r=await api.post('teacherNewSeason',{label:
 function bind(){
  $('confirm-student').addEventListener('click',confirmStudent);$('change-student').addEventListener('click',changeStudent);
  $('house').addEventListener('change',()=>populatePlayers());
- $('opponent').addEventListener('change',updateOpponent);$('challenge').addEventListener('click',sendChallenge);
+ $('opponent').addEventListener('change',updateOpponent);
+ $('target-house').addEventListener('change',populateOpponents);
+ $('challenge').addEventListener('click',sendChallenge);
+ $('mode-duel').addEventListener('click',()=>setMode('duel'));
+ $('mode-bot').addEventListener('click',()=>setMode('bot'));
+ $('bot-start').addEventListener('click',startBot);
+ $('notification-bell').addEventListener('click',()=>{
+  if(gameMode==='bot')setMode('duel');
+  $('inbox-panel').scrollIntoView({behavior:'smooth',block:'start'});
+ });
  $('refresh-inbox').addEventListener('click',()=>loadInbox().catch(e=>message(e.message,true)));
  $('reload-match').addEventListener('click',reloadMatch);$('refresh-ranking').addEventListener('click',loadRanking);
  $('open-ranking').addEventListener('click',()=>$('tab-groups').scrollIntoView({behavior:'smooth',block:'center'}));
@@ -381,12 +452,34 @@ async function init(){bind();renderAll();void faceLoad();showRankTab('groups');
  try{const ping=await api.get('ping');if(ping.api!=='dama-v2')throw Error('API incorreta — não use o servidor do arco e flecha.');
  apiReady=true;setState('good','● API DE DAMAS CONECTADA');
  const r=await api.get('roster');players=r.players;populatePlayers();renderIdentity();
- if(api.token){try{api.user=(await api.get('me')).player;renderIdentity();await loadInbox();}catch{api.token='';sessionStorage.removeItem(tokenKey)}}
+ if(api.token){try{
+  api.user=(await api.get('me')).player;
+  $('target-house').value=api.user.house;
+  await api.post('heartbeat');renderIdentity();await refreshPresence();await loadInbox();
+ }catch{api.token='';sessionStorage.removeItem(tokenKey)}}
  await loadRanking();
  message('API conectada. Escolha sua turma e seu nome para começar — sem senha.');
  }catch(e){setState('bad','● API INDISPONÍVEL');message(e.message,true);}
- setInterval(async()=>{if(!apiReady||busy)return;try{if(api.user)await loadInbox();if(match?.status==='EM_ANDAMENTO'){
-  const detail=await api.get('match',{id:match.id});if(detail.match.version!==match.version){match=detail.match;chosen=null;renderAll();message(match.status==='CONCLUIDO'?'Partida concluída e placar atualizado.':myTurn()?'Sua vez!':'Jogada do adversário recebida.');}
- }await loadRanking()}catch{}},8000);
+ // Atualização rápida para sininho e turnos; não substitui nem antecipa a jogada do adversário.
+ let ticks=0;
+ setInterval(async()=>{
+  if(!apiReady||busy||!api.user)return;
+  try{
+   if(ticks%3===0)await api.post('heartbeat');
+   await loadInbox();
+   if(ticks%3===0)await refreshPresence();
+   if(gameMode==='duel'&&match&&['PENDENTE','EM_ANDAMENTO'].includes(match.status)){
+    const detail=await api.get('match',{id:match.id});
+    if(detail.match.version!==match.version){
+     match=detail.match;chosen=null;renderAll();
+     message(match.status==='CONCLUIDO'?'Partida encerrada e resultado registrado.':
+      match.status==='EM_ANDAMENTO'?(myTurn()?'Seu adversário aceitou ou jogou. Sua vez!':'Aguarde a jogada do colega.'):
+      'Aguardando resposta do colega.');
+    }
+   }
+   if(ticks%4===0)await loadRanking();
+  }catch(e){console.warn('Atualização dos duelos:',e.message)}
+  ticks++;
+ },4000);
 }
 init();
