@@ -26,6 +26,8 @@ db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=50
 CREATE TABLE IF NOT EXISTS seasons(id TEXT PRIMARY KEY,label TEXT NOT NULL,started_at TEXT NOT NULL,active INTEGER NOT NULL DEFAULT 0);
 CREATE UNIQUE INDEX IF NOT EXISTS unique_active_season ON seasons(active) WHERE active=1;
 CREATE TABLE IF NOT EXISTS sessions(hash TEXT PRIMARY KEY,player_id TEXT NOT NULL,expires_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS presence(session_hash TEXT PRIMARY KEY,player_id TEXT NOT NULL,seen_at INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS presence_player_recent ON presence(player_id,seen_at);
 CREATE TABLE IF NOT EXISTS matches(
  id TEXT PRIMARY KEY,season_id TEXT NOT NULL,creator_id TEXT NOT NULL,recipient_id TEXT NOT NULL,
  white_hero INTEGER NOT NULL,black_hero INTEGER NOT NULL,status TEXT NOT NULL,
@@ -59,6 +61,19 @@ const stmt={
 const hash=v=>createHash('sha256').update(String(v)).digest('hex');
 const fail=(message,status=400)=>{let e=Error(message);e.status=status;throw e};
 const now=()=>new Date().toISOString();
+// Presença é temporária e vinculada à sessão do navegador, nunca apenas a um nome cadastrado.
+const ONLINE_TTL_MS=35000;
+const activeSince=()=>Date.now()-ONLINE_TTL_MS;
+const onlineIds=()=>new Set(db.prepare('SELECT DISTINCT player_id FROM presence WHERE seen_at >= ?').all(activeSince()).map(r=>r.player_id));
+const isOnline=id=>!!db.prepare('SELECT 1 FROM presence WHERE player_id=? AND seen_at>=? LIMIT 1').get(id,activeSince());
+function touchSession(req,player){
+ const token=String(req.headers.authorization||'').replace(/^Bearer\s+/i,'');
+ const at=Date.now();
+ db.prepare('INSERT INTO presence(session_hash,player_id,seen_at) VALUES(?,?,?) ON CONFLICT(session_hash) DO UPDATE SET player_id=excluded.player_id, seen_at=excluded.seen_at').run(hash(token),player.id,at);
+ // Evitar crescimento indefinido por abas abandonadas.
+ db.prepare('DELETE FROM presence WHERE seen_at < ?').run(at-86400000);
+}
+
 const verifyText=(a,b)=>/^[0-9a-f]{64}$/.test(a)&&/^[0-9a-f]{64}$/.test(b)&&timingSafeEqual(Buffer.from(a,'hex'),Buffer.from(b,'hex'));
 // O estudante apenas seleciona o nome já cadastrado, como no Torneio das Três Casas.
 // O token é uma sessão técnica temporária para distinguir as partidas entre navegadores,
@@ -68,6 +83,7 @@ function identifyPlayer(id){
  if(!player||player.hero===null)fail('Aluno ou grupo não cadastrado.',404);
  const token=randomBytes(32).toString('hex');
  stmt.putSession.run(hash(token),player.id,Date.now()+30*86400000);
+ db.prepare('INSERT INTO presence(session_hash,player_id,seen_at) VALUES(?,?,?) ON CONFLICT(session_hash) DO UPDATE SET player_id=excluded.player_id, seen_at=excluded.seen_at').run(hash(token),player.id,Date.now());
  return {player,token,expiresInDays:30};
 }
 function authenticated(req){
@@ -122,12 +138,17 @@ function route(req,action,data,query){
  if(action==='identify')return identifyPlayer(String(data.id||''));
  const player=requirePlayer(req);
  if(action==='me')return {player};
+ if(action==='heartbeat'){touchSession(req,player);return {online:true,ttlSeconds:35};}
+ if(action==='presence')return {onlinePlayerIds:[...onlineIds()],ttlSeconds:35};
  if(action==='inbox')return {matches:stmt.ownMatches.all(player.id,player.id).map(m=>safeMatch(m))};
  if(action==='match')return {match:safeMatch(requireDuel(stmt.getMatch.get(String(query.get('id')||'')),player),{includeMoves:true})};
  if(action==='challenge'){
    const to=String(data.to||''),recipient=known.get(to);
    if(!recipient||recipient.id===player.id||recipient.hero===null)fail('Adversário inválido.');
-   if(recipient.team===player.team)fail('Desafie um integrante de OUTRO grupo de heróis.');
+   // Colegas da própria turma, inclusive da mesma equipe, podem disputar.
+   // Duelo entre turmas é excepcional e exige o adversário conectado no momento do convite.
+   if(recipient.house!==player.house&&!isOnline(recipient.id))
+     fail('Duelo entre turmas: o adversário precisa estar online agora.',409);
    const ongoing=db.prepare("SELECT * FROM matches WHERE season_id=? AND creator_id=? AND recipient_id=? AND status IN ('PENDENTE','EM_ANDAMENTO') ORDER BY created_at DESC LIMIT 1").get(stmt.season.get().id,player.id,to);
    if(ongoing)return {match:safeMatch(ongoing),reused:true};
    const initial=initialBoard(player.hero,recipient.hero);
@@ -140,6 +161,9 @@ function route(req,action,data,query){
    const m=stmt.getMatch.get(String(data.id||''));
    if(!m||m.recipient_id!==player.id)fail('Convite não encontrado.',404);
    if(m.status!=='PENDENTE')fail('Este convite já foi respondido.',409);
+   const challenger=known.get(m.creator_id);
+   if(data.decision==='accept' && challenger.house!==player.house && !isOnline(challenger.id))
+     fail('Em duelos entre turmas, os dois alunos precisam estar online para aceitar.',409);
    if(!['accept','decline'].includes(data.decision))fail('Resposta inválida.');
    db.prepare('UPDATE matches SET status=?,updated_at=?,version=version+1 WHERE id=?')
      .run(data.decision==='accept'?'EM_ANDAMENTO':'RECUSADO',now(),m.id);
@@ -247,7 +271,10 @@ const server=http.createServer(async(req,res)=>{
        if(req.method==='GET'&&!['teacherStatus','teacherRanking'].includes(action))fail('Método inválido.',405);
        send(res,200,{ok:true,...adminRoute(req,action,data)},origin,allowed);return;
      }
-     if(req.method==='POST'&&!['identify','challenge','answer','move'].includes(action))fail('Operação inválida.',405);
+     if(req.method==='POST'&&!['identify','heartbeat','challenge','answer','move'].includes(action))fail('Operação inválida.',405);
+     if(req.method==='POST'&&action==='heartbeat'){
+       send(res,200,{ok:true,...route(req,action,data,url.searchParams)},origin,allowed);return;
+     }
      if(req.method==='POST'&&action!=='identify'){
        const person=requirePlayer(req),requestId=String(data.requestId||'');
        if(!/^[a-zA-Z0-9_-]{12,128}$/.test(requestId))fail('Identificador de requisição inválido.');
