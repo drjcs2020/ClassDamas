@@ -9,6 +9,7 @@
 <header class="header"><div class="topinner">
  <a href="index.html" class="logolink" aria-label="Voltar ao jogo local"><img src="assets/logo_classmana.png" alt="ClassMana"></a>
  <div class="headertext"><span>UNIVERSO CLASSMANA · BATALHA DOS MONSTROS</span><b>DAMAS DOS HERÓIS</b></div>
+ <button class="notification-bell" id="notification-bell" type="button" title="Ver convites recebidos" aria-label="Ver convites recebidos">🔔 <span id="notification-count" hidden>0</span></button>
  <div class="online-badge" id="connection">● INICIANDO</div></div></header>
 <section class="world"><div class="worldshade"></div><div class="worldcontent">
  <span class="overline">✦ DESAFIO ESTRATÉGICO ENTRE OS SEIS GRUPOS ✦</span><h1>O CONSELHO DOS <em>HERÓIS</em></h1>
@@ -16,6 +17,18 @@
  </div></section>
 <main class="layout">
  <aside class="column sidebar">
+ <section class="panel play-mode-panel"><h2>✦ COMO DESEJA JOGAR?</h2>
+  <div class="mode-switch" role="group" aria-label="Modo de jogo">
+   <button class="mode-choice active" id="mode-duel" type="button">⚔️ <b>Duelo de alunos</b><small>Partida real entre colegas</small></button>
+   <button class="mode-choice" id="mode-bot" type="button">🤖 <b>Treinar com robô</b><small>Fácil, médio ou difícil</small></button>
+  </div>
+  <div id="robot-settings" hidden>
+   <label for="bot-difficulty">Dificuldade do robô</label>
+   <select id="bot-difficulty"><option value="facil">Fácil — iniciante</option><option value="medio" selected>Médio — estrategista</option><option value="dificil">Difícil — mestre das damas</option></select>
+   <button class="btn gold full" id="bot-start" type="button">▶ INICIAR TREINO</button>
+   <p class="muted">Você controla as peças azuis. O robô responde automaticamente. Treino não pontua no ranking.</p>
+  </div>
+ </section>
  <section class="panel"><h2>✦ IDENTIFICAÇÃO DO ALUNO</h2>
   <p class="muted">Como no Torneio das Três Casas: selecione sua turma e seu nome. Sem login, senha ou PIN de aluno.</p>
   <label for="house">Sua turma / Casa</label><select id="house"><option value="A">4º A — Águia Dourada</option><option value="B">4º B — Leão de Fogo</option><option value="C">4º C — Dragão de Esmeralda</option></select>
@@ -23,19 +36,25 @@
   <div class="hrow"><button class="btn gold" id="confirm-student">CONFIRMAR NOME</button><button class="btn ghost" id="change-student" hidden>TROCAR ALUNO</button></div>
   <div id="identity" class="boxline">Perfil não selecionado</div>
  </section>
- <section class="panel" id="challenge-panel"><h2>⚔ DESAFIAR OUTRO GRUPO</h2>
-  <p class="muted">O adversário recebe um convite e aceita quando acessar.</p>
+ <section class="panel" id="challenge-panel"><h2>⚔ DESAFIAR UM COLEGA</h2>
+  <p class="muted">Na sua turma, os convites chegam pelo sininho. Duelo entre turmas é uma opção para eventos com alunos online.</p>
+  <label for="target-house">Qual turma deseja desafiar?</label>
+  <select id="target-house" aria-label="Escolha a turma adversária"><option value="A">4º A — Águia Dourada</option><option value="B">4º B — Leão de Fogo</option><option value="C">4º C — Dragão de Esmeralda</option></select>
+  <div id="target-house-tiles" class="house-tiles" aria-label="Turmas disponíveis"></div>
+  <p class="muted" id="cross-house-note">Sua própria turma — desafios permitidos mesmo se o colega entrar depois.</p>
   <label for="opponent">Aluno adversário</label><select id="opponent" disabled><option>Selecione seu nome primeiro</option></select>
   <div class="opponent-note" id="opponent-note"></div>
+  <div class="presence-legend" id="presence-legend">● Verde: colega online agora · Cinza: colega offline</div>
   <button id="challenge" class="btn gold full" disabled>ENVIAR DESAFIO</button>
  </section>
- <section class="panel"><div class="paneltop"><h2>🔔 MEUS DUELOS</h2><button class="mini" id="refresh-inbox" title="Atualizar convites">↻</button></div>
+ <section class="panel inbox-panel" id="inbox-panel"><div class="paneltop"><h2>🔔 CONVITES E PARTIDAS <span id="inbox-alert" hidden>0</span></h2><button class="mini" id="refresh-inbox" title="Atualizar convites">↻</button></div>
    <div id="inbox" class="inbox"><p class="muted">Selecione seu nome para ver convites.</p></div>
  </section>
  </aside>
  <section class="arena">
+  <div class="duel-status" id="duel-status" role="status">♟️ Escolha um modo de jogo. Para desafiar outro aluno, confirme primeiro seu nome.</div>
   <div class="match-head"><div class="match-side" id="white-banner"><img id="white-portrait" class="avatar" alt=""><div><small>DESAFIANTE · 12 PEÇAS</small><h3 id="white-title">Fada Guerreira</h3><p id="white-meta">Aguardando partida</p></div></div><span class="versus">VS</span><div class="match-side opponent" id="black-banner"><img id="black-portrait" class="avatar" alt=""><div><small>DESAFIADO · 12 PEÇAS</small><h3 id="black-title">Chama Congelante</h3><p id="black-meta">Aguardando partida</p></div></div></div>
-  <div class="board-shell"><div class="board-top"><b>♜ TABULEIRO DOS HERÓIS</b><span id="match-state">DEMONSTRAÇÃO</span></div>
+  <div class="board-shell"><div id="board-overlay" class="board-overlay"><strong>♟️ O TABULEIRO AINDA NÃO ESTÁ EM JOGO</strong><span>Selecione um duelo aceito ou inicie um treino contra o robô.</span></div><div class="board-top"><b>♜ TABULEIRO DOS HERÓIS</b><span id="match-state">DEMONSTRAÇÃO</span></div>
    <div class="board-decoration"><img src="assets/brasao_aguia.png" alt="" id="crest-white"/><div class="board-edge"><div id="board" class="board" role="grid" aria-label="Tabuleiro oficial de damas"></div></div><img src="assets/brasao_leao.png" alt="" id="crest-black"/></div>
    <div class="turn"><span class="turn-gem">✦</span><div><small>TURNO ATUAL</small><strong id="turn-label">Aguardando desafio</strong></div><div id="ply" class="ply">0 jogadas</div></div>
    <p id="message" class="message" role="status">Escolha sua turma e seu nome; depois envie um desafio ou aceite um convite.</p>
