@@ -11,6 +11,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verificar sintaxe JavaScript da interface, robo e servidor
+        run: |
+          node --check online-app.js
+          node --check bot-ai.js
+          node --check duel-api/server.mjs
       - name: Testar regras e composição das equipes
         run: npm test
       - name: Testar API, SQLite, partidas, rankings e temporadas
