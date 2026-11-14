@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dama ClassMana — Duelos Oficiais dos Heróis</title>
+<meta name="description" content="Dama ClassMana: duelos reais entre os seis grupos de heróis, movimentos persistentes e rankings individuais e coletivos.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="online.css"></head>
+<body>
+<header class="header"><div class="topinner">
+ <a href="index.html" class="logolink" aria-label="Voltar ao jogo local"><img src="assets/logo_classmana.png" alt="ClassMana"></a>
+ <div class="headertext"><span>UNIVERSO CLASSMANA · BATALHA DOS MONSTROS</span><b>DAMAS DOS HERÓIS</b></div>
+ <div class="online-badge" id="connection">● INICIANDO</div></div></header>
+<section class="world"><div class="worldshade"></div><div class="worldcontent">
+ <span class="overline">✦ DESAFIO ESTRATÉGICO ENTRE OS SEIS GRUPOS ✦</span><h1>O CONSELHO DOS <em>HERÓIS</em></h1>
+ <p>Uma equipe de heróis contra a outra. Jogadas reais, placar independente e desafios que continuam depois.</p>
+ </div></section>
+<main class="layout">
+ <aside class="column sidebar">
+ <section class="panel"><h2>✦ IDENTIFICAÇÃO DO ALUNO</h2>
+  <p class="muted">Como no Torneio das Três Casas: selecione sua turma e seu nome. Sem login, senha ou PIN de aluno.</p>
+  <label for="house">Sua turma / Casa</label><select id="house"><option value="A">4º A — Águia Dourada</option><option value="B">4º B — Leão de Fogo</option><option value="C">4º C — Dragão de Esmeralda</option></select>
+  <label for="player">Seu nome</label><select id="player"><option value="">Carregando alunos…</option></select>
+  <div class="hrow"><button class="btn gold" id="confirm-student">CONFIRMAR NOME</button><button class="btn ghost" id="change-student" hidden>TROCAR ALUNO</button></div>
+  <div id="identity" class="boxline">Perfil não selecionado</div>
+ </section>
+ <section class="panel" id="challenge-panel"><h2>⚔ DESAFIAR OUTRO GRUPO</h2>
+  <p class="muted">O adversário recebe um convite e aceita quando acessar.</p>
+  <label for="opponent">Aluno adversário</label><select id="opponent" disabled><option>Selecione seu nome primeiro</option></select>
+  <div class="opponent-note" id="opponent-note"></div>
+  <button id="challenge" class="btn gold full" disabled>ENVIAR DESAFIO</button>
+ </section>
+ <section class="panel"><div class="paneltop"><h2>🔔 MEUS DUELOS</h2><button class="mini" id="refresh-inbox" title="Atualizar convites">↻</button></div>
+   <div id="inbox" class="inbox"><p class="muted">Selecione seu nome para ver convites.</p></div>
+ </section>
+ </aside>
+ <section class="arena">
+  <div class="match-head"><div class="match-side" id="white-banner"><img id="white-portrait" class="avatar" alt=""><div><small>DESAFIANTE · 12 PEÇAS</small><h3 id="white-title">Fada Guerreira</h3><p id="white-meta">Aguardando partida</p></div></div><span class="versus">VS</span><div class="match-side opponent" id="black-banner"><img id="black-portrait" class="avatar" alt=""><div><small>DESAFIADO · 12 PEÇAS</small><h3 id="black-title">Chama Congelante</h3><p id="black-meta">Aguardando partida</p></div></div></div>
+  <div class="board-shell"><div class="board-top"><b>♜ TABULEIRO DOS HERÓIS</b><span id="match-state">DEMONSTRAÇÃO</span></div>
+   <div class="board-decoration"><img src="assets/brasao_aguia.png" alt="" id="crest-white"/><div class="board-edge"><div id="board" class="board" role="grid" aria-label="Tabuleiro oficial de damas"></div></div><img src="assets/brasao_leao.png" alt="" id="crest-black"/></div>
+   <div class="turn"><span class="turn-gem">✦</span><div><small>TURNO ATUAL</small><strong id="turn-label">Aguardando desafio</strong></div><div id="ply" class="ply">0 jogadas</div></div>
+   <p id="message" class="message" role="status">Escolha sua turma e seu nome; depois envie um desafio ou aceite um convite.</p>
+   <div class="bar-actions"><button id="reload-match" class="btn ghost" disabled>↻ ATUALIZAR TABULEIRO</button><button id="open-ranking" class="btn gold">🏆 VER RANKING</button></div>
+  </div>
+  <section class="panel history"><h2>📜 HISTÓRICO DA PARTIDA</h2><ol id="moves"><li>Aguardando uma partida oficial.</li></ol></section>
+ </section>
+ <aside class="column ranking-column">
+  <section class="panel ranking-panel"><div class="paneltop"><h2>🏆 SALÃO DOS CAMPEÕES</h2><button class="mini" id="refresh-ranking" title="Atualizar ranking">↻</button></div>
+   <p class="muted" id="season-label">Classificação da temporada</p>
+   <div class="tabs" role="tablist"><button id="tab-groups" class="active" aria-selected="true">SEIS GRUPOS</button><button id="tab-players" aria-selected="false">ALUNOS</button></div>
+   <div id="groups-ranking" class="rank-table"></div><div id="players-ranking" class="rank-table" hidden></div>
+   <p class="rank-foot">Vitória 3 · Empate 1 · Derrota 0. Somente partidas oficialmente concluídas.</p>
+  </section>
+  <section class="panel note"><h2>🛡️ SEIS HERÓIS OFICIAIS</h2><div id="hero-gallery" class="hero-gallery"></div><p class="muted">Cada lado utiliza 12 peças de um único personagem, conforme o grupo do aluno.</p></section>
+  <section class="panel teacher"><details><summary>⚙ PAINEL DO PROFESSOR</summary>
+   <label for="teacher-password">Senha do professor (somente administração)</label><input id="teacher-password" type="password" autocomplete="current-password" placeholder="Senha do professor">
+   <button id="teacher-login" class="btn ghost full">ACESSAR</button>
+   <div id="teacher-actions" hidden><p class="muted">Iniciar nova temporada zera apenas a classificação atual. O histórico anterior permanece salvo.</p>
+    <label for="season-name">Nome da nova temporada</label><input id="season-name" value="Nova temporada" maxlength="70">
+    <label for="season-confirm">Confirmação</label><input id="season-confirm" placeholder="NOVA TEMPORADA">
+    <button id="new-season" class="btn ghost full">INICIAR NOVA TEMPORADA</button>
+   </div>
+   <p class="muted" id="teacher-message"></p>
+  </details></section>
+ </aside>
+</main>
+<footer>CLASSMANA · DAMAS DOS HERÓIS · API E BANCO INDEPENDENTES <a href="treino.html">Treino local</a></footer>
+<script type="module" src="online-app.js"></script>
+</body></html>
