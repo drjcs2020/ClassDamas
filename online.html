@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dama ClassMana — Duelos Oficiais dos Heróis</title>
-<meta name="description" content="Dama ClassMana: duelos reais entre os seis grupos de heróis, movimentos persistentes e rankings individuais e coletivos.">
+<meta name="description" content="ClassDamas: tabuleiro em destaque, notificações de desafios e rankings por alunos, grupos e turmas.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="online.css"><link rel="stylesheet" href="online-v3.css"><link rel="stylesheet" href="online-clean.css"></head>
@@ -9,13 +9,15 @@
 <header class="header"><div class="topinner">
  <a href="index.html" class="logolink" aria-label="Voltar ao jogo local"><img src="assets/logo_classmana.png" alt="ClassMana"></a>
  <div class="headertext"><span>UNIVERSO CLASSMANA · BATALHA DOS MONSTROS</span><b>DAMAS DOS HERÓIS</b></div>
- <button class="notification-bell" id="notification-bell" type="button" title="Ver convites recebidos" aria-label="Ver convites recebidos">🔔 <span id="notification-count" hidden>0</span></button>
+ <button class="notification-bell" id="notification-bell" type="button" title="Abrir notificações de desafios" aria-label="Abrir notificações de desafios">🔔 <span class="notification-label">NOTIFICAÇÕES DE DESAFIOS</span> <span id="notification-count" hidden>0</span></button>
  <div class="online-badge" id="connection">● INICIANDO</div></div></header>
-<section class="world"><div class="worldshade"></div><div class="worldcontent">
- <span class="overline">✦ DESAFIO ESTRATÉGICO ENTRE OS SEIS GRUPOS ✦</span><h1>O CONSELHO DOS <em>HERÓIS</em></h1>
- <p>Uma equipe de heróis contra a outra. Jogadas reais, placar independente e desafios que continuam depois.</p>
- </div></section>
-<main class="layout">
+<nav class="game-tabs" role="tablist" aria-label="Áreas do jogo">
+ <button type="button" id="view-play" class="game-tab active" role="tab" aria-selected="true" aria-controls="game-layout">♟️ PARTIDA</button>
+ <button type="button" id="view-challenges" class="game-tab" role="tab" aria-selected="false" aria-controls="game-layout">⚔️ DESAFIOS <span id="tab-invite-count" class="tab-invite-count" hidden>0</span></button>
+ <button type="button" id="view-ranking" class="game-tab" role="tab" aria-selected="false" aria-controls="game-layout">🏆 RANKINGS</button>
+</nav>
+<div id="challenge-notice" class="challenge-notice" role="alert" hidden><strong id="challenge-notice-text">Você recebeu um desafio!</strong><button type="button" id="challenge-notice-open">VER E RESPONDER AO DESAFIO</button></div>
+<main class="layout" id="game-layout" data-view="play">
  <aside class="column sidebar">
  <section class="panel play-mode-panel"><h2>✦ COMO DESEJA JOGAR?</h2>
   <div class="mode-switch" role="group" aria-label="Modo de jogo">
@@ -37,7 +39,7 @@
   <div id="identity" class="boxline">Perfil não selecionado</div>
  </section>
  <section class="panel" id="challenge-panel"><h2>⚔ DESAFIAR UM COLEGA</h2>
-  <p class="muted">Na sua turma, os convites chegam pelo sininho. Duelo entre turmas é uma opção para eventos com alunos online.</p>
+  <p class="muted">Envie um convite ou responda aos desafios recebidos nesta aba. Entre turmas, ambos devem estar online.</p>
   <label for="target-house">Qual turma deseja desafiar?</label>
   <select id="target-house" aria-label="Escolha a turma adversária"><option value="A">4º A — Águia Dourada</option><option value="B">4º B — Leão de Fogo</option><option value="C">4º C — Dragão de Esmeralda</option></select>
   <div id="target-house-tiles" class="house-tiles" aria-label="Turmas disponíveis"></div>
@@ -60,14 +62,14 @@
    <p id="message" class="message" role="status">Escolha sua turma e seu nome; depois envie um desafio ou aceite um convite.</p>
    <div class="bar-actions"><button id="reload-match" class="btn ghost" disabled>↻ ATUALIZAR TABULEIRO</button><button id="open-ranking" class="btn gold">🏆 VER RANKING</button></div>
   </div>
-  <section class="panel history"><h2>♟️ HISTÓRICO DA PARTIDA</h2><ol id="moves"><li>Aguardando uma partida oficial.</li></ol></section>
+  <section class="panel history" hidden aria-hidden="true"><ol id="moves" hidden></ol></section>
  </section>
  <aside class="column ranking-column">
   <section class="panel ranking-panel"><div class="paneltop"><h2>🏆 SALÃO DOS CAMPEÕES</h2><button class="mini" id="refresh-ranking" title="Atualizar ranking">↻</button></div>
    <p class="muted" id="season-label">Classificação da temporada</p>
-   <div class="tabs" role="tablist"><button id="tab-groups" class="active" aria-selected="true">SEIS GRUPOS</button><button id="tab-players" aria-selected="false">ALUNOS</button></div>
-   <div id="groups-ranking" class="rank-table"></div><div id="players-ranking" class="rank-table" hidden></div>
-   <p class="rank-foot">Vitória 3 · Empate 1 · Derrota 0. Somente partidas oficialmente concluídas.</p>
+   <div class="tabs" role="tablist" aria-label="Tipo de ranking"><button id="tab-groups" class="active" role="tab" aria-selected="true">GRUPOS</button><button id="tab-houses" role="tab" aria-selected="false">TURMAS</button><button id="tab-players" role="tab" aria-selected="false">ALUNOS</button></div>
+   <div id="groups-ranking" class="rank-table"></div><div id="houses-ranking" class="rank-table" hidden></div><div id="players-ranking" class="rank-table" hidden></div>
+   <p class="rank-foot">Vitória 3 · Empate 1 · Derrota 0. Turmas somam os resultados individuais (inclusive partidas internas); grupos não pontuam contra integrantes da própria equipe.</p>
   </section>
   <section class="panel note"><h2>🛡️ SEIS HERÓIS OFICIAIS</h2><div id="hero-gallery" class="hero-gallery"></div><p class="muted">Cada lado utiliza 12 peças de um único personagem, conforme o grupo do aluno.</p></section>
   <section class="panel teacher"><details><summary>⚙ PAINEL DO PROFESSOR</summary>
