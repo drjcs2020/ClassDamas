@@ -2,7 +2,9 @@
 
 ## Situação verificada
 
-O **ClassDamas** ainda é acessível via Railway, enquanto sua nova API Cloudflare foi implementada em `cloudflare/worker.mjs` e testada com D1 local no GitHub Actions. **A publicação Cloudflare está desativada intencionalmente** até configurar as credenciais da conta. O workflow pode criar automaticamente o D1 exclusivo `classdamas-db`. Não excluir nem parar o Railway antes de validar o endereço Cloudflare.
+O **ClassDamas** está publicado no Cloudflare Workers + D1 exclusivo `classdamas-db` em `https://classdamas.jean-silveira35.workers.dev/online.html`. As migrações e o teste público da API foram aprovados. O Railway continua preservado como contingência: **não desligar nem apagar o banco antigo** até decidir sobre a migração de histórico.
+
+A interface atual inclui as **quatro abas do visual aprovado**: Minha Casa, Desafios, Partida e Rankings. Usa castelos oficiais, brasões HD das três casas e seis heróis (incluindo a **Maga Engenheira**, do grupo 6), preservando as regras das damas e os dados D1. Rankings: Turmas, Grupos e Alunos; a classificação por turmas agrega os resultados individuais, sem modificar o ranking original dos grupos.
 
 O Torneio das Três Casas V2 permanece **em outro repositório, Worker e banco de dados**. Na inspeção da `main` do repositório V2, ainda não havia implementação Cloudflare commitada. Esta migração das damas não escreve no repositório nem no banco do torneio.
 
