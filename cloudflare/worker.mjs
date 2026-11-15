@@ -32,9 +32,10 @@ async function sha256(value){
  return Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');
 }
 const normalize=(x)=>String(x||'').trim();
-const all=(db,sql,...args)=>db.prepare(sql).bind(...args).all().then(x=>x.results);
-const first=(db,sql,...args)=>db.prepare(sql).bind(...args).first();
-const run=(db,sql,...args)=>db.prepare(sql).bind(...args).run();
+const statement=(db,sql,args)=>args.length?db.prepare(sql).bind(...args):db.prepare(sql);
+const all=(db,sql,...args)=>statement(db,sql,args).all().then(x=>x.results);
+const first=(db,sql,...args)=>statement(db,sql,args).first();
+const run=(db,sql,...args)=>statement(db,sql,args).run();
 async function season(db){
  let row=await first(db,'SELECT id,label,started_at AS startedAt,active FROM seasons WHERE active=1 LIMIT 1');
  if(row)return row;
@@ -290,7 +291,8 @@ async function teacherRoute(req,env,action,data){
 async function route(req,env,action,data,query){
  const db=env.DB;
  if(action==='ping'){
-  await first(db,'SELECT name FROM sqlite_master WHERE type=? AND name=?','table','matches');
+  const schema=await first(db,'SELECT name FROM sqlite_master WHERE type=? AND name=?','table','matches');
+  if(!schema)error('Migração D1 ainda não aplicada.',503);
   return {api:'dama-v2',game:'dama',persistent:true,database:'cloudflare-d1',provider:'cloudflare'};
  }
  if(action==='roster')return {players};
