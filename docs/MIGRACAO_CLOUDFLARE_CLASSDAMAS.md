@@ -88,3 +88,8 @@ No layout aprovado, o logotipo ClassMana foi redimensionado para permanecer vis�
 ### Correção do tabuleiro — 15/11/2026
 
 A aba **Partida** não deve apresentar barra de rolagem dentro do tabuleiro. Em desktops, o tabuleiro é redimensionado pelo espaço útil da tela, enquanto as ações e os indicadores de turno ocupam uma área lateral, sem reduzir as casas de jogo. Em telas menores, a página pode rolar verticalmente, mas a moldura e o tabuleiro permanecem inteiros, sem rolagem interna. Regressão visual coberta por `tests/classmana-approved-ui.test.mjs`. O ajuste é somente de frontend e não altera partidas nem banco D1.
+
+
+### Ajuste final de espaço da aba Partida — 15/11/2026
+
+Atendendo ao teste visual, removidas as faixas redundantes “Arena dos Heróis”, “Como deseja jogar?” e “Sua vez” do topo. O status da jogada fica na lateral, ao lado do brasão HD, e os controles de treino continuam acessíveis na mesma coluna. A moldura usa o espaço vertical efetivo para mostrar **as 64 casas por completo**, sem área de rolagem dentro do tabuleiro; em celulares a página pode rolar normalmente. Ajuste exclusivamente de HTML/CSS; nenhuma alteração na API, nas regras ou na classificação.
