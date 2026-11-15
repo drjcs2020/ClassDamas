@@ -54,3 +54,27 @@ test('tabuleiro protagonista não usa scrollbar interna e ganha área central',(
  assert.match(fix,/@media \(max-width:900px\)\{[\s\S]*?#panel-partida>\.arena \.board-shell\s*\{\s*overflow:visible/);
  assert.match(fix,/#panel-partida>\.arena #board\s*\{[\s\S]*?aspect-ratio:1\/1;overflow:hidden/);
 });
+
+test('arena compacta conserva controles e mantém o tabuleiro sem cortar',()=>{
+ const html=read('online.html'),css=read('online-approved.css');
+ const start=html.indexOf('<section id="panel-partida"');
+ const end=html.indexOf('<section id="panel-rankings"',start);
+ const partita=html.slice(start,end);
+ assert.ok(start>=0&&end>start);
+ assert.doesNotMatch(partita,/ARENA DOS HERÓIS<\/h1>|TABULEIRO OFICIAL · UMA PARTIDA POR VEZ/);
+ assert.doesNotMatch(partita,/<div class="cm-heading">/);
+ const side=partita.indexOf('<aside class="cm-board-controls"');
+ const board=partita.indexOf('<div id="board"');
+ assert.ok(board>0&&side>board,'Tabuleiro deve aparecer antes dos controles secundários');
+ for(const id of ['duel-status','crest-white','turn-label','message','mode-duel','mode-bot','bot-start','reload-match','open-ranking']){
+  assert.ok(partita.indexOf('id="'+id+'"',side)>side,'Controle deve estar na lateral: '+id);
+ }
+ assert.match(partita,/<div class="cm-status-card"><img class="cm-status-crest"/);
+ const current=css.slice(css.lastIndexOf('/* ClassMana — arena reorganizada'));
+ assert.ok(current.length>5000,'Estilo final da arena não encontrado');
+ assert.match(current,/#panel-partida>\.arena \.board-shell\s*\{[\s\S]*?grid-template-columns:minmax\(0,1fr\) minmax\(175px,245px\)/);
+ assert.match(current,/width:min\(100%,calc\(100cqh - 43px\),760px\)/);
+ assert.match(current,/#panel-partida\.cm-view\{padding:7px 10px;overflow:hidden\}/);
+ assert.match(current,/grid-template-rows:minmax\(0,1fr\)/);
+ assert.match(current,/#panel-partida>\.arena \.board-shell\{display:flex;flex-direction:column;min-height:0;max-height:none;height:auto;overflow:visible/);
+});
