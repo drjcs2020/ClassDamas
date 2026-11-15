@@ -285,8 +285,8 @@ function setMode(mode){
  $('mode-duel').classList.toggle('active',mode==='duel');
  $('mode-bot').classList.toggle('active',mode==='bot');
  $('robot-settings').hidden=mode!=='bot';
- $('challenge-panel').hidden=mode==='bot';
- $('inbox-panel').hidden=mode==='bot';
+ // As abas Desafios permanecem disponíveis durante treinos.
+ // O jogador pode consultar seus convites sem perder a visualização do modo atual.
  if(mode==='bot')message('Treino individual: escolha a dificuldade e inicie uma partida contra o robô.');
  else message('Duelo entre alunos: confirme seu nome, escolha a turma adversária e envie o convite.');
  renderAll();
@@ -504,7 +504,10 @@ async function loadRanking(preset){try{
   if(!records?.length){host.innerHTML='<p class="muted">Ainda não há resultados oficiais.</p>';continue;}
   for(const [i,row] of records.slice(0,id==='players'?50:id==='houses'?3:6).entries()){
    const div=document.createElement('div');div.className='rank-row'+(id==='houses'?' house-rank':'');
-   const crest=id==='houses'&&crestImages[row.id]?`<img class="ranking-crest" src="${crestImages[row.id]}" alt="">`:'';
+   const crest=id==='houses'&&crestImages[row.id]
+    ?`<img class="ranking-crest" src="${crestImages[row.id]}" alt="Brasão de ${esc(row.name)}">`
+    :id==='groups'&&Number.isInteger(row.hero)
+    ?`<img class="ranking-hero" src="${srcFor(row.hero)}" alt="${esc(row.name)}">`:'';
    const detail=id==='players'?esc(row.team)+' · ':id==='houses'?esc(row.members)+' alunos · ':'';
    div.innerHTML=`<span class="pos">${i+1}º</span>${crest}<span class="who"><b>${esc(row.name)}</b><small>${detail}${row.plays} atuações · ${row.wins}V ${row.draws}E ${row.losses}D</small></span><strong>${row.points} pts</strong>`;
    host.append(div);
