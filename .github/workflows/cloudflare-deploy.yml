@@ -7,8 +7,9 @@ permissions:
   contents: read
 jobs:
   deploy-cloudflare:
-    # DESATIVADO por padrão. Ativar após criar D1, configurar Secrets e variável.
-    if: ${{ vars.CLOUDFLARE_DEPLOY_ENABLED == 'true' }}
+    # Manual: permite o primeiro deploy com apenas dois Secrets.
+    # Push na main: só publica quando a variável de liberação está true.
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.CLOUDFLARE_DEPLOY_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -21,6 +22,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verificar credenciais sem expor os valores
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Configure os Secrets CLOUDFLARE_API_TOKEN e CLOUDFLARE_ACCOUNT_ID em Settings > Secrets and variables > Actions."
+            exit 1
+          fi
       - name: Instalar dependências no runner
         run: npm install --no-audit --no-fund
       - name: Gerar pacote seguro de assets
