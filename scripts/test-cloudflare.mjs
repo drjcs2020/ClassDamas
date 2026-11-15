@@ -70,11 +70,21 @@ async function run(){
   id:m.match.id,path:[{r:2,c:1},{r:3,c:0}],expectedVersion:1
  })});
  check(wrongTurn.http===409,'Adversário jogou fora do turno');
+ // Duas abas enviando jogadas diferentes simultaneamente para a MESMA versão.
+ // Só uma pode vencer; a rejeitada não pode criar uma linha extra em "moves".
  const legal=[{r:5,c:0},{r:4,c:1}];
- const good=await req('move',{token:a.token,body:op({
-  id:m.match.id,path:legal,expectedVersion:1
- })});
- check(good.http===200&&good.match.version===2&&good.match.turn==='black','Movimento legal não persistido: '+good.error);
+ const alternate=[{r:5,c:2},{r:4,c:1}];
+ const attempts=await Promise.all([legal,alternate].map(path=>
+  req('move',{token:a.token,body:op({id:m.match.id,path,expectedVersion:1})})
+ ));
+ check(attempts.filter(x=>x.http===200).length===1,'D1 deve aceitar somente uma jogada concorrente: '+JSON.stringify(attempts.map(x=>x.http)));
+ check(attempts.filter(x=>x.http===409).length===1,'D1 deve rejeitar a jogada concorrente.');
+ const good=attempts.find(x=>x.http===200);
+ check(good.match.version===2&&good.match.turn==='black'&&good.match.moves.length===1,
+  'A partida deve conter exatamente um lance persistido.');
+ const state=await req('match',{token:a.token,query:{id:m.match.id}});
+ check(state.http===200&&state.match.ply===1&&state.match.moves.length===1,
+  'Lance concorrente rejeitado criou registro órfão na base D1.');
  const stale=await req('move',{token:a.token,body:op({
   id:m.match.id,path:legal,expectedVersion:1
  })});
@@ -95,7 +105,7 @@ async function run(){
  check(html.ok&&(await html.text()).includes('ClassMana'),'Frontend Cloudflare não está servindo');
  const leaderboard=await req('ranking');
  check(leaderboard.http===200&&leaderboard.groups.length===6,'Ranking não disponível');
- console.log('✅ Cloudflare local E2E: D1, roster 78, mesma turma/equipe, sininho, turnos, D1 atomicidade, sync, interturmas online, seis grupos, HTML.');
+ console.log('✅ Cloudflare local E2E: D1, roster 78, mesma turma/equipe, sininho, turnos, D1 concorrência e atomicidade, sync, interturmas online, seis grupos, HTML.');
 }
 try{await run()}catch(e){
  console.error('❌ Teste Cloudflare: '+e.stack);
