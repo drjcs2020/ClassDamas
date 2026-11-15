@@ -103,6 +103,9 @@ async function run(){
  check(crossAccept.http===200&&crossAccept.match.status==='EM_ANDAMENTO','Aceite interturmas falhou');
  const html=await fetch(base+'/online.html');
  check(html.ok&&(await html.text()).includes('ClassMana'),'Frontend Cloudflare não está servindo');
+ const sheet=await fetch(base+'/online-clean.css');
+ check(sheet.ok&&(await sheet.text()).includes('grid-template-rows:repeat(8'),
+  'A folha de estilos atual do tabuleiro não foi incluída nos assets Cloudflare.');
  const leaderboard=await req('ranking');
  check(leaderboard.http===200&&leaderboard.groups.length===6,'Ranking não disponível');
  console.log('✅ Cloudflare local E2E: D1, roster 78, mesma turma/equipe, sininho, turnos, D1 concorrência e atomicidade, sync, interturmas online, seis grupos, HTML.');
