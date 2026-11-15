@@ -21,7 +21,7 @@ const key=p=>`${p.r},${p.c}`;
 const square=p=>String.fromCharCode(65+p.c)+(8-p.r);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let players=[],apiReady=false,match=null,chosen=null,rankTab='groups',busy=false,notice='Selecione seu nome para consultar os desafios oficiais.';
-let gameMode='duel',onlinePlayerIds=new Set(),lastInviteCount=0;
+let gameMode='duel',onlinePlayerIds=new Set(),lastInviteCount=0,lastShownResultId=null;
 const faceURLs=new Map();
 const faceBase='https://raw.githubusercontent.com/drjcs2020/classmana-batalha-dos-monstros-V2/main/assets/';
 const api={url:DAMA_API_URL,token:sessionStorage.getItem(tokenKey)||'',user:null,teacherToken:'',provider:'legacy',
@@ -192,16 +192,19 @@ function renderBoard(){
  }
  $('turn-label').textContent=title;
  $('ply').textContent=`${match?.ply||0} jogadas`;
- $('match-state').textContent=match?.status||'SELECIONE UM DUELO';
+ $('match-state').textContent=!match?'SELECIONE UM DUELO':({
+  PENDENTE:'AGUARDANDO ACEITE',EM_ANDAMENTO:'PARTIDA EM ANDAMENTO',
+  CONCLUIDO:'PARTIDA ENCERRADA',RECUSADO:'CONVITE RECUSADO'
+ }[match.status]||match.status);
  $('reload-match').disabled=!match||gameMode==='bot'||!apiReady;
  const panel=$('duel-status');
  if(panel){
   let desc='♟️ Escolha um duelo ou comece o treino individual contra o robô.';
-  if(gameMode==='bot'&&match){desc=`🤖 TREINO ${$('bot-difficulty').selectedOptions[0].text} · ${myTurn()?'SUA VEZ':match.status==='CONCLUIDO'?'PARTIDA ENCERRADA':'O ROBÔ ESTÁ JOGANDO'} · Sem pontos oficiais`;}
+  if(gameMode==='bot'&&match){desc=`🤖 ${match.status==='CONCLUIDO'?'TREINO ENCERRADO':myTurn()?'SUA VEZ — ESCOLHA UMA PEÇA':'VEZ DO ROBÔ'} · ${$('bot-difficulty').selectedOptions[0].text} · Sem pontos oficiais`;}
   else if(match){
    const names=`${match.creator.name} (4º ${match.creator.house}) × ${match.recipient.name} (4º ${match.recipient.house})`;
    desc=match.status==='PENDENTE'?`🔔 CONVITE ENVIADO · ${names} · Aguardando aceite`:
-    match.status==='EM_ANDAMENTO'?`⚔️ ${names} · ${myTurn()?'É A SUA VEZ!':'AGUARDANDO O OUTRO ALUNO'}`:
+    match.status==='EM_ANDAMENTO'?`⚔️ PARTIDA EM ANDAMENTO · ${myTurn()?'SUA VEZ DE JOGAR':`VEZ DE ${match.turn==='white'?match.creator.name:match.recipient.name}`} · ${names}`:
     match.status==='CONCLUIDO'?`🏆 PARTIDA CONCLUÍDA · ${names}`:`✕ CONVITE RECUSADO · ${names}`;
   }
   panel.textContent=desc;
@@ -212,10 +215,43 @@ function renderHistory(){const list=$('moves');list.replaceChildren();if(!match?
  for(const m of [...match.moves].reverse().slice(0,12)){
    const li=document.createElement('li');li.textContent=`${m.ply}. ${m.playerId} · ${m.path.map(square).join(' → ')}${m.captures.length?` · ${m.captures.length} capturas`:''}${m.crowned?' · ♛ DAMA':''}`;list.append(li);
  }}
-function renderAll(){renderPortraits();renderBoard();renderHistory();if($('hero-gallery').children.length!==6)renderGallery()}
+function hideResult(){const modal=$('result-modal');if(modal)modal.hidden=true;}
+function showResultIfFinished(){
+ if(!match||match.status!=='CONCLUIDO'||lastShownResultId===match.id)return;
+ const outcome=match.outcome?.result;
+ if(!['white','black','draw'].includes(outcome))return;
+ lastShownResultId=match.id;
+ const draw=outcome==='draw';
+ const winner=draw?null:outcome==='white'?match.creator:match.recipient;
+ const winnerHero=outcome==='black'?match.blackHero:match.whiteHero;
+ const mine=!draw&&api.user?.id===winner?.id;
+ const bot=gameMode==='bot';
+ const title=draw?'PARTIDA EMPATADA!':
+  bot&&outcome==='white'?'VOCÊ VENCEU O ROBÔ!':
+  bot?'O ROBÔ VENCEU DESTA VEZ!':
+  mine?'PARABÉNS, VOCÊ VENCEU!':winner.name+' VENCEU A PARTIDA!';
+ $('result-title').textContent=title;
+ const participants=bot?'Treino contra o robô':
+  match.creator.name+' × '+match.recipient.name;
+ $('result-subtitle').textContent=participants+' · '+match.ply+' jogadas. '+
+  (match.outcome?.reason||'Resultado registrado.');
+ $('result-portrait').replaceChildren(faceImg(winnerHero,'avatar'));
+ $('result-card').dataset.result=draw?'draw':((bot?outcome==='black':!mine)?'loss':'win');
+ $('result-icon').textContent=draw?'🤝':(bot&&outcome==='black'?'♟️':'🏆');
+ $('result-new').textContent=bot?'🤖 JOGAR NOVAMENTE':'⚔️ NOVO DUELO';
+ $('result-ranking').hidden=bot;
+ $('result-modal').hidden=false;
+ $('result-close').focus({preventScroll:true});
+}
+function renderAll(){
+ renderPortraits();renderBoard();renderHistory();
+ if($('hero-gallery').children.length!==6)renderGallery();
+ showResultIfFinished();
+}
 
 // O robô usa o mesmo núcleo de regras, mas não cria duelos, convites ou pontos oficiais.
 function setMode(mode){
+ hideResult();
  gameMode=mode;match=null;chosen=null;busy=false;
  $('mode-duel').classList.toggle('active',mode==='duel');
  $('mode-bot').classList.toggle('active',mode==='bot');
@@ -227,6 +263,7 @@ function setMode(mode){
  renderAll();
 }
 function startBot(){
+ hideResult();
  const hero=api.user?.hero??0;
  const level=$('bot-difficulty').value;
  const opponentHero=(hero+1)%6;
@@ -399,8 +436,9 @@ async function answer(id,decision){try{busy=true;const r=await api.post('answer'
  await openMatch(r.match.id);await loadInbox();message(decision==='accept'?'Convite aceito. A partida está aberta.':'Convite recusado.');
  }catch(e){message(e.message,true)}finally{busy=false}}
 async function openMatch(id){try{
+ hideResult();
  if(gameMode==='bot')setMode('duel');
- const r=await api.get('match',{id});match=r.match;chosen=null;renderAll();
+ const r=await api.get('match',{id});match=r.match;chosen=null;lastShownResultId=null;renderAll();
  if(match.status==='EM_ANDAMENTO')message(myTurn()?'Sua vez! Selecione uma peça do seu grupo.':'Aguarde a jogada do outro estudante.');
  else if(match.status==='CONCLUIDO')message(`Resultado confirmado: ${match.outcome?.result==='draw'?'empate':(match.outcome?.result==='white'?match.creator.name:match.recipient.name)+' venceu'}.`);
  else message(match.status==='PENDENTE'?'Convite enviado; aguardando aceite.':'Convite recusado.');
@@ -444,11 +482,28 @@ function bind(){
  });
  $('refresh-inbox').addEventListener('click',()=>loadInbox().catch(e=>message(e.message,true)));
  $('reload-match').addEventListener('click',reloadMatch);$('refresh-ranking').addEventListener('click',loadRanking);
+ $('result-close').addEventListener('click',hideResult);
+ $('result-ranking').addEventListener('click',()=>{
+  hideResult();showRankTab('groups');
+  $('tab-groups').scrollIntoView({behavior:'smooth',block:'center'});
+ });
+ $('result-new').addEventListener('click',()=>{
+  const bot=gameMode==='bot';
+  hideResult();
+  if(bot)startBot();
+  else{
+   setMode('duel');
+   $('challenge-panel').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+ });
  $('open-ranking').addEventListener('click',()=>$('tab-groups').scrollIntoView({behavior:'smooth',block:'center'}));
  $('tab-groups').addEventListener('click',()=>showRankTab('groups'));
  $('tab-players').addEventListener('click',()=>showRankTab('players'));
  $('teacher-login').addEventListener('click',teacherLogin);$('new-season').addEventListener('click',newSeason);
- document.addEventListener('keydown',e=>{if(e.key==='Escape'&&chosen){chosen=null;message('Seleção cancelada.');renderBoard();}});
+ document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!$('result-modal').hidden){hideResult();return;}
+  if(e.key==='Escape'&&chosen){chosen=null;message('Seleção cancelada.');renderBoard();}
+ });
 }
 async function init(){bind();renderAll();void faceLoad();showRankTab('groups');
  try{const ping=await api.get('ping');if(ping.api!=='dama-v2')throw Error('API incorreta — não use o servidor do arco e flecha.');
