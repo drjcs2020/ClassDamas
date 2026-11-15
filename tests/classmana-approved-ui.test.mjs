@@ -43,3 +43,14 @@ test('ranking das três turmas sem alterar grupos ou alunos',()=>{
  assert.match(worker,/houses:\[\.\.\.houseRows\.values\(\)\]\.sort\(order\)/);
  assert.match(worker,/groups:\[\.\.\.groupRows\.values\(\)\]\.sort\(order\)/);
 });
+
+test('tabuleiro protagonista não usa scrollbar interna e ganha área central',()=>{
+ const css=read('online-approved.css');
+ const fix=css.slice(css.lastIndexOf('/* ClassDamas — tabuleiro protagonista'));
+ assert.ok(fix.length>1500,'correção de tabuleiro deve existir');
+ assert.match(fix,/#panel-partida>\.arena \.board-shell\s*\{[\s\S]*?overflow:visible/);
+ assert.match(fix,/#panel-partida>\.arena \.board-edge\s*\{[\s\S]*?width:min\(100%,calc\(100dvh - 265px\),870px\)/);
+ assert.match(fix,/#panel-partida>\.arena \.turn\s*\{[\s\S]*?grid-column:2/);
+ assert.match(fix,/@media \(max-width:900px\)\{[\s\S]*?#panel-partida>\.arena \.board-shell\s*\{\s*overflow:visible/);
+ assert.match(fix,/#panel-partida>\.arena #board\s*\{[\s\S]*?aspect-ratio:1\/1;overflow:hidden/);
+});
