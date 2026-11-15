@@ -171,9 +171,10 @@ function renderBoard(){
    if(recent.some(s=>equal(s,pos)))cell.classList.add('recent');
    if(p){
      cell.classList.add('haspiece');
-     const circle=document.createElement('span');circle.className='piece';
+     const circle=document.createElement('span');circle.className='piece piece-'+p.side;
      const sideHouse=(p.side==='white'?match?.creator?.house:match?.recipient?.house)||(p.side==='white'?'A':'B');
-     circle.style.setProperty('--accent',HOUSES[sideHouse].color);
+     // Sempre distinguir os dois jogadores, inclusive quando são da mesma casa e equipe.
+     circle.style.setProperty('--accent',p.side==='white'?'#69c7ff':'#ff8075');
      circle.append(faceImg(p.hero));
      const initials=document.createElement('span');initials.className='initial';initials.textContent=groupFor(p.hero)[3];circle.append(initials);
      // Brasões ficam nos painéis de cada casa: os rostos nas peças permanecem legíveis.
