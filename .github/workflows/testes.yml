@@ -19,6 +19,8 @@ jobs:
           node --check cloudflare/worker.mjs
           node --check scripts/build-cloudflare.mjs
           node --check scripts/set-cloudflare-database.mjs
+          node --check scripts/prepare-cloudflare-database.mjs
+          node --check scripts/check-cloudflare-database.mjs
       - name: Testar regras e composição das equipes
         run: npm test
       - name: Testar API, SQLite, partidas, rankings e temporadas
