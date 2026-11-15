@@ -112,3 +112,166 @@ footer a{color:#0b8466}
  .result-card{padding:26px 16px}.duel-status{font-size:13px}
  .mode-choice{min-height:90px}
 }
+
+
+/* ClassDamas 3 — uma tela por área, sem o cabeçalho duplicado.
+   A navegação substitui a página longa. Brasões são assets oficiais do repo. */
+html,body{min-height:100%}
+body{height:100dvh;min-height:560px;display:flex;flex-direction:column;overflow:hidden}
+.header{height:68px;min-height:68px;flex:none}
+.header .topinner{padding:0 22px;gap:12px}
+.headertext b{font-size:clamp(16px,2vw,21px)}
+.headertext span{font-size:9px;letter-spacing:.8px}
+.notification-bell{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:auto;height:44px;min-width:200px;padding:9px 13px;
+  border:2px solid #33a887;border-radius:12px;font-size:19px;
+  margin-left:auto;white-space:nowrap
+}
+.notification-bell .notification-label{font-size:11px;letter-spacing:.35px;font-weight:1000}
+.notification-bell #notification-count{
+  position:static;min-width:24px;height:24px;display:inline-flex;
+  align-items:center;justify-content:center;font-size:12px;line-height:1;
+  border-radius:99px;background:#c83b29;color:white;padding:0 5px
+}
+.game-tabs{
+  display:flex;align-items:stretch;gap:7px;width:100%;flex:none;
+  padding:9px max(15px,calc((100vw - 1550px)/2));background:#e5faee;
+  border-bottom:1px solid #a5dbc3
+}
+.game-tab{
+  flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:9px;
+  padding:11px 12px;border:1px solid #9ed3ba;border-radius:10px;
+  background:#fff;color:#266b55;font-size:14px;font-weight:1000
+}
+.game-tab.active{background:#137f63;color:#fff;border-color:#137f63;box-shadow:0 3px 8px #187e602f}
+.game-tab:focus-visible{outline:3px solid #ef9c53;outline-offset:2px}
+.tab-invite-count{background:#d9472e;color:white;font-size:12px;padding:2px 7px;border-radius:99px}
+.challenge-notice{
+  display:flex;align-items:center;justify-content:center;gap:15px;flex:none;
+  padding:11px 18px;text-align:center;background:#fff3db;
+  border-bottom:3px solid #e7a347;color:#81421e;font-size:16px;
+  box-shadow:0 6px 12px #764e2520;z-index:5
+}
+.challenge-notice strong{font-size:clamp(13px,1.6vw,17px)}
+.challenge-notice button{
+  font-size:12px;font-weight:1000;border-radius:8px;background:#157e61;
+  color:#fff;border:1px solid #116e57;padding:10px 15px
+}
+/* A área principal cabe na janela; quando necessário, só o painel rola. */
+.layout{
+  flex:1;min-height:0;overflow:hidden;width:100%;max-width:1550px;
+  margin:0 auto;padding:12px 16px 14px;align-items:stretch;gap:14px
+}
+.layout .column,.layout .arena{min-width:0;min-height:0}
+.layout[data-view="play"]{grid-template-columns:minmax(250px,298px) minmax(0,1fr)}
+.layout[data-view="play"] .sidebar{
+  overflow:auto;overscroll-behavior:contain;gap:10px;padding:1px 4px 12px 1px
+}
+.layout[data-view="play"] #challenge-panel,
+.layout[data-view="play"] #inbox-panel,
+.layout[data-view="play"] .ranking-column{display:none!important}
+.layout[data-view="play"] .arena{
+  display:flex;flex-direction:column;align-items:center;overflow:auto;
+  overscroll-behavior:contain;padding:1px 6px 10px
+}
+.layout[data-view="play"] .arena > *{width:100%;max-width:760px}
+.layout[data-view="play"] .duel-status{
+  font-size:clamp(12px,1.4vw,16px);line-height:1.25;
+  padding:9px 13px;margin-bottom:8px
+}
+.layout[data-view="play"] .match-head{margin-bottom:8px;gap:8px}
+.layout[data-view="play"] .match-side{min-height:63px;padding:7px 10px;gap:10px}
+.layout[data-view="play"] .match-side img.avatar{width:54px;height:54px;border-radius:10px}
+.layout[data-view="play"] .match-side h3{font-size:13px}
+.layout[data-view="play"] .match-side small{font-size:9px}
+.layout[data-view="play"] .board-shell{padding:7px 10px}
+.layout[data-view="play"] .board-top{padding:2px 4px 5px}
+.layout[data-view="play"] .board-decoration{gap:4px}
+.layout[data-view="play"] .board-decoration > img{width:45px;max-width:6%;height:auto}
+.layout[data-view="play"] .board-edge{
+  max-width:min(60vh,610px);padding:5px;border-width:4px;
+  border-radius:8px;margin:0 auto
+}
+.layout[data-view="play"] .turn{margin-top:6px;padding:6px 11px}
+.layout[data-view="play"] .message{margin:5px 0;font-size:12px}
+.layout[data-view="play"] .bar-actions{margin-top:5px}
+.layout .history{display:none!important}
+.layout[data-view="challenges"],
+.layout[data-view="ranking"]{display:grid;grid-template-columns:minmax(0,1fr)}
+.layout[data-view="challenges"] .arena,
+.layout[data-view="challenges"] .ranking-column{display:none!important}
+.layout[data-view="challenges"] .sidebar{
+ display:grid;grid-template-columns:minmax(280px,1fr) minmax(340px,1fr);
+ grid-template-rows:auto minmax(0,1fr);gap:14px;
+ height:100%;min-height:0;overflow:hidden;max-width:1150px;width:100%;margin:0 auto
+}
+.layout[data-view="challenges"] .play-mode-panel{display:none!important}
+.layout[data-view="challenges"] .identity-panel{grid-column:1;grid-row:1}
+.layout[data-view="challenges"] #challenge-panel{
+ grid-column:1;grid-row:2;overflow-y:auto;overscroll-behavior:contain
+}
+.layout[data-view="challenges"] #inbox-panel{
+ grid-column:2;grid-row:1 / span 2;overflow-y:auto;
+ overscroll-behavior:contain;display:flex;flex-direction:column
+}
+.layout[data-view="challenges"] #inbox-panel .inbox{
+ flex:1;max-height:none;overflow:auto;overscroll-behavior:contain
+}
+.layout[data-view="challenges"] .invite{padding:16px}
+.layout[data-view="challenges"] .invite button{
+ padding:10px 14px;font-size:13px;font-weight:900
+}
+.layout[data-view="ranking"] .arena,
+.layout[data-view="ranking"] .sidebar{display:none!important}
+.layout[data-view="ranking"] .ranking-column{
+ width:100%;max-width:960px;margin:0 auto;overflow-y:auto;overscroll-behavior:contain;
+ gap:14px;padding:2px 6px 16px
+}
+.layout[data-view="ranking"] .ranking-column .note{display:none!important}
+.layout[data-view="ranking"] .ranking-panel{min-height:0}
+.layout[data-view="ranking"] .rank-table{max-height:calc(100dvh - 290px)}
+.ranking-panel .tabs button{padding:12px 7px;font-size:12px}
+.ranking-panel .rank-row{padding:12px;gap:14px}
+.ranking-panel .rank-row .who b{font-size:14px}
+.ranking-panel .rank-row .who small{font-size:11px}
+.ranking-panel .rank-row strong{font-size:15px}
+.ranking-crest{width:56px;height:56px;object-fit:contain;flex:none}
+.rank-row.house-rank{min-height:74px}
+footer{display:none!important}
+@media(max-width:880px){
+ body{height:auto;min-height:100dvh;overflow:auto}
+ .layout{min-height:0;overflow:visible;padding:10px;display:block!important}
+ .layout[data-view="play"] .arena{overflow:visible;padding:4px 0}
+ .layout[data-view="play"] .sidebar{overflow:visible;padding:0;display:flex}
+ .layout[data-view="play"] .board-edge{max-width:min(94vw,600px)}
+ .layout[data-view="challenges"] .sidebar{display:flex;max-width:720px;height:auto;overflow:visible}
+ .layout[data-view="challenges"] #challenge-panel,
+ .layout[data-view="challenges"] #inbox-panel{overflow:visible}
+ .layout[data-view="ranking"] .ranking-column{overflow:visible}
+ .layout[data-view="ranking"] .rank-table{max-height:none}
+ .notification-bell{min-width:0;padding:8px 10px}
+ .notification-bell .notification-label{font-size:10px}
+ .headertext span{display:none}
+ .challenge-notice{flex-wrap:wrap}
+}
+@media(max-width:550px){
+ .header{height:62px;min-height:62px}
+ .header .topinner{padding:0 9px;gap:5px}
+ .logolink img{width:80px}
+ .headertext{padding-left:7px}
+ .headertext b{font-size:12px}
+ .online-badge{display:none}
+ .notification-bell{gap:5px;padding:7px;font-size:15px}
+ .notification-bell .notification-label{font-size:9px;max-width:90px;white-space:normal;line-height:1.15}
+ .notification-bell #notification-count{min-width:20px;height:20px;font-size:10px}
+ .game-tabs{padding:6px 7px;gap:4px}
+ .game-tab{padding:10px 3px;font-size:11px;gap:3px}
+ .challenge-notice{padding:11px 8px;gap:8px}
+ .challenge-notice button{width:100%}
+ .layout[data-view="play"] .board-decoration>img{max-width:5%}
+ .layout[data-view="play"] .match-side img.avatar{width:46px;height:46px}
+ .layout[data-view="play"] .match-side h3{font-size:11px}
+ .ranking-panel .tabs button{font-size:11px}
+ .ranking-crest{width:42px;height:42px}
+}
