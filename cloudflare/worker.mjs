@@ -210,22 +210,29 @@ async function move(db,player,data){
  else if(repetitions[signature]>=5){result='draw';reason='A posição foi repetida cinco vezes.';}
  else if(noCapture>=80){result='draw';reason='80 meios-lances sem captura ou promoção.';}
  else if(ply>=300){result='draw';reason='Limite de segurança de 300 meios-lances.';}
- // Batch é uma transação D1: se duas sessões tentarem gravar o mesmo
- // ply, a chave primária em moves aborta e reverte toda a operação.
- // O WHERE version impede sobrescrita silenciosa de um tabuleiro novo.
+ // A D1 executa o batch como uma transação. O INSERT condicional
+ // vem antes do UPDATE: se a versão mudou, não cria movimento órfão.
+ // Duas jogadas simultâneas para o mesmo ply também disputam sua chave única.
  try{
   const records=await db.batch([
-   db.prepare("UPDATE matches SET board_json=?,turn=?,ply=?,version=version+1,repetitions_json=?,no_capture=?,result=?,reason=?,status=?,updated_at=?,finished_at=? WHERE id=? AND version=? AND turn=? AND status='EM_ANDAMENTO'")
-    .bind(JSON.stringify(next),nextTurn,ply,JSON.stringify(repetitions),noCapture,
-      result,reason,result?'CONCLUIDO':'EM_ANDAMENTO',at,result?at:null,m.id,m.version,m.turn),
-   db.prepare('INSERT INTO moves(match_id,ply,player_id,path_json,captures_json,crowned,played_at) VALUES(?,?,?,?,?,?,?)')
-    .bind(m.id,ply,player.id,JSON.stringify(wanted.path),JSON.stringify(wanted.captures),Number(crowned),at)
+   db.prepare(`INSERT INTO moves(match_id,ply,player_id,path_json,captures_json,crowned,played_at)
+     SELECT ?,?,?,?,?,?,? WHERE EXISTS (
+       SELECT 1 FROM matches WHERE id=? AND version=? AND turn=? AND status='EM_ANDAMENTO'
+     )`).bind(m.id,ply,player.id,JSON.stringify(wanted.path),
+     JSON.stringify(wanted.captures),Number(crowned),at,m.id,m.version,m.turn),
+   db.prepare(`UPDATE matches SET board_json=?,turn=?,ply=?,version=version+1,
+     repetitions_json=?,no_capture=?,result=?,reason=?,status=?,updated_at=?,finished_at=?
+     WHERE id=? AND version=? AND turn=? AND status='EM_ANDAMENTO'
+       AND EXISTS (SELECT 1 FROM moves WHERE match_id=? AND ply=? AND player_id=?)`)
+     .bind(JSON.stringify(next),nextTurn,ply,JSON.stringify(repetitions),noCapture,
+       result,reason,result?'CONCLUIDO':'EM_ANDAMENTO',at,result?at:null,
+       m.id,m.version,m.turn,m.id,ply,player.id)
   ]);
-  if(records[0].meta?.changes!==1)error('Partida mudou enquanto você jogava. Atualize o tabuleiro.',409);
+  if(records[0].meta?.changes!==1||records[1].meta?.changes!==1)
+   error('O tabuleiro mudou em outro dispositivo. Atualize a partida.',409);
  }catch(e){
   if(e.status)throw e;
-  // Constraint na segunda operação protege contra corridas entre jogadores.
-  console.warn('Conflito ao registrar movimento:',String(e?.message||e));
+  console.warn('Conflito ao registrar movimento D1:',String(e?.message||e));
   error('O tabuleiro foi atualizado em outro dispositivo. Atualize a partida.',409);
  }
  return {match:await publicMatch(db,await getMatch(db,m.id),true)};
