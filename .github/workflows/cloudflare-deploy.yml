@@ -25,8 +25,10 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Gerar pacote seguro de assets
         run: npm run cf:build
-      - name: Configurar ID D1 no runner sem gravar no Git
-        run: node scripts/set-cloudflare-database.mjs
+      - name: Criar ou localizar banco D1 exclusivo (sem tocar no Torneio V2)
+        run: node scripts/prepare-cloudflare-database.mjs
+      - name: Conferir UUID e nome do banco D1 antes das migrações
+        run: node scripts/check-cloudflare-database.mjs
       - name: Aplicar somente migrações da base classdamas-db
         run: npx wrangler d1 migrations apply classdamas-db --remote
       - name: Publicar Worker e assets
