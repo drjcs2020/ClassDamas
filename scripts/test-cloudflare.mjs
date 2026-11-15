@@ -82,8 +82,8 @@ async function run(){
  const good=attempts.find(x=>x.http===200);
  check(good.match.version===2&&good.match.turn==='black'&&good.match.moves.length===1,
   'A partida deve conter exatamente um lance persistido.');
- const state=await req('match',{token:a.token,query:{id:m.match.id}});
- check(state.http===200&&state.match.ply===1&&state.match.moves.length===1,
+ const stateAfterMove=await req('match',{token:a.token,query:{id:m.match.id}});
+ check(stateAfterMove.http===200&&stateAfterMove.match.ply===1&&stateAfterMove.match.moves.length===1,
   'Lance concorrente rejeitado criou registro órfão na base D1.');
  const stale=await req('move',{token:a.token,body:op({
   id:m.match.id,path:legal,expectedVersion:1
