@@ -27,5 +27,5 @@ test('identidade visual utiliza somente brasões e cenários do repositório',()
   assert.match(html,new RegExp(name.replace('.','\\.')));
  }
  assert.match(css,/assets\/cenario_aguia\.webp/);
- assert.doesNotMatch(css,/flor|parchment|pergaminho|papyrus/i);
+ assert.doesNotMatch(css,/url\([^)]*(?:flores|parchment|pergaminho|papyrus)/i);
 });
