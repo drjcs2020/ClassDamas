@@ -83,3 +83,8 @@ Consulte as fontes oficiais:
 ### Ajuste de identidade visual — 15/11/2026
 
 No layout aprovado, o logotipo ClassMana foi redimensionado para permanecer visível no cabeçalho (também em telas menores). Os brasões oficiais das três casas foram reduzidos e reposicionados dentro dos cards, sem ultrapassar as bordas ou encobrir os castelos. A mudança é exclusivamente visual: API, ranking, partidas e banco D1 permanecem inalterados.
+
+
+### Correção do tabuleiro — 15/11/2026
+
+A aba **Partida** não deve apresentar barra de rolagem dentro do tabuleiro. Em desktops, o tabuleiro é redimensionado pelo espaço útil da tela, enquanto as ações e os indicadores de turno ocupam uma área lateral, sem reduzir as casas de jogo. Em telas menores, a página pode rolar verticalmente, mas a moldura e o tabuleiro permanecem inteiros, sem rolagem interna. Regressão visual coberta por `tests/classmana-approved-ui.test.mjs`. O ajuste é somente de frontend e não altera partidas nem banco D1.
