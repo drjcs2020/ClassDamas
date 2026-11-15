@@ -208,8 +208,8 @@ body.cm-app{display:flex;flex-direction:column;min-height:560px;overflow:hidden;
  background:linear-gradient(#06182ba8,#06172bea),url('assets/cenario_aguia.webp') center/cover;
  border:2px solid #e1b361;border-radius:15px;box-shadow:0 9px 22px #000a
 }
-#panel-rankings #houses-ranking .rank-row:nth-child(2){background-image:linear-gradient(#06182b8c,#081a30eb),url('assets/cenario_leao.webp')}
-#panel-rankings #houses-ranking .rank-row:nth-child(3){background-image:linear-gradient(#06182b8c,#081a30eb),url('assets/cenario_dragao.webp')}
+#panel-rankings #houses-ranking .rank-row.house-b{background-image:linear-gradient(#06182b8c,#081a30eb),url('assets/cenario_leao.webp')}
+#panel-rankings #houses-ranking .rank-row.house-c{background-image:linear-gradient(#06182b8c,#081a30eb),url('assets/cenario_dragao.webp')}
 #panel-rankings #houses-ranking .rank-row:nth-child(1){box-shadow:0 0 18px #ffc85d66,0 9px 22px #000a;border-color:#ffe5a0}
 #panel-rankings #houses-ranking .ranking-crest{width:min(45%,180px);height:min(22vh,195px);filter:drop-shadow(0 6px 9px #000b)}
 #panel-rankings #houses-ranking .rank-row .pos{font-size:26px}
