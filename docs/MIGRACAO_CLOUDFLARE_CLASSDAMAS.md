@@ -2,7 +2,7 @@
 
 ## Situação verificada
 
-O **ClassDamas** ainda é acessível via Railway, enquanto sua nova API Cloudflare foi implementada em `cloudflare/worker.mjs` e testada com D1 local no GitHub Actions. **A publicação Cloudflare está desativada intencionalmente** até cadastrar o banco e as credenciais da conta. Não excluir nem parar o Railway antes de validar o endereço Cloudflare.
+O **ClassDamas** ainda é acessível via Railway, enquanto sua nova API Cloudflare foi implementada em `cloudflare/worker.mjs` e testada com D1 local no GitHub Actions. **A publicação Cloudflare está desativada intencionalmente** até configurar as credenciais da conta. O workflow pode criar automaticamente o D1 exclusivo `classdamas-db`. Não excluir nem parar o Railway antes de validar o endereço Cloudflare.
 
 O Torneio das Três Casas V2 permanece **em outro repositório, Worker e banco de dados**. Na inspeção da `main` do repositório V2, ainda não havia implementação Cloudflare commitada. Esta migração das damas não escreve no repositório nem no banco do torneio.
 
@@ -21,17 +21,17 @@ A interface existente continua usando `online-config.js`, cujo modo de origem ig
 ## Ativação uma única vez (sem instalar nada no Windows)
 
 1. Abra [Cloudflare Dashboard](https://dash.cloudflare.com/), na conta em que pretende hospedar os jogos. Escolha o plano **Workers Free** e consulte os limites antes de publicar.
-2. Em **D1 SQL Database**, crie uma base **nova**, com o nome exato **`classdamas-db`**. Não utilize o D1 que vier a ser criado para o Torneio V2. Copie o **Database ID (UUID)**.
+2. O banco D1 **`classdamas-db`** será criado automaticamente pela publicação, caso ainda não exista. Se já existir, o fluxo verifica seu ID e **não cria outro**. Nunca utiliza o banco do Torneio V2.
 3. No Cloudflare, crie um token de API com acesso **restrito à conta escolhida**, permitindo **Workers Scripts Edit** (ou a função Workers necessária para criar o Worker) e **D1 Edit**. Copie o **Account ID** da sua conta. Guarde o token exclusivamente nos Secrets do GitHub, nunca no código ou no chat.
 4. Em [GitHub → ClassDamas → Settings → Secrets and variables → Actions](https://github.com/drjcs2020/ClassDamas/settings/secrets/actions), crie estes **Repository secrets**:
    - `CLOUDFLARE_ACCOUNT_ID`: ID da conta Cloudflare.
    - `CLOUDFLARE_API_TOKEN`: token com as permissões acima.
-   - `CLOUDFLARE_D1_DATABASE_ID`: UUID do banco **classdamas-db**.
+   - `CLOUDFLARE_D1_DATABASE_ID` *(opcional)*: UUID esperado de **classdamas-db**; se informado e não conferir com a conta, a publicação é interrompida.
 5. Na aba **Variables** do mesmo painel, crie a **Repository variable** `CLOUDFLARE_DEPLOY_ENABLED` com o valor literal `true`. Antes disso, a publicação fica ignorada propositalmente.
-6. Abra [Actions → Publicar ClassDamas no Cloudflare](https://github.com/drjcs2020/ClassDamas/actions/workflows/cloudflare-deploy.yml) e execute **Run workflow** na `main`. Os pushes seguintes publicarão automaticamente, incluindo migrações futuras. O fluxo gera assets, injeta o D1 ID apenas no runner, aplica as migrações remotas no banco exclusivo e publica o Worker.
+6. Abra [Actions → Publicar ClassDamas no Cloudflare](https://github.com/drjcs2020/ClassDamas/actions/workflows/cloudflare-deploy.yml) e execute **Run workflow** na `main`. Os pushes seguintes publicarão automaticamente, incluindo migrações futuras. O fluxo gera os assets, cria/localiza apenas o D1 `classdamas-db`, confere seu ID remoto no runner, aplica as migrações exclusivas e publica o Worker.
 7. Ao concluir, o GitHub Actions mostrará o endereço público do tipo `https://classdamas.<seu-subdominio>.workers.dev`. No mesmo endereço, a API `/api?action=ping` deverá responder `provider: cloudflare` e `database: cloudflare-d1`.
 
-**Atenção:** o arquivo `wrangler.jsonc` do repositório contém um UUID fictício de **desenvolvimento local**. O workflow de deploy troca esse UUID pelo valor seguro do Secret no runner, sem gravá-lo no Git. Não publicar com o UUID fictício.
+**Atenção:** o arquivo `wrangler.jsonc` do repositório contém um UUID fictício de **desenvolvimento local**. O workflow resolve o UUID do banco pelo nome via Cloudflare, confirma que corresponde ao `classdamas-db` da conta e troca o UUID no runner, sem gravá-lo no Git. Não publicar com o UUID fictício.
 
 ### Painel do professor (opcional)
 
