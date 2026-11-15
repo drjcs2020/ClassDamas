@@ -24,7 +24,7 @@ let players=[],apiReady=false,match=null,chosen=null,rankTab='groups',busy=false
 let gameMode='duel',onlinePlayerIds=new Set(),lastInviteCount=0;
 const faceURLs=new Map();
 const faceBase='https://raw.githubusercontent.com/drjcs2020/classmana-batalha-dos-monstros-V2/main/assets/';
-const api={url:DAMA_API_URL,token:sessionStorage.getItem(tokenKey)||'',user:null,teacherToken:'',
+const api={url:DAMA_API_URL,token:sessionStorage.getItem(tokenKey)||'',user:null,teacherToken:'',provider:'legacy',
  async request(action,method='GET',data={},teacher=false){
    if(!this.url)throw Error('Configure a URL da API de damas em online-config.js.');
    const u=new URL(this.url);u.searchParams.set('action',action);
@@ -314,10 +314,11 @@ function renderHouseTiles(){
    selected===api.user.house?'Duelo na mesma turma: você pode convidar colegas, mesmo quando estiverem offline.':
    'EVENTO ENTRE TURMAS: esta opção fica disponível quando o aluno adversário estiver online.';
 }
-async function refreshPresence(){
+async function refreshPresence(preset){
  if(!api.user)return;
  try{
-  const r=await api.get('presence');onlinePlayerIds=new Set(r.onlinePlayerIds||[]);
+  const ids=preset||(await api.get('presence')).onlinePlayerIds;
+  onlinePlayerIds=new Set(ids||[]);
   populateOpponents();
  }catch(e){console.warn('Presença indisponível:',e.message)}
 }
@@ -365,7 +366,7 @@ function changeStudent(){
  $('inbox').innerHTML='<p class="muted">Selecione seu nome para ver convites.</p>';
  renderAll();message('Escolha sua turma e selecione outro nome.');
 }
-async function loadInbox(){if(!api.user)return;const r=await api.get('inbox');const host=$('inbox');host.replaceChildren();
+async function loadInbox(preset){if(!api.user)return;const r=preset?{matches:preset}:await api.get('inbox');const host=$('inbox');host.replaceChildren();
  const invites=r.matches.filter(m=>m.recipient.id===api.user.id&&m.status==='PENDENTE').length;
  const bell=$('notification-bell'),badge=$('notification-count'),counter=$('inbox-alert');
  badge.hidden=invites===0;counter.hidden=invites===0;
@@ -405,7 +406,7 @@ async function openMatch(id){try{
  else message(match.status==='PENDENTE'?'Convite enviado; aguardando aceite.':'Convite recusado.');
  }catch(e){message(e.message,true)}}
 async function reloadMatch(){if(match)await openMatch(match.id)}
-async function loadRanking(){try{const r=await api.get('ranking');
+async function loadRanking(preset){try{const r=preset||await api.get('ranking');
  $('season-label').textContent=`${r.season.label} · ${r.games} partidas concluídas`;
  for(const [id,records] of [['groups',r.groups],['players',r.players]]){
    const host=$(id+'-ranking');host.replaceChildren();
@@ -451,6 +452,7 @@ function bind(){
 }
 async function init(){bind();renderAll();void faceLoad();showRankTab('groups');
  try{const ping=await api.get('ping');if(ping.api!=='dama-v2')throw Error('API incorreta — não use o servidor do arco e flecha.');
+ api.provider=ping.provider==='cloudflare'?'cloudflare':'legacy';
  apiReady=true;setState('good','● API DE DAMAS CONECTADA');
  const r=await api.get('roster');players=r.players;populatePlayers();renderIdentity();
  if(api.token){try{
@@ -461,26 +463,45 @@ async function init(){bind();renderAll();void faceLoad();showRankTab('groups');
  await loadRanking();
  message('API conectada. Escolha sua turma e seu nome para começar — sem senha.');
  }catch(e){setState('bad','● API INDISPONÍVEL');message(e.message,true);}
- // Atualização rápida para sininho e turnos; não substitui nem antecipa a jogada do adversário.
- let ticks=0;
+ // Cloudflare: apenas uma chamada "sync" para sininho, presença e turno.
+ // Mais consultas na partida ativa; menos consultas quando o aluno aguarda.
+ let syncLast=0,rankLast=Date.now(),legacyTick=0,syncInFlight=false;
+ const refreshMatch=result=>{
+  if(!result||!match||result.version===match.version)return;
+  match=result;chosen=null;renderAll();
+  message(match.status==='CONCLUIDO'?'Partida encerrada e resultado registrado.':
+   match.status==='EM_ANDAMENTO'?(myTurn()?'Seu adversário jogou. Sua vez!':'Aguarde a jogada do colega.'):
+   match.status==='RECUSADO'?'Convite recusado.':'Aguardando resposta do colega.');
+ };
  setInterval(async()=>{
-  if(!apiReady||busy||!api.user)return;
+  if(!apiReady||busy||!api.user||syncInFlight||document.visibilityState==='hidden')return;
+  const active=gameMode==='duel'&&match?.status==='EM_ANDAMENTO';
+  const cadence=api.provider==='cloudflare'?(active?6000:25000):(active?6000:12000);
+  if(Date.now()-syncLast<cadence)return;
+  syncLast=Date.now();syncInFlight=true;
   try{
-   if(ticks%3===0)await api.post('heartbeat');
-   await loadInbox();
-   if(ticks%3===0)await refreshPresence();
-   if(gameMode==='duel'&&match&&['PENDENTE','EM_ANDAMENTO'].includes(match.status)){
-    const detail=await api.get('match',{id:match.id});
-    if(detail.match.version!==match.version){
-     match=detail.match;chosen=null;renderAll();
-     message(match.status==='CONCLUIDO'?'Partida encerrada e resultado registrado.':
-      match.status==='EM_ANDAMENTO'?(myTurn()?'Seu adversário aceitou ou jogou. Sua vez!':'Aguarde a jogada do colega.'):
-      'Aguardando resposta do colega.');
-    }
+   if(api.provider==='cloudflare'){
+    const includeRanking=Date.now()-rankLast>90000;
+    const r=await api.get('sync',{
+     ...(gameMode==='duel'&&match&&['PENDENTE','EM_ANDAMENTO'].includes(match.status)?{matchId:match.id}:{}),
+     ...(includeRanking?{ranking:1}:{})
+    });
+    await loadInbox(r.matches);
+    await refreshPresence(r.onlinePlayerIds);
+    refreshMatch(r.match);
+    if(r.ranking){await loadRanking(r.ranking);rankLast=Date.now();}
+   }else{
+    // Compatibilidade com o Railway enquanto a migração não for homologada.
+    if(legacyTick%3===0)await api.post('heartbeat');
+    await loadInbox();
+    if(legacyTick%2===0)await refreshPresence();
+    if(gameMode==='duel'&&match&&['PENDENTE','EM_ANDAMENTO'].includes(match.status))
+     refreshMatch((await api.get('match',{id:match.id})).match);
+    if(legacyTick%6===0)await loadRanking();
+    legacyTick++;
    }
-   if(ticks%4===0)await loadRanking();
   }catch(e){console.warn('Atualização dos duelos:',e.message)}
-  ticks++;
- },4000);
+  finally{syncInFlight=false}
+ },3000);
 }
 init();
