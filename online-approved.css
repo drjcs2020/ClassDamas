@@ -435,3 +435,10 @@ body.cm-app{display:flex;flex-direction:column;min-height:560px;overflow:hidden;
  #panel-partida .cm-status-card .cm-status-crest{height:62px;width:50px}
  #panel-partida>.arena .match-head .cm-rival-crest{width:28px;height:35px}
 }
+
+/* Avatares em uma única linha também no celular. */
+@media(max-width:900px){
+ #panel-partida>.arena .match-head #white-banner{grid-column:1;grid-row:1}
+ #panel-partida>.arena .match-head #black-banner{grid-column:3;grid-row:1}
+ #panel-partida>.arena .match-head>.versus{display:block;grid-column:2;grid-row:1;align-self:center}
+}
