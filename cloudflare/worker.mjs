@@ -142,10 +142,22 @@ async function ranking(db){
    row.losses+=Number(!win&&!draw);row.points+=win?3:draw?1:0;
   }
  }
+ // Ranking por turmas: soma os pontos individuais dos alunos de cada turma,
+ // inclusive em partidas internas. Não altera a regra do ranking dos grupos.
+ const houseNames={A:'Águia Dourada',B:'Leão de Fogo',C:'Dragão de Esmeralda'};
+ const houseRows=new Map(Object.entries(houseNames).map(([id,label])=>[id,{
+  id,house:id,name:'4º '+id+' — '+label,members:players.filter(p=>p.house===id).length,
+  plays:0,wins:0,draws:0,losses:0,points:0
+ }]));
+ for(const p of playerRows.values()){
+  const h=houseRows.get(p.house);if(!h)continue;
+  for(const metric of ['plays','wins','draws','losses','points'])h[metric]+=p[metric];
+ }
  const order=(a,b)=>b.points-a.points||b.wins-a.wins||a.losses-b.losses||a.name.localeCompare(b.name,'pt-BR');
  return {season:active,games:completed.length,
   players:[...playerRows.values()].filter(p=>p.plays>0).sort(order),
-  groups:[...groupRows.values()].sort(order)};
+  groups:[...groupRows.values()].sort(order),
+  houses:[...houseRows.values()].sort(order)};
 }
 function validPath(path){
  return Array.isArray(path)&&path.length>=2&&path.length<=14&&path.every(p=>
