@@ -2,17 +2,23 @@
 
 **Repositório independente.** Interface de damas, duelos persistentes, rankings de alunos e seis grupos, API Node.js/SQLite e administração do professor. O Torneio de Arco e Flecha V2 não é alterado.
 
-**Para alunos:** abrir o link público do Railway, escolher Casa e nome, desafiar ou aceitar convite, jogar. **Sem senha, login ou PIN.**
+**Para alunos:** [abrir o ClassDamas](https://classmana-duel-api-production.up.railway.app/), selecionar turma e nome, entrar em **Duelo** ou **Treino com robô**. **Sem senha, login ou PIN.**
+
+- **Duelo na própria turma (modo principal):** colegas do 4º A, 4º B ou 4º C, inclusive da mesma equipe, trocam convites pelo sininho. É preciso aceitar para começar; as jogadas alternadas são validadas pelo servidor. Convites podem ficar pendentes até o destinatário abrir o jogo.
+- **Evento entre turmas (excepcional):** continuar podendo selecionar qualquer Casa adversária. O botão de convite só é liberado quando o aluno de outra turma está **online**; no aceite, o desafiante também precisa estar online. O sistema não joga no lugar de ninguém.
+- **Treino contra robô:** dificuldades **fácil, médio e difícil**, sem depender de alunos online. O treino não modifica o ranking oficial.
+- **Presença e atualização:** o navegador envia sinal de presença periódico; o sino e o tabuleiro verificam atualizações automaticamente a cada poucos segundos. Isso é atualização por consulta à API, não WebSocket.
 
 **Para manutenção:** editar a branch `main` no GitHub. Quando o serviço Railway estiver conectado, cada push fará o deploy automaticamente. Não baixar ZIP.
 
-**Status de publicação:** código e testes enviados ao GitHub. A implantação da API no Railway está **pendente**: a conta respondeu `Free plan resource provision limit exceeded` ao tentar criar um projeto novo. Ainda não há endereço público para duelos entre computadores.
+**Publicação:** reaproveitamos exclusivamente o serviço Railway da versão antiga (V1) para o ClassDamas, sem tocar no projeto do Torneio V2. Origem do serviço: `drjcs2020/ClassDamas` na `main`. Domínio: https://classmana-duel-api-production.up.railway.app/. O banco exclusivo é o arquivo `/data/classdamas.sqlite` em volume persistente. Verifique a implantação mais recente no Railway após alterações.
 
 Veja [`DEPLOY_GITHUB_RAILWAY.md`](DEPLOY_GITHUB_RAILWAY.md) para a configuração inicial e os cuidados com o volume SQLite.
 
 ## Estrutura
 
-- `online.html`, `online-app.js`, `online.css` — jogo de damas online e rankings.
+- `online.html`, `online-app.js`, `online.css`, `online-v3.css` — interface, seleção de Casas, sininho, duelos e ranking.
+- `bot-ai.js` — motor de treino local com fácil, médio e difícil.
 - `duel-api/server.mjs` — servidor HTTP/API e SQLite independente.
 - `duel-api/roster.json`, `duel-api/teams.json` — alunos e seis grupos oficiais.
 - `regras.js` — regras de damas brasileiras compartilhadas entre interface e servidor.
@@ -21,7 +27,7 @@ Veja [`DEPLOY_GITHUB_RAILWAY.md`](DEPLOY_GITHUB_RAILWAY.md) para a configuraçã
 
 ## Testes executados
 
-`npm test` (16 testes das regras e equipes) e `npm run test:online` (duelo HTTP persistente, 49 jogadas, reinício da API, ranking, temporadas). Os testes utilizam SQLite temporário e não modificam banco de produção.
+`npm test` (16 testes das regras e equipes) e `npm run test:online` (partidas HTTP persistentes, reinício da API, ranking, temporadas, colegas da mesma equipe e desafios entre turmas condicionados à presença). Os testes utilizam SQLite temporário e não modificam banco de produção.
 
 ## Arte oficial
 
