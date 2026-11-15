@@ -1,0 +1,114 @@
+/* ClassDamas — refinamento usando EXCLUSIVAMENTE cenários, rostos e brasões existentes.
+   Sem imagens geradas, flores ou pergaminhos. */
+:root{--ui-ink:#183930;--ui-teal:#158b72;--ui-teal-dark:#086a5e;--ui-lime:#effcf4;--ui-mint:#d9faeb;--ui-accent:#e98c50;--ui-border:#a8dfc9}
+body{background:#effbf4;color:var(--ui-ink)}
+.header{background:linear-gradient(105deg,#fafffd,#e5fff1);border-bottom:3px solid #32a68a}
+.headertext{border-left-color:#ace0cc}.headertext span{color:#437966}.headertext b{color:#167c62}
+.online-badge{background:#f8fffa;border-color:#96cfb8;color:#2e6854}
+.online-badge.good{color:#14704b}.online-badge.bad{color:#bc3c28}
+.notification-bell{background:#fff;color:#147b63;border-color:#59bc94}
+.notification-bell.ringing{background:#fff3d9}
+.world{background-image:url('assets/cenario_aguia.webp');border-bottom:3px solid #4cb598;min-height:145px}
+.worldshade{background:linear-gradient(90deg,#ffffff8c,#ffffff33 53%,#ffffff8c),linear-gradient(180deg,#ffffff1c,#ffffff85)}
+.worldcontent{text-shadow:0 1px 2px #fff,0 0 8px #fff}
+.overline{color:#165e4c}.world h1{color:#184f40;text-shadow:0 2px 1px #fff}.world h1 em{color:#be6d32}
+.world p{color:#214b3c}
+.layout{background:transparent}
+.panel{background:linear-gradient(145deg,#fff,#effff7 75%);border:1px solid #9adbc0;box-shadow:0 8px 24px #40745a18,inset 0 1px #fff}
+.panel h2{color:#136c59;font-family:'Nunito Sans',Arial,sans-serif;font-weight:1000;letter-spacing:0}
+.panel .muted,.muted{color:#4c6b5f}
+.panel label,.panel label small{color:#345e51}
+.panel select,.panel input{background:#fff;border:1px solid #9dcbb7;color:#1f4236}
+.panel option{background:white;color:#1f4236}
+.boxline{background:#e8f9ed;border-color:#a6d9bc;color:#285342}
+.btn.gold{background:linear-gradient(#fabe6e,#f59a55);color:#492812;border-color:#ef9c61;box-shadow:0 3px 0 #c47749}
+.btn.ghost{background:#fff;color:#106b58;border-color:#7bbea3}
+.mode-choice{background:#f6fff9;color:#245b49;border-color:#9ed4bb}
+.mode-choice b{color:#216d53}.mode-choice small{color:#507765}
+.mode-choice.active{background:linear-gradient(130deg,#c9f9d7,#ecfff5);border:2px solid #23a17c;box-shadow:0 0 0 3px #23a17c24}
+.house-tile{background:white;color:#1b503d;border-color:#b6d5c3}
+.house-tile small{color:#567568}.house-tile.selected{background:#d9fbed;border-color:#159f79;box-shadow:0 0 0 2px #20a77d24}
+#cross-house-note,#opponent-note{color:#31705c}.presence-legend{color:#4d7968}
+.invite{background:#f7fffa;border-color:#bedccc;border-left-color:#e5964e;color:#2a4f3e}
+.invite b{color:#255342}.invite small{color:#617967}.invite button{background:white;color:#126d59;border-color:#70c5a2}
+.duel-status{background:linear-gradient(100deg,#c9f9e4,#f4fff5);color:#12654f;border:2px solid #41b58f;box-shadow:0 3px 12px #2673551f;font-size:16px}
+.duel-status[data-phase="em_andamento"]{background:linear-gradient(95deg,#137b60,#23a682);color:white;border-color:#0f755b}
+.duel-status[data-phase="pendente"]{background:#fff2de;color:#7d552e;border-color:#e6a65a}
+.duel-status[data-phase="concluido"]{background:#d3f8df;color:#155d3d;border-color:#3aaa70}
+.duel-status[data-phase="bot"]{background:#dcf8f1;color:#116d5f;border-color:#34b49c}
+.match-side{background:linear-gradient(135deg,#f1fff5,#cbefdf);border-color:#82caa3;box-shadow:0 4px 16px #337c5316}
+.match-side.opponent{background:linear-gradient(135deg,#fff2e3,#ffe0cb);border-color:#e0a178}
+.match-side small{color:#4d705b}.match-side h3{color:#205e46}.match-side p{color:#527261}
+.match-side img.avatar{border-color:#53b78f;background:#e2f9ed}
+.versus{color:#ca7751;text-shadow:none}
+.board-shell{background:linear-gradient(145deg,#ddf9ed,#eefaef);border:2px solid #75bb98;box-shadow:0 12px 28px #5297772e,inset 0 0 0 2px #ffffffce}
+.board-top,.board-top span{color:#27705a}
+.board-edge{flex:1 1 auto;min-width:0;max-width:740px;width:100%;padding:clamp(4px,1vw,12px);border:5px solid #b97943;border-radius:10px;background:linear-gradient(#ddaa73,#ba7641);box-shadow:0 8px 20px #674b3933}
+.board{
+ display:grid;
+ grid-template-columns:repeat(8,minmax(0,1fr));
+ grid-template-rows:repeat(8,minmax(0,1fr));
+ grid-auto-flow:row;
+ width:100%;
+ max-width:100%;
+ height:auto;
+ aspect-ratio:1 / 1;
+ border:2px solid #815530;
+ background:#815530;
+ box-sizing:border-box;
+ overflow:hidden;
+}
+.square{
+ min-width:0;min-height:0;width:100%;height:100%;padding:0;
+ display:grid;place-items:center;box-sizing:border-box;overflow:hidden;
+ border:0;border-radius:0;
+}
+.square.dark{background:#9d673f;box-shadow:none}
+.square.light{background:#f3dfbf}
+.square.selected{box-shadow:inset 0 0 0 4px #27bca0;z-index:1}
+.square.movable:before{border:2px solid #ffffffb0;inset:2px}
+.square.legal:after{background:#39bc8c99;box-shadow:0 0 0 3px #139d68a1}
+.piece{width:83%;aspect-ratio:1;max-height:83%;border:3px solid var(--accent,#62aeb2);box-shadow:0 2px 4px #0007,0 0 0 2px #fff9;overflow:hidden}
+.piece-white{border-color:#35a0d1;box-shadow:0 2px 4px #0007,0 0 0 2px #35a0d1}
+.piece-black{border-color:#dc735f;box-shadow:0 2px 4px #0007,0 0 0 2px #dc735f}
+.piece img.face{border:0;background:#eef8f8}
+.board-overlay{background:#ffffffeb;border:2px solid #69b998;box-shadow:0 4px 25px #3d8d7140}
+.board-overlay strong{color:#126c53;text-shadow:none}.board-overlay span{color:#476956}
+.turn{background:#d8f6e5;border:1px solid #90d7b6}
+.turn-gem,.turn small,.turn strong,.ply{color:#17674d}
+.message{color:#356c55;font-size:14px}.message.warn{color:#be4a39}
+.history ol{color:#2e6250}
+.tabs button{background:white;color:#27735b;border:1px solid #90ceb1}
+.tabs button.active{background:#1f9c78;color:white}
+.rank-row{background:#fff;border-color:#b9dfc9;color:#24533f}
+.rank-row .pos,.rank-row strong{color:#176c52}
+.rank-row .who small,.rank-foot{color:#587969}
+.hero-gallery small{color:#416a54}
+.teacher summary{color:#197c60}
+footer{border-top-color:#a4d6bb;color:#54806b}
+footer a{color:#0b8466}
+
+/* Resultado visível para partidas humanas E treino. Usa dados reais, sem placar inventado. */
+.result-modal{position:fixed;inset:0;z-index:999;display:grid;place-items:center;padding:18px;background:#102f266e;backdrop-filter:blur(5px)}
+.result-card{width:min(540px,100%);max-height:calc(100vh - 36px);overflow:auto;position:relative;border:3px solid #3eb18c;border-radius:22px;background:linear-gradient(150deg,#ffffff,#d9f8e8);box-shadow:0 25px 80px #17372c6e;text-align:center;color:#1c4936;padding:32px 24px}
+.result-close{position:absolute;right:12px;top:11px;width:37px;height:37px;border:1px solid #a5d5bb;border-radius:50%;color:#246d58;background:white;font-size:20px}
+.result-icon{display:block;font-size:52px;line-height:1.2}
+.result-eyebrow{color:#247c62;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;font-size:13px;margin:10px 0}
+.result-title{font:900 clamp(23px,4.8vw,36px) 'Nunito Sans',Arial,sans-serif;color:#11674f;margin:8px 0;line-height:1.15}
+.result-subtitle{font-weight:800;color:#4a6c57;font-size:15px;line-height:1.5;margin:6px auto 12px;max-width:400px}
+.result-portrait{width:100px;height:100px;margin:12px auto 16px;display:grid;place-items:center;border-radius:50%;border:4px solid #39b18b;overflow:hidden;background:white;box-shadow:0 4px 13px #398a6850}
+.result-portrait img{width:100%;height:100%;object-fit:cover}
+.result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.result-actions .btn{min-width:155px;font-size:14px}
+.result-card[data-result="loss"]{border-color:#e09b64;background:linear-gradient(135deg,#fff,#fff2e5)}
+.result-card[data-result="loss"] .result-title{color:#a3542d}
+.result-card[data-result="draw"]{border-color:#b6a0de;background:linear-gradient(135deg,#fff,#f0ebff)}
+.result-card[data-result="draw"] .result-title{color:#7054a5}
+[hidden]{display:none!important}
+@media(max-width:760px){
+ .board-shell{padding:8px 4px}.board-decoration{gap:0}
+ .board-edge{padding:3px;border-width:3px}.board{border-width:1px}
+ .piece{border-width:2px}.square.selected{box-shadow:inset 0 0 0 2px #27bca0}
+ .result-card{padding:26px 16px}.duel-status{font-size:13px}
+ .mode-choice{min-height:90px}
+}
