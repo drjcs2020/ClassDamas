@@ -11,7 +11,7 @@ const GROUPS=[
  ['Dragões de Combate','Dragão de Combate','dragao','DC','hero_dragao.png'],
  ['Mágicos e Engenheiros','Maga Engenheira','maga','ME','hero_maga.png']
 ];
-const crestImages={A:'assets/brasao_aguia.png',B:'assets/brasao_leao.png',C:'assets/brasao_dragao.png'};
+const crestImages={A:'assets/brasao_aguia_hd.png',B:'assets/brasao_leao_hd.png',C:'assets/brasao_dragao_hd.png'};
 const HOUSES={A:{name:'Águia Dourada',slug:'aguia',color:'#69b9f9'},B:{name:'Leão de Fogo',slug:'leao',color:'#f0755c'},C:{name:'Dragão de Esmeralda',slug:'dragao',color:'#53d89d'}};
 const tokenKey='classmana-dama-student-token-v2';
 const status=$('connection');
@@ -45,17 +45,35 @@ const api={url:DAMA_API_URL,token:sessionStorage.getItem(tokenKey)||'',user:null
 };
 function setState(value,text){status.className='online-badge '+value;status.textContent=text;}
 function message(s,warn=false){notice=s;$('message').textContent=s;$('message').classList.toggle('warn',warn);}
-function showView(view){
- if(!['play','challenges','ranking'].includes(view))return;
- $('game-layout').dataset.view=view;
- for(const tab of ['play','challenges','ranking']){
-  const el=$('view-'+tab),selected=tab===view;
-  el.classList.toggle('active',selected);
-  el.setAttribute('aria-selected',String(selected));
+function syncHouseVisual(){
+ const house=api.user?.house||$('house')?.value||'A';
+ const screen=$('game-layout');
+ screen.classList.remove('house-a','house-b','house-c');
+ screen.classList.add('house-'+house.toLowerCase());
+ for(const button of document.querySelectorAll('.cm-house-card')){
+  const selected=button.dataset.house===house;
+  button.classList.toggle('selected',selected);
+  button.setAttribute('aria-pressed',String(selected));
  }
- if(view==='ranking'&&apiReady)void loadRanking();
- else if(view==='challenges'&&api.user)void loadInbox();
+ $('headercrest').src=crestImages[house];
+ $('headName').textContent=api.user?.name||'Identifique-se';
+ $('headHouse').textContent='4º '+house+' · '+HOUSES[house].name;
 }
+function showView(view){
+ const aliases={play:'partida',challenges:'desafios',ranking:'rankings'};
+ const tab=aliases[view]||view;
+ if(!['casa','desafios','partida','rankings'].includes(tab))return;
+ for(const name of ['casa','desafios','partida','rankings']){
+  const selected=name===tab;
+  const nav=$('view-'+name),pane=$('panel-'+name);
+  nav.classList.toggle('active',selected);
+  nav.setAttribute('aria-current',selected?'page':'false');
+  pane.classList.toggle('active',selected);
+ }
+ if(tab==='rankings'&&apiReady)void loadRanking();
+ else if(tab==='desafios'&&api.user)void loadInbox();
+}
+
 function groupFor(heroIndex){return GROUPS[heroIndex]||GROUPS[0]}
 function srcFor(index){const group=groupFor(index);return faceURLs.get(group[2])||'assets/monstros/'+group[4]}
 async function faceLoad(){
@@ -328,6 +346,7 @@ function renderIdentity(){
  $('house').disabled=!!api.user;
  $('player').disabled=!!api.user;
  $('identity').textContent=api.user?`${api.user.name} · 4º ${api.user.house} · ${api.user.team}`:'Selecione sua turma e seu nome';
+ syncHouseVisual();
  $('opponent').disabled=!api.user;$('challenge').disabled=!api.user;
  if(api.user){
    $('house').value=api.user.house;
@@ -509,7 +528,12 @@ async function newSeason(){try{const r=await api.post('teacherNewSeason',{label:
  }catch(e){$('teacher-message').textContent=e.message}}
 function bind(){
  $('confirm-student').addEventListener('click',confirmStudent);$('change-student').addEventListener('click',changeStudent);
- $('house').addEventListener('change',()=>populatePlayers());
+ $('house').addEventListener('change',()=>{populatePlayers();syncHouseVisual();});
+ for(const card of document.querySelectorAll('.cm-house-card'))card.addEventListener('click',()=>{
+  if(api.user){message('Para mudar de turma, primeiro escolha TROCAR ALUNO.');return;}
+  $('house').value=card.dataset.house;populatePlayers();syncHouseVisual();
+ });
+ $('house-next').addEventListener('click',()=>showView('desafios'));
  $('opponent').addEventListener('change',updateOpponent);
  $('target-house').addEventListener('change',populateOpponents);
  $('challenge').addEventListener('click',sendChallenge);
@@ -518,7 +542,7 @@ function bind(){
  $('bot-start').addEventListener('click',startBot);
  $('notification-bell').addEventListener('click',()=>showView('challenges'));
  $('challenge-notice-open').addEventListener('click',()=>showView('challenges'));
- for(const view of ['play','challenges','ranking']){
+ for(const view of ['casa','desafios','partida','rankings']){
   $('view-'+view).addEventListener('click',()=>showView(view));
  }
  $('refresh-inbox').addEventListener('click',()=>loadInbox().catch(e=>message(e.message,true)));
@@ -545,7 +569,7 @@ function bind(){
   if(e.key==='Escape'&&chosen){chosen=null;message('Seleção cancelada.');renderBoard();}
  });
 }
-async function init(){bind();renderAll();void faceLoad();showRankTab('groups');
+async function init(){bind();syncHouseVisual();renderAll();void faceLoad();showRankTab('houses');showView('casa');
  try{const ping=await api.get('ping');if(ping.api!=='dama-v2')throw Error('API incorreta — não use o servidor do arco e flecha.');
  api.provider=ping.provider==='cloudflare'?'cloudflare':'legacy';
  apiReady=true;setState('good','● API DE DAMAS CONECTADA');
