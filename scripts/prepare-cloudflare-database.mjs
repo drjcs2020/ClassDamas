@@ -17,7 +17,13 @@ function command(...args){
  const p=spawnSync(process.execPath,[...cli,...args],{
   encoding:'utf8',timeout:60000,env:{...process.env,CI:'true'}
  });
- if(p.status!==0)throw Error('Cloudflare não confirmou a operação D1 '+args[0]+'.');
+ if(p.status!==0){
+  let detail=String(p.stderr||p.stdout||'Falha sem detalhes').trim();
+  for(const secret of [process.env.CLOUDFLARE_API_TOKEN,process.env.CLOUDFLARE_ACCOUNT_ID]){
+   if(secret)detail=detail.replaceAll(secret,'[CREDENCIAL PROTEGIDA]');
+  }
+  throw Error('Cloudflare não confirmou D1 '+args[0]+': '+detail.slice(-2200));
+ }
  return p.stdout.trim();
 }
 function list(){
