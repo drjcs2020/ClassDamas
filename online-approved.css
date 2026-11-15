@@ -231,3 +231,96 @@ body.cm-app{display:flex;flex-direction:column;min-height:560px;overflow:hidden;
  #panel-rankings #houses-ranking .rank-row strong{font-size:15px}
  #panel-rankings .ranking-hero{width:46px;height:50px}
 }
+
+/* ClassDamas — tabuleiro protagonista, SEM barra de rolagem interna.
+   Os comandos de turno ficam ao lado; o tabuleiro se ajusta ao espaço livre.
+   A rolagem em telas pequenas pertence apenas à página, nunca ao tabuleiro. */
+@media (min-width:901px){
+ #panel-partida.cm-view{overflow:hidden;padding:8px 12px}
+ #panel-partida .cm-heading{min-height:24px;margin-bottom:5px}
+ #panel-partida .cm-mode{margin-bottom:5px}
+ #panel-partida .cm-mode .panel{padding:4px 10px}
+ #panel-partida>.arena{
+   grid-template-columns:minmax(110px,150px) minmax(0,1fr) minmax(110px,150px);
+   grid-template-rows:auto minmax(0,1fr);
+   gap:7px;overflow:hidden;min-height:0
+ }
+ #panel-partida>.arena .duel-status{padding:7px 11px;line-height:1.2}
+ #panel-partida>.arena .match-side{padding:8px 5px;gap:5px}
+ #panel-partida>.arena .match-side .avatar{width:min(72%,112px)}
+ #panel-partida>.arena .board-shell{
+   overflow:visible;display:grid;position:relative;
+   grid-template-columns:minmax(0,1fr) minmax(130px,180px);
+   grid-template-rows:auto minmax(0,1fr) auto auto;
+   align-items:center;column-gap:8px;row-gap:4px;
+   padding:5px 7px;min-height:0;min-width:0
+ }
+ #panel-partida>.arena .board-top{grid-column:1/-1;grid-row:1;padding:2px 4px 5px}
+ #panel-partida>.arena .board-decoration{
+   grid-column:1;grid-row:2/5;display:flex;align-items:center;
+   justify-content:center;width:100%;height:100%;min-height:0;min-width:0;gap:3px
+ }
+ #panel-partida>.arena .board-decoration>img{width:3.5%;max-width:28px;height:auto}
+ #panel-partida>.arena .board-edge{
+   flex:0 1 auto;min-width:0;
+   width:min(100%,calc(100dvh - 265px),870px);
+   max-width:none;padding:5px;border-width:4px;margin:0 auto
+ }
+ #panel-partida>.arena #board{
+   display:grid;grid-template-columns:repeat(8,minmax(0,1fr));
+   grid-template-rows:repeat(8,minmax(0,1fr));width:100%;height:auto;
+   aspect-ratio:1/1;overflow:hidden
+ }
+ #panel-partida>.arena .turn{
+   grid-column:2;grid-row:2;align-self:end;
+   width:100%;min-width:0;margin:0;padding:9px 7px;gap:4px
+ }
+ #panel-partida>.arena .turn strong{font-size:clamp(13px,1.1vw,17px)}
+ #panel-partida>.arena .turn .ply{font-size:10px}
+ #panel-partida>.arena .message{
+   grid-column:2;grid-row:3;width:100%;margin:0;
+   padding:8px;border:1px solid #b18f5a;border-radius:9px;
+   background:#0b2948d9;text-align:left;font-size:12px;line-height:1.35
+ }
+ #panel-partida>.arena .bar-actions{
+   grid-column:2;grid-row:4;display:grid;grid-template-columns:1fr;
+   gap:6px;margin:0;width:100%;min-width:0
+ }
+ #panel-partida>.arena .bar-actions .btn{font-size:10px;padding:9px 7px}
+}
+@media (max-width:1200px) and (min-width:901px){
+ #panel-partida>.arena{grid-template-columns:minmax(100px,124px) minmax(0,1fr) minmax(100px,124px)}
+ #panel-partida>.arena .board-shell{grid-template-columns:minmax(0,1fr) 136px}
+}
+@media (max-width:900px){
+ #panel-partida.cm-view{overflow-y:auto;overflow-x:hidden}
+ #panel-partida>.arena{overflow:visible;min-height:0}
+ #panel-partida>.arena .board-shell{
+   overflow:visible;min-height:0;max-height:none;height:auto;
+   display:flex;flex-direction:column;align-items:center;padding:7px 8px
+ }
+ #panel-partida>.arena .board-decoration{width:100%;height:auto;min-height:0;display:flex}
+ #panel-partida>.arena .board-edge{
+   flex:0 1 auto;width:min(100%,calc(100vw - 68px),700px);
+   max-width:none;min-width:0;padding:5px;margin:0 auto
+ }
+ #panel-partida>.arena #board{width:100%;aspect-ratio:1/1;height:auto;overflow:hidden}
+ #panel-partida>.arena .turn{width:100%;margin-top:7px}
+ #panel-partida>.arena .bar-actions{display:flex;flex-wrap:wrap;justify-content:center}
+}
+@media (max-width:570px){
+ #panel-partida>.arena .board-edge{
+   width:min(100%,calc(100vw - 35px));padding:3px;border-width:3px
+ }
+ #panel-partida>.arena .board-decoration>img{display:none}
+ #panel-partida>.arena .board-shell{padding:5px 3px}
+ #panel-partida>.arena .board-top{padding:5px 3px}
+ #panel-partida>.arena .turn{padding:7px 8px}
+}
+@media (max-height:670px) and (min-width:901px){
+ #panel-partida .cm-heading{margin-bottom:3px}
+ #panel-partida .cm-mode{margin-bottom:3px}
+ #panel-partida>.arena .board-edge{width:min(100%,calc(100dvh - 235px),870px)}
+ #panel-partida>.arena .match-side .avatar{width:min(55%,85px)}
+ #panel-partida>.arena .board-shell{padding:3px 5px}
+}
