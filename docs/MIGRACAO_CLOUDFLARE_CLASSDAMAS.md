@@ -78,3 +78,8 @@ Consulte as fontes oficiais:
 - https://developers.cloudflare.com/d1/reference/migrations/
 - https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/
 - https://developers.cloudflare.com/workers/static-assets/
+
+
+### Ajuste de identidade visual — 15/11/2026
+
+No layout aprovado, o logotipo ClassMana foi redimensionado para permanecer visível no cabeçalho (também em telas menores). Os brasões oficiais das três casas foram reduzidos e reposicionados dentro dos cards, sem ultrapassar as bordas ou encobrir os castelos. A mudança é exclusivamente visual: API, ranking, partidas e banco D1 permanecem inalterados.
