@@ -324,3 +324,114 @@ body.cm-app{display:flex;flex-direction:column;min-height:560px;overflow:hidden;
  #panel-partida>.arena .match-side .avatar{width:min(55%,85px)}
  #panel-partida>.arena .board-shell{padding:3px 5px}
 }
+
+/* ClassMana — arena reorganizada para tabuleiro INTEIRO.
+   Sem linhas de cabeçalho, modo e status acima do jogo.
+   Status ao lado do brasão oficial; escolha de modo compacta na lateral. */
+#panel-partida .cm-heading{display:none!important}
+#panel-partida .cm-board-controls .cm-mode .panel h2{display:none!important}
+#panel-partida .cm-board-controls .cm-mode .mode-choice small{display:none!important}
+#panel-partida .cm-board-controls .cm-mode .panel .muted{display:none!important}
+#panel-partida .cm-board-controls .cm-mode{width:100%;margin:0}
+#panel-partida .cm-board-controls .cm-mode .panel{display:block;padding:8px;border-width:1px;border-radius:9px;box-shadow:none}
+#panel-partida .cm-board-controls .mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;width:100%}
+#panel-partida .cm-board-controls .mode-choice{min-height:34px;padding:5px 4px;font-size:12px;gap:3px;min-width:0;white-space:normal}
+#panel-partida .cm-board-controls .mode-choice b{font-size:10px;line-height:1.1}
+#panel-partida .cm-board-controls #robot-settings{display:grid;grid-template-columns:1fr;align-items:center;gap:3px;margin:7px 0 0;width:100%}
+#panel-partida .cm-board-controls #robot-settings[hidden]{display:none!important}
+#panel-partida .cm-board-controls #robot-settings label{display:block;margin:0;font-size:10px}
+#panel-partida .cm-board-controls #bot-difficulty{width:100%;font-size:11px;padding:5px}
+#panel-partida .cm-board-controls #bot-start{width:100%;padding:7px 3px;font-size:11px;margin:3px 0 0}
+#panel-partida .cm-board-controls .duel-status{grid-column:auto;grid-row:auto;font-size:12px;line-height:1.2;margin:0;padding:5px;border-width:1px;min-width:0;overflow-wrap:anywhere;text-align:left}
+#panel-partida .cm-board-controls .turn{grid-column:auto;grid-row:auto;width:100%;margin:0;padding:8px;display:flex;align-items:center;gap:5px}
+#panel-partida .cm-board-controls .turn strong{font-size:13px;line-height:1.2}
+#panel-partida .cm-board-controls .turn .ply{font-size:10px;white-space:nowrap}
+#panel-partida .cm-board-controls .message{grid-column:auto;grid-row:auto;width:100%;margin:0;padding:7px 8px;font-size:11px;line-height:1.3;text-align:left;background:#102e4ddb;border:1px solid #b68c4b;border-radius:9px}
+#panel-partida .cm-board-controls .bar-actions{grid-column:auto;grid-row:auto;display:flex;flex-wrap:wrap;gap:5px;margin:0;width:100%}
+#panel-partida .cm-board-controls .bar-actions .btn{flex:1 1 100%;font-size:10px;padding:7px 5px}
+#panel-partida .cm-board-controls{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:8px;min-height:0;min-width:0;padding:5px 2px}
+#panel-partida .cm-status-card{display:flex;align-items:center;gap:6px;border:1px solid #bb954e;border-radius:11px;padding:5px;background:#0a2745d8;min-width:0}
+#panel-partida .cm-status-card .cm-status-crest{width:62px;height:75px;max-width:35%;flex:none;object-fit:contain;filter:drop-shadow(0 3px 6px #000a)}
+#panel-partida .cm-rival-crest{width:min(65%,75px);height:78px;object-fit:contain;filter:drop-shadow(0 3px 6px #0009)}
+#panel-partida .board-decoration{position:relative;min-width:0;min-height:0}
+#panel-partida .board-decoration #board-overlay{position:absolute;inset:auto;top:50%;left:50%;transform:translate(-50%,-50%);width:min(80%,370px);max-height:80%;height:auto;min-height:0;overflow:auto;padding:14px;font-size:13px;z-index:7}
+#panel-partida .board-edge{box-sizing:border-box;aspect-ratio:1/1;min-width:0}
+#panel-partida .board-edge #board{width:100%;height:100%;aspect-ratio:1/1;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));overflow:hidden}
+@media(min-width:901px){
+ #panel-partida.cm-view{padding:7px 10px;overflow:hidden}
+ #panel-partida>.arena{
+  display:grid;grid-template-columns:minmax(105px,140px) minmax(0,1fr) minmax(105px,140px);
+  grid-template-rows:minmax(0,1fr);gap:7px;min-height:0;height:100%;overflow:visible
+ }
+ #panel-partida>.arena .match-head{display:contents}
+ #panel-partida>.arena #white-banner{grid-column:1;grid-row:1}
+ #panel-partida>.arena #black-banner{grid-column:3;grid-row:1}
+ #panel-partida>.arena .match-side{padding:8px 5px;gap:6px;min-height:0}
+ #panel-partida>.arena .match-side .avatar{width:min(83%,116px);height:auto;aspect-ratio:1;object-fit:contain}
+ #panel-partida>.arena .match-side h3{font-size:clamp(13px,1.1vw,17px)}
+ #panel-partida>.arena .match-side p{font-size:11px}
+ #panel-partida>.arena .board-shell{
+  grid-column:2;grid-row:1;display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(175px,245px);
+  grid-template-rows:25px minmax(0,1fr);
+  column-gap:6px;row-gap:0;
+  height:100%;max-height:100%;min-height:0;min-width:0;
+  width:100%;padding:5px 7px;overflow:visible;container-type:size;
+  align-items:stretch
+ }
+ #panel-partida>.arena .board-top{grid-column:1/-1;grid-row:1;width:100%;padding:3px 5px 5px}
+ #panel-partida>.arena .board-decoration{
+  grid-column:1;grid-row:2;width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;gap:0
+ }
+ #panel-partida>.arena .board-edge{
+  flex:0 1 auto;margin:0 auto;
+  width:min(100%,calc(100cqh - 43px),760px);
+  max-width:none;height:auto;aspect-ratio:1/1;
+  padding:5px;border:4px ridge #e0b76a;box-shadow:0 7px 20px #000a
+ }
+ #panel-partida>.arena .cm-board-controls{
+  grid-column:2;grid-row:2;overflow:visible;
+  align-self:stretch;justify-content:center;min-height:0
+ }
+ #panel-partida>.arena .match-side .cm-rival-crest{width:65px;height:75px}
+}
+@media(min-width:901px) and (max-width:1130px){
+ #panel-partida>.arena{grid-template-columns:100px minmax(0,1fr) 100px}
+ #panel-partida>.arena .board-shell{grid-template-columns:minmax(0,1fr) 190px}
+ #panel-partida .cm-board-controls{gap:4px}
+ #panel-partida .cm-status-card .cm-status-crest{width:49px;height:59px}
+}
+@media(min-width:901px) and (max-height:665px){
+ #panel-partida>.arena .board-shell{grid-template-rows:20px minmax(0,1fr);padding:4px}
+ #panel-partida>.arena .board-edge{width:min(100%,calc(100cqh - 31px),760px);padding:4px}
+ #panel-partida .cm-board-controls{gap:4px;padding:2px}
+ #panel-partida .cm-status-card .cm-status-crest{width:51px;height:61px}
+ #panel-partida .cm-board-controls .turn{padding:5px}
+ #panel-partida .cm-board-controls .message{padding:5px}
+ #panel-partida .cm-board-controls .cm-mode .panel{padding:6px}
+}
+@media(max-width:900px){
+ #panel-partida.cm-view{overflow-y:auto;overflow-x:hidden;padding:8px}
+ #panel-partida>.arena{display:flex;flex-direction:column;min-height:0;height:auto;overflow:visible;gap:7px}
+ #panel-partida>.arena .match-head{display:grid;grid-template-columns:1fr 30px 1fr;width:100%;gap:5px}
+ #panel-partida>.arena .match-head .match-side{display:flex;flex-direction:row;align-items:center;text-align:left;min-height:68px;gap:6px;padding:5px}
+ #panel-partida>.arena .match-head .avatar{width:50px;height:50px}
+ #panel-partida>.arena .match-head .cm-rival-crest{width:40px;height:45px}
+ #panel-partida>.arena .board-shell{display:flex;flex-direction:column;min-height:0;max-height:none;height:auto;overflow:visible;container-type:normal;width:100%;padding:7px;gap:6px}
+ #panel-partida>.arena .board-top{width:100%;padding:3px}
+ #panel-partida>.arena .board-decoration{display:flex;align-items:center;justify-content:center;width:100%;height:auto}
+ #panel-partida>.arena .board-edge{flex:0 1 auto;width:min(100%,calc(100vw - 45px),720px);max-width:none;height:auto;padding:5px}
+ #panel-partida>.arena .cm-board-controls{display:grid;grid-template-columns:1fr 1fr;align-items:start;width:100%;gap:6px}
+ #panel-partida .cm-status-card{grid-column:1/-1}
+ #panel-partida .cm-board-controls .cm-mode{grid-column:1/-1}
+ #panel-partida .cm-board-controls .bar-actions{grid-column:1/-1}
+ #panel-partida .cm-board-controls .turn,#panel-partida .cm-board-controls .message{grid-column:auto}
+}
+@media(max-width:570px){
+ #panel-partida>.arena .board-edge{width:min(100%,calc(100vw - 26px));padding:3px;border-width:3px}
+ #panel-partida>.arena .board-shell{padding:4px}
+ #panel-partida>.arena .cm-board-controls{display:flex;flex-direction:column}
+ #panel-partida .cm-status-card .cm-status-crest{height:62px;width:50px}
+ #panel-partida>.arena .match-head .cm-rival-crest{width:28px;height:35px}
+}
