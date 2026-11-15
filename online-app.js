@@ -45,6 +45,17 @@ const api={url:DAMA_API_URL,token:sessionStorage.getItem(tokenKey)||'',user:null
 };
 function setState(value,text){status.className='online-badge '+value;status.textContent=text;}
 function message(s,warn=false){notice=s;$('message').textContent=s;$('message').classList.toggle('warn',warn);}
+function showView(view){
+ if(!['play','challenges','ranking'].includes(view))return;
+ $('game-layout').dataset.view=view;
+ for(const tab of ['play','challenges','ranking']){
+  const el=$('view-'+tab),selected=tab===view;
+  el.classList.toggle('active',selected);
+  el.setAttribute('aria-selected',String(selected));
+ }
+ if(view==='ranking'&&apiReady)void loadRanking();
+ else if(view==='challenges'&&api.user)void loadInbox();
+}
 function groupFor(heroIndex){return GROUPS[heroIndex]||GROUPS[0]}
 function srcFor(index){const group=groupFor(index);return faceURLs.get(group[2])||'assets/monstros/'+group[4]}
 async function faceLoad(){
@@ -397,6 +408,7 @@ function changeStudent(){
  api.token='';api.user=null;sessionStorage.removeItem(tokenKey);
  onlinePlayerIds=new Set();lastInviteCount=0;
  $('notification-count').hidden=true;$('inbox-alert').hidden=true;
+ $('tab-invite-count').hidden=true;$('challenge-notice').hidden=true;
  match=null;chosen=null;
  $('player').value='';
  renderIdentity();
@@ -404,16 +416,27 @@ function changeStudent(){
  renderAll();message('Escolha sua turma e selecione outro nome.');
 }
 async function loadInbox(preset){if(!api.user)return;const r=preset?{matches:preset}:await api.get('inbox');const host=$('inbox');host.replaceChildren();
- const invites=r.matches.filter(m=>m.recipient.id===api.user.id&&m.status==='PENDENTE').length;
+ const pending=r.matches.filter(m=>m.recipient.id===api.user.id&&m.status==='PENDENTE');
+ const invites=pending.length;
  const bell=$('notification-bell'),badge=$('notification-count'),counter=$('inbox-alert');
- badge.hidden=invites===0;counter.hidden=invites===0;
- badge.textContent=String(invites);counter.textContent=String(invites);
+ const navCounter=$('tab-invite-count'),noticeBar=$('challenge-notice');
+ for(const number of [badge,counter,navCounter]){
+  number.hidden=invites===0;number.textContent=String(invites);
+ }
+ noticeBar.hidden=invites===0;
+ $('challenge-notice-text').textContent=invites===1
+  ?'⚔️ '+pending[0].creator.name+' enviou um desafio para você!'
+  :'⚔️ Você recebeu '+invites+' desafios. Escolha qual aceitar!';
  bell.classList.toggle('ringing',invites>0);
  if(invites>lastInviteCount)bell.classList.add('new-invite');
  else bell.classList.remove('new-invite');
  lastInviteCount=invites;
  if(!r.matches.length){host.innerHTML='<p class="muted">Nenhum desafio recebido ou enviado.</p>';return;}
- for(const m of r.matches){
+ const sorted=[...r.matches].sort((a,b)=>{
+  const urgent=m=>Number(m.recipient.id===api.user.id&&m.status==='PENDENTE');
+  return urgent(b)-urgent(a);
+ });
+ for(const m of sorted){
    const mine=m.creator.id===api.user.id,opponent=mine?m.recipient:m.creator;
    const card=document.createElement('div');card.className='invite '+(m.id===match?.id?'active':'');
    card.innerHTML=`<b>${esc(opponent.name)} · ${esc(opponent.team)}</b><small>${mine?'Enviado':'Recebido'} · ${esc(m.status)} · ${new Date(m.createdAt).toLocaleDateString('pt-BR')}</small>`;
@@ -433,33 +456,50 @@ async function sendChallenge(){const to=$('opponent').value;if(!to){message('Esc
 const r=await api.post('challenge',{to});await openMatch(r.match.id);message(r.reused?'Desafio em andamento reaberto.':'Convite registrado no banco. Aguarde o aceite do adversário.');await loadInbox();}
  catch(e){message(e.message,true)}finally{busy=false}}
 async function answer(id,decision){try{busy=true;const r=await api.post('answer',{id,decision});
- await openMatch(r.match.id);await loadInbox();message(decision==='accept'?'Convite aceito. A partida está aberta.':'Convite recusado.');
+ if(decision==='accept')await openMatch(r.match.id);
+ await loadInbox();message(decision==='accept'?'Convite aceito. A partida está aberta.':'Convite recusado.');
  }catch(e){message(e.message,true)}finally{busy=false}}
 async function openMatch(id){try{
  hideResult();
  if(gameMode==='bot')setMode('duel');
- const r=await api.get('match',{id});match=r.match;chosen=null;lastShownResultId=null;renderAll();
+ const r=await api.get('match',{id});match=r.match;chosen=null;lastShownResultId=null;renderAll();showView('play');
  if(match.status==='EM_ANDAMENTO')message(myTurn()?'Sua vez! Selecione uma peça do seu grupo.':'Aguarde a jogada do outro estudante.');
  else if(match.status==='CONCLUIDO')message(`Resultado confirmado: ${match.outcome?.result==='draw'?'empate':(match.outcome?.result==='white'?match.creator.name:match.recipient.name)+' venceu'}.`);
  else message(match.status==='PENDENTE'?'Convite enviado; aguardando aceite.':'Convite recusado.');
  }catch(e){message(e.message,true)}}
 async function reloadMatch(){if(match)await openMatch(match.id)}
-async function loadRanking(preset){try{const r=preset||await api.get('ranking');
+async function loadRanking(preset){try{
+ const r=preset||await api.get('ranking');
  $('season-label').textContent=`${r.season.label} · ${r.games} partidas concluídas`;
- for(const [id,records] of [['groups',r.groups],['players',r.players]]){
-   const host=$(id+'-ranking');host.replaceChildren();
-   if(!records?.length){host.innerHTML='<p class="muted">Ainda não há resultados oficiais.</p>';continue;}
-   for(const [i,row] of records.slice(0,id==='players'?50:6).entries()){
-     const div=document.createElement('div');div.className='rank-row';
-     const who=id==='groups'?row.name:row.name;
-     div.innerHTML=`<span class="pos">${i+1}º</span><span class="who"><b>${esc(who)}</b><small>${id==='players'?esc(row.team)+' · ':''}${row.plays} PJ · ${row.wins}V ${row.draws}E ${row.losses}D</small></span><strong>${row.points} pts</strong>`;
-     host.append(div);
-   }
+ // Compatibilidade: se o Railway ainda não oferecer houses, calcular a soma
+ // dos alunos no navegador. No D1 o servidor já retorna o ranking pronto.
+ const houses=Array.isArray(r.houses)?r.houses:Object.entries(HOUSES).map(([id,house])=>{
+  const participants=(r.players||[]).filter(p=>p.house===id);
+  return {id,name:'4º '+id+' — '+house.name,
+   members:players.filter(p=>p.house===id).length,
+   ...Object.fromEntries(['plays','wins','draws','losses','points'].map(metric=>
+    [metric,participants.reduce((total,p)=>total+(Number(p[metric])||0),0)]))};
+ }).sort((a,b)=>b.points-a.points||b.wins-a.wins||a.losses-b.losses||a.name.localeCompare(b.name,'pt-BR'));
+ for(const [id,records] of [['groups',r.groups],['houses',houses],['players',r.players]]){
+  const host=$(id+'-ranking');host.replaceChildren();
+  if(!records?.length){host.innerHTML='<p class="muted">Ainda não há resultados oficiais.</p>';continue;}
+  for(const [i,row] of records.slice(0,id==='players'?50:id==='houses'?3:6).entries()){
+   const div=document.createElement('div');div.className='rank-row'+(id==='houses'?' house-rank':'');
+   const crest=id==='houses'&&crestImages[row.id]?`<img class="ranking-crest" src="${crestImages[row.id]}" alt="">`:'';
+   const detail=id==='players'?esc(row.team)+' · ':id==='houses'?esc(row.members)+' alunos · ':'';
+   div.innerHTML=`<span class="pos">${i+1}º</span>${crest}<span class="who"><b>${esc(row.name)}</b><small>${detail}${row.plays} atuações · ${row.wins}V ${row.draws}E ${row.losses}D</small></span><strong>${row.points} pts</strong>`;
+   host.append(div);
+  }
  }
  }catch(e){message('Não foi possível carregar o ranking: '+e.message,true)}}
-function showRankTab(tab){rankTab=tab;$('groups-ranking').hidden=tab!=='groups';$('players-ranking').hidden=tab!=='players';
- $('tab-groups').classList.toggle('active',tab==='groups');$('tab-players').classList.toggle('active',tab==='players');
- $('tab-groups').setAttribute('aria-selected',String(tab==='groups'));$('tab-players').setAttribute('aria-selected',String(tab==='players'));
+function showRankTab(tab){
+ rankTab=tab;
+ for(const type of ['groups','houses','players']){
+  const selected=type===tab;
+  $(type+'-ranking').hidden=!selected;
+  $('tab-'+type).classList.toggle('active',selected);
+  $('tab-'+type).setAttribute('aria-selected',String(selected));
+ }
 }
 async function teacherLogin(){try{const r=await api.post('teacherLogin',{password:$('teacher-password').value},true);api.teacherToken=r.token;
  $('teacher-password').value='';$('teacher-actions').hidden=false;$('teacher-message').textContent='Acesso administrativo autorizado por 30 minutos.';
@@ -476,28 +516,28 @@ function bind(){
  $('mode-duel').addEventListener('click',()=>setMode('duel'));
  $('mode-bot').addEventListener('click',()=>setMode('bot'));
  $('bot-start').addEventListener('click',startBot);
- $('notification-bell').addEventListener('click',()=>{
-  if(gameMode==='bot')setMode('duel');
-  $('inbox-panel').scrollIntoView({behavior:'smooth',block:'start'});
- });
+ $('notification-bell').addEventListener('click',()=>showView('challenges'));
+ $('challenge-notice-open').addEventListener('click',()=>showView('challenges'));
+ for(const view of ['play','challenges','ranking']){
+  $('view-'+view).addEventListener('click',()=>showView(view));
+ }
  $('refresh-inbox').addEventListener('click',()=>loadInbox().catch(e=>message(e.message,true)));
  $('reload-match').addEventListener('click',reloadMatch);$('refresh-ranking').addEventListener('click',loadRanking);
  $('result-close').addEventListener('click',hideResult);
  $('result-ranking').addEventListener('click',()=>{
-  hideResult();showRankTab('groups');
-  $('tab-groups').scrollIntoView({behavior:'smooth',block:'center'});
+  hideResult();showRankTab('groups');showView('ranking');
  });
  $('result-new').addEventListener('click',()=>{
   const bot=gameMode==='bot';
   hideResult();
   if(bot)startBot();
   else{
-   setMode('duel');
-   $('challenge-panel').scrollIntoView({behavior:'smooth',block:'start'});
+   setMode('duel');showView('challenges');
   }
  });
- $('open-ranking').addEventListener('click',()=>$('tab-groups').scrollIntoView({behavior:'smooth',block:'center'}));
+ $('open-ranking').addEventListener('click',()=>showView('ranking'));
  $('tab-groups').addEventListener('click',()=>showRankTab('groups'));
+ $('tab-houses').addEventListener('click',()=>showRankTab('houses'));
  $('tab-players').addEventListener('click',()=>showRankTab('players'));
  $('teacher-login').addEventListener('click',teacherLogin);$('new-season').addEventListener('click',newSeason);
  document.addEventListener('keydown',e=>{
