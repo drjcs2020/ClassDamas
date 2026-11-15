@@ -1,0 +1,24 @@
+name: ClassDamas Cloudflare - testes locais
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  workers-d1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar Wrangler somente no runner do GitHub
+        run: npm install --no-audit --no-fund
+      - name: Validar Worker e scripts
+        run: |
+          node --check cloudflare/worker.mjs
+          node --check scripts/build-cloudflare.mjs
+          node --check scripts/set-cloudflare-database.mjs
+          node --check scripts/test-cloudflare.mjs
+      - name: Testar API, D1 local e site estático
+        run: npm run cf:test
