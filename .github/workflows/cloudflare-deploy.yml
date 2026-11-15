@@ -10,7 +10,7 @@ jobs:
     # Primeiro deploy: um único commit com mensagem específica pode tentar a publicação.
     # Falta de Secrets interrompe o job antes de qualquer acesso à Cloudflare.
     # Outros pushes só publicam quando explicitamente ativados pela variável.
-    if: ${{ github.event_name == 'workflow_dispatch' || vars.CLOUDFLARE_DEPLOY_ENABLED == 'true' || (github.event_name == 'push' && github.event.head_commit.message == 'deploy(cloudflare): tentar primeira publicacao') }}
+    if: "${{ github.event_name == 'workflow_dispatch' || vars.CLOUDFLARE_DEPLOY_ENABLED == 'true' || (github.event_name == 'push' && github.event.head_commit.message == 'deploy(cloudflare): tentar primeira publicacao') }}"
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
