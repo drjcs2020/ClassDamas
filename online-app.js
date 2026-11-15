@@ -503,7 +503,7 @@ async function loadRanking(preset){try{
   const host=$(id+'-ranking');host.replaceChildren();
   if(!records?.length){host.innerHTML='<p class="muted">Ainda não há resultados oficiais.</p>';continue;}
   for(const [i,row] of records.slice(0,id==='players'?50:id==='houses'?3:6).entries()){
-   const div=document.createElement('div');div.className='rank-row'+(id==='houses'?' house-rank':'');
+   const div=document.createElement('div');div.className='rank-row'+(id==='houses'?' house-rank house-'+String(row.id).toLowerCase():'');
    const crest=id==='houses'&&crestImages[row.id]
     ?`<img class="ranking-crest" src="${crestImages[row.id]}" alt="Brasão de ${esc(row.name)}">`
     :id==='groups'&&Number.isInteger(row.hero)
