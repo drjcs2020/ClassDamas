@@ -17,3 +17,7 @@ Thumbs.db
 /preview-*.png
 *.bat
 LEIA-ME.txt
+
+# Artefatos do Workers e banco local D1
+/dist/
+/.wrangler/
