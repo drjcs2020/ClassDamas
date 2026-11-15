@@ -21,6 +21,7 @@ jobs:
           node --check scripts/set-cloudflare-database.mjs
           node --check scripts/prepare-cloudflare-database.mjs
           node --check scripts/check-cloudflare-database.mjs
+          node --check scripts/verify-cloudflare-token.mjs
           node --check scripts/test-cloudflare.mjs
       - name: Testar API, D1 local e site estático
         run: npm run cf:test
