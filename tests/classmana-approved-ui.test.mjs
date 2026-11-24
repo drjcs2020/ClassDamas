@@ -95,3 +95,19 @@ test('publicação não sobrescreve brasões atualizados com arquivos de outros 
  assert.doesNotMatch(build,/classmana-torneio-arco-e-flecha-V2/);
  assert.match(build,/Brasão atualizado inválido/);
 });
+
+test('aluno atual é identificado com destaque e pode ser trocado de qualquer aba',()=>{
+ const html=read('online.html'),js=read('online-app.js'),css=read('online-approved.css');
+ for(const id of ['global-change-student','global-switch-label','global-student-profile',
+  'headName','current-student-card','current-student-name','current-student-details','change-student']){
+  assert.match(html,new RegExp('id="'+id+'"'));
+ }
+ assert.match(js,/function requestStudentSwitch\(\)/);
+ assert.match(js,/global-change-student'\)\.addEventListener\('click',requestStudentSwitch\)/);
+ assert.match(js,/showView\('casa'\)/);
+ assert.match(js,/TROCAR ALUNO/);
+ assert.match(js,/VOCÊ ESTÁ JOGANDO COMO|current-student-name/);
+ assert.match(css,/\.cm-current-student\[hidden\]\{display:none!important\}/);
+ assert.match(css,/\.cm-switch-student/);
+ assert.match(css,/\.cm-profile #headName/);
+});
