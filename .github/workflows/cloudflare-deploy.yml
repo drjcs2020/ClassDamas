@@ -2,15 +2,35 @@ name: Publicar ClassDamas no Cloudflare
 on:
   push:
     branches: [main]
+    paths:
+      - 'online.html'
+      - 'online-app.js'
+      - 'online-config.js'
+      - 'online.css'
+      - 'online-v3.css'
+      - 'online-clean.css'
+      - 'online-approved.css'
+      - 'index.html'
+      - 'assets/**'
+      - 'bot-ai.js'
+      - 'regras.js'
+      - 'regras-classico.js'
+      - 'cloudflare/**'
+      - 'duel-api/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'wrangler.jsonc'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/cloudflare-deploy.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   deploy-cloudflare:
-    # Primeiro deploy: um único commit com mensagem específica pode tentar a publicação.
-    # Falta de Secrets interrompe o job antes de qualquer acesso à Cloudflare.
-    # Outros pushes só publicam quando explicitamente ativados pela variável.
-    if: "${{ github.event_name == 'workflow_dispatch' || vars.CLOUDFLARE_DEPLOY_ENABLED == 'true' || (github.event_name == 'push' && github.event.head_commit.message == 'deploy(cloudflare): tentar primeira publicacao') }}"
+    # Atualizações relevantes no jogo publicam automaticamente na Cloudflare.
+    # Documentação isolada não dispara deploy; as credenciais continuam só em Secrets.
+    # Se faltar Secret, o job falha antes de tocar na Cloudflare ou no banco.
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -39,6 +59,8 @@ jobs:
         run: node scripts/verify-cloudflare-token.mjs
       - name: Instalar dependências no runner
         run: npm install --no-audit --no-fund
+      - name: Validar regras e interface antes de publicar
+        run: npm test
       - name: Gerar pacote seguro de assets
         run: npm run cf:build
       - name: Criar ou localizar banco D1 exclusivo (sem tocar no Torneio V2)
