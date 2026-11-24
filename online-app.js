@@ -56,8 +56,15 @@ function syncHouseVisual(){
   button.setAttribute('aria-pressed',String(selected));
  }
  $('headercrest').src=crestImages[house];
- $('headName').textContent=api.user?.name||'Identifique-se';
- $('headHouse').textContent='4º '+house+' · '+HOUSES[house].name;
+ const loggedIn=!!api.user;
+ $('headName').textContent=loggedIn?api.user.name:'Escolha seu nome';
+ $('headHouse').textContent=loggedIn?'4º '+house+' · '+HOUSES[house].name:'Nenhum aluno selecionado';
+ $('global-switch-label').textContent=loggedIn?'TROCAR ALUNO':'ESCOLHER ALUNO';
+ $('global-change-student').classList.toggle('is-logged-in',loggedIn);
+ $('global-student-profile').classList.toggle('is-logged-in',loggedIn);
+ $('global-change-student').setAttribute('aria-label',loggedIn
+  ?'Trocar aluno: você está jogando como '+api.user.name
+  :'Escolher qual aluno vai jogar');
 }
 function showView(view){
  const aliases={play:'partida',challenges:'desafios',ranking:'rankings'};
@@ -341,11 +348,20 @@ async function playAgainstBot(path){
 }
 
 function renderIdentity(){
- $('change-student').hidden=!api.user;
- $('confirm-student').disabled=!apiReady||!!api.user;
- $('house').disabled=!!api.user;
- $('player').disabled=!!api.user;
- $('identity').textContent=api.user?`${api.user.name} · 4º ${api.user.house} · ${api.user.team}`:'Selecione sua turma e seu nome';
+ const selected=!!api.user;
+ const panel=document.querySelector('#panel-casa .identity-panel');
+ panel.classList.toggle('is-identified',selected);
+ $('current-student-card').hidden=!selected;
+ $('change-student').hidden=!selected;
+ $('confirm-student').hidden=selected;
+ $('confirm-student').disabled=!apiReady||selected;
+ $('house').disabled=selected;
+ $('player').disabled=selected;
+ $('identity').textContent=selected
+  ?'Este é o aluno selecionado. Para mudar, use o botão TROCAR DE ALUNO.'
+  :'Escolha seu nome acima e clique em SOU EU! COMEÇAR.';
+ $('current-student-name').textContent=selected?api.user.name:'';
+ $('current-student-details').textContent=selected?`4º ${api.user.house} · ${HOUSES[api.user.house].name} · ${api.user.team}`:'';
  syncHouseVisual();
  $('opponent').disabled=!api.user;$('challenge').disabled=!api.user;
  if(api.user){
@@ -433,6 +449,13 @@ function changeStudent(){
  renderIdentity();
  $('inbox').innerHTML='<p class="muted">Selecione seu nome para ver convites.</p>';
  renderAll();message('Escolha sua turma e selecione outro nome.');
+}
+function requestStudentSwitch(){
+ if(api.user && gameMode==='duel' && match?.status==='EM_ANDAMENTO' &&
+  !window.confirm('Você está em uma partida! Deseja trocar de aluno? A partida continuará salva para depois.'))return;
+ if(api.user)changeStudent();
+ showView('casa');
+ if(!api.user && apiReady)$('player').focus({preventScroll:true});
 }
 async function loadInbox(preset){if(!api.user)return;const r=preset?{matches:preset}:await api.get('inbox');const host=$('inbox');host.replaceChildren();
  const pending=r.matches.filter(m=>m.recipient.id===api.user.id&&m.status==='PENDENTE');
@@ -530,7 +553,9 @@ async function newSeason(){try{const r=await api.post('teacherNewSeason',{label:
  $('teacher-message').textContent='Nova temporada criada. Histórico anterior preservado.';$('season-confirm').value='';await loadRanking();
  }catch(e){$('teacher-message').textContent=e.message}}
 function bind(){
- $('confirm-student').addEventListener('click',confirmStudent);$('change-student').addEventListener('click',changeStudent);
+ $('confirm-student').addEventListener('click',confirmStudent);
+ $('change-student').addEventListener('click',requestStudentSwitch);
+ $('global-change-student').addEventListener('click',requestStudentSwitch);
  $('house').addEventListener('change',()=>{populatePlayers();syncHouseVisual();});
  for(const card of document.querySelectorAll('.cm-house-card'))card.addEventListener('click',()=>{
   if(api.user){message('Para mudar de turma, primeiro escolha TROCAR ALUNO.');return;}
