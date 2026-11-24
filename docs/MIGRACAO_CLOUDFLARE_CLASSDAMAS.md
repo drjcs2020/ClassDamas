@@ -37,9 +37,9 @@ A interface existente continua usando `online-config.js`, cujo modo de origem ig
 
 ### Painel do professor (opcional)
 
-A API reserva a variável de ambiente secreta `DAMA_TEACHER_PASSWORD_SHA256` para autenticar somente o professor; os alunos não possuem senha nem PIN. Após publicar, adicione no Cloudflare Worker uma **Secret** com o hash SHA-256 hexadecimal da senha do professor. Nunca salve a senha em texto claro no GitHub.
+A API permite definir uma senha administrativa diretamente na Cloudflare como um **Secret**, sem gerar hash manualmente. Na Cloudflare: **Workers & Pages → classdamas → Settings → Variables and Secrets → Add → Secret**, com o nome `DAMA_TEACHER_PASSWORD` e valor sendo uma senha escolhida pelo professor com **12 caracteres ou mais**. Selecione **Deploy**. O valor não deve ser publicado no Git, em screenshots ou enviado no chat. A API transforma a senha em SHA-256 no próprio Worker e a compara sem expor o valor. A variável antiga `DAMA_TEACHER_PASSWORD_SHA256` continua aceita por compatibilidade, caso já tenha sido configurada.
 
-Sem esse Secret, as partidas de alunos funcionam normalmente, mas o login administrativo devolve 503 até ser configurado.
+Sem uma dessas credenciais, a sessão administrativa não pode ser iniciada, mas **as partidas dos alunos, os desafios, as pontuações e o ranking continuam funcionando**. O Worker retorna uma instrução clara ao tentar autenticar o professor, sem oferecer acesso administrativo sem senha.
 
 ## O que a nova API preserva
 
