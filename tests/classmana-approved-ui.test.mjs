@@ -28,9 +28,10 @@ test('três casas, seis equipes e maga engenheira usam apenas arte oficial',()=>
  const html=read('online.html'),css=read('online-approved.css'),js=read('online-app.js');
  const build=read('scripts/build-cloudflare.mjs');
  for(const casa of ['aguia','leao','dragao']){
-  assert.match(html,new RegExp('brasao_'+casa+'_hd\\.png'));
+  assert.ok(html.includes('assets/brasao_'+casa+'.png?v=20261124'));
+  assert.ok(js.includes('assets/brasao_'+casa+'.png?v=20261124'));
   assert.match(css,new RegExp('cenario_'+casa+'\\.webp'));
-  assert.match(build,new RegExp('brasao-'+({'aguia':'aguia-dourada','leao':'leao-de-fogo','dragao':'dragao-esmeralda'})[casa]+'\\.png'));
+  assert.ok(build.includes("'brasao_'+house+'.png'"));
  }
  assert.match(js,/\['Mágicos e Engenheiros','Maga Engenheira','maga'/);
  assert.match(js,/hero_maga\.png/);
@@ -77,4 +78,20 @@ test('arena compacta conserva controles e mantém o tabuleiro sem cortar',()=>{
  assert.match(current,/#panel-partida\.cm-view\{padding:7px 10px;overflow:hidden\}/);
  assert.match(current,/grid-template-rows:minmax\(0,1fr\)/);
  assert.match(current,/#panel-partida>\.arena \.board-shell\{display:flex;flex-direction:column;min-height:0;max-height:none;height:auto;overflow:visible/);
+});
+
+test('GitHub Pages encaminha para o jogo Cloudflare com API no mesmo domínio',()=>{
+ const html=read('online.html');
+ const config=read('online-config.js');
+ assert.match(html,/location\.hostname\.endsWith\('\.github\.io'\)/);
+ assert.match(html,/location\.replace\('https:\/\/classdamas\.jean-silveira35\.workers\.dev\/online\.html'/);
+ assert.match(config,/sameOrigin/);
+});
+
+test('publicação não sobrescreve brasões atualizados com arquivos de outros jogos',()=>{
+ const html=read('online.html'),js=read('online-app.js'),build=read('scripts/build-cloudflare.mjs');
+ assert.doesNotMatch(html,/_hd\.png/);
+ assert.doesNotMatch(js,/_hd\.png/);
+ assert.doesNotMatch(build,/classmana-torneio-arco-e-flecha-V2/);
+ assert.match(build,/Brasão atualizado inválido/);
 });
