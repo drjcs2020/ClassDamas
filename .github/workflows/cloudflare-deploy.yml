@@ -130,7 +130,7 @@ jobs:
             const res=await fetch(base+'/api?action='+action,{signal:AbortSignal.timeout(15000)});
             const body=await res.json();
             if(!res.ok||body.ok!==true)throw Error(action+' indisponível: HTTP '+res.status);
-            if(action==='roster' && body.players?.length!==78)throw Error('Cadastro público incompleto');
+            if(action==='roster' && !Array.isArray(body.players))throw Error('Lista pública de alunos ausente');
             if(action==='ranking' && !Array.isArray(body.houses))throw Error('Ranking por turmas ausente');
             console.log('API '+action+': OK');
           }

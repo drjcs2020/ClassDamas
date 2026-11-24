@@ -128,12 +128,35 @@ if (location.hostname.endsWith('.github.io')) {
   <section class="panel teacher"><details><summary>⚙ PAINEL DO PROFESSOR</summary>
    <label for="teacher-password">Senha do professor (somente administração)</label><input id="teacher-password" type="password" autocomplete="current-password" placeholder="Senha do professor">
    <button id="teacher-login" class="btn ghost full">ACESSAR</button>
-   <div id="teacher-actions" hidden><p class="muted">Iniciar nova temporada zera apenas a classificação atual. O histórico anterior permanece salvo.</p>
+   <div id="teacher-actions" hidden>
+    <form id="teacher-students" hidden>
+     <h2>Gerenciar alunos</h2>
+     <label for="teacher-student-filter">Filtrar lista por turma</label>
+     <select id="teacher-student-filter">
+      <option value="">Todas as turmas</option><option value="A">4º A</option>
+      <option value="B">4º B</option><option value="C">4º C</option>
+     </select>
+     <label for="teacher-student">Cadastro</label>
+     <select id="teacher-student"></select>
+     <label for="teacher-student-name">Nome do aluno</label>
+     <input id="teacher-student-name" required minlength="2" maxlength="100">
+     <label for="teacher-student-house">Turma</label>
+     <select id="teacher-student-house" required>
+      <option value="">Selecione a turma</option><option value="A">4º A</option>
+      <option value="B">4º B</option><option value="C">4º C</option>
+     </select>
+     <label for="teacher-student-team">Equipe</label>
+     <select id="teacher-student-team" required></select>
+     <button id="teacher-save-student" class="btn full" type="submit">CADASTRAR ALUNO</button>
+     <button id="teacher-delete-student" class="btn ghost full" type="button" hidden>EXCLUIR ALUNO</button>
+    </form>
+    <h2>Temporada</h2>
+    <p class="muted">Iniciar nova temporada zera apenas a classificação atual. O histórico anterior permanece salvo.</p>
     <label for="season-name">Nome da nova temporada</label><input id="season-name" value="Nova temporada" maxlength="70">
     <label for="season-confirm">Confirmação</label><input id="season-confirm" placeholder="NOVA TEMPORADA">
     <button id="new-season" class="btn ghost full">INICIAR NOVA TEMPORADA</button>
    </div>
-   <p class="muted" id="teacher-message"></p>
+   <p class="muted" id="teacher-message" role="status"></p>
   </details></section>
  </aside>
 
@@ -154,5 +177,5 @@ if (location.hostname.endsWith('.github.io')) {
  </div>
 </div>
 
-<script type="module" src="online-app.js?v=20261124"></script>
+<script type="module" src="online-app.js?v=20261124-students"></script>
 </body></html>

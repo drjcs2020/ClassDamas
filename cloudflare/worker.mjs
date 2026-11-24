@@ -11,12 +11,12 @@ const groupHero=Object.freeze({
  'Fadas Guerreiras':0,'Chama Congelante':1,'Lobos e Gatunos':2,
  'Cavaleiros e Guerreiros':3,'Dragões de Combate':4,'Mágicos e Engenheiros':5
 });
-const players=Object.entries(roster).flatMap(([house,names])=>names.map((name,i)=>{
+const initialPlayers=Object.entries(roster).flatMap(([house,names])=>names.map((name,i)=>{
  const id=house+String(i+1).padStart(2,'0');
  const team=memberships[id]||'';
  return {id,name,house,team,hero:groupHero[team]??null};
 }));
-const known=new Map(players.map(p=>[p.id,p]));
+
 const TTL=105000;                // 105 segundos sem heartbeat: offline.
 const HEARTBEAT_MIN_MS=45000;   // Evita escrever na D1 em cada consulta.
 const now=()=>new Date().toISOString();
@@ -36,6 +36,17 @@ const statement=(db,sql,args)=>args.length?db.prepare(sql).bind(...args):db.prep
 const all=(db,sql,...args)=>statement(db,sql,args).all().then(x=>x.results);
 const first=(db,sql,...args)=>statement(db,sql,args).first();
 const run=(db,sql,...args)=>statement(db,sql,args).run();
+async function studentCatalog(db){
+ const students=new Map(initialPlayers.map(player=>[player.id,player]));
+ for(const row of await all(db,'SELECT id,name,house,team,active FROM student_changes')){
+  const {active,...player}=row;
+  students.set(row.id,{...player,hero:groupHero[row.team]??null,inactive:active===0});
+ }
+ return students;
+}
+function availableStudents(catalog){
+ return [...catalog.values()].filter(player=>!player.inactive);
+}
 async function season(db){
  let row=await first(db,'SELECT id,label,started_at AS startedAt,active FROM seasons WHERE active=1 LIMIT 1');
  if(row)return row;
@@ -51,8 +62,8 @@ async function session(req,db){
  const hash=await sha256(raw);
  const row=await first(db,'SELECT player_id,expires_at FROM sessions WHERE hash=?',hash);
  if(!row||row.expires_at<=Date.now())return null;
- const player=known.get(row.player_id);
- return player?{player,hash}:null;
+ const player=(await studentCatalog(db)).get(row.player_id);
+ return player&&!player.inactive?{player,hash}:null;
 }
 async function requireStudent(req,db){
  return (await session(req,db))||error('Selecione seu nome para acessar o duelo.',401);
@@ -72,8 +83,8 @@ async function isOnline(db,id){
  return !!(await first(db,'SELECT 1 AS yes FROM presence WHERE player_id=? AND seen_at>=? LIMIT 1',id,Date.now()-TTL));
 }
 async function playerLogin(db,id){
- const player=known.get(id);
- if(!player||player.hero===null)error('Aluno ou grupo não cadastrado.',404);
+ const player=(await studentCatalog(db)).get(id);
+ if(!player||player.inactive||player.hero===null)error('Aluno ou grupo não cadastrado.',404);
  const token=newToken(),hash=await sha256(token),expiry=Date.now()+30*86400000;
  await db.batch([
   db.prepare('INSERT INTO sessions(hash,player_id,expires_at) VALUES(?,?,?)').bind(hash,id,expiry),
@@ -82,8 +93,15 @@ async function playerLogin(db,id){
  return {player,token,expiresInDays:30};
 }
 const getMatch=(db,id)=>first(db,'SELECT * FROM matches WHERE id=?',id);
-async function publicMatch(db,row,includeMoves=false){
- const creator=known.get(row.creator_id),recipient=known.get(row.recipient_id);
+async function publicMatch(db,row,includeMoves=false,known){
+ known??=await studentCatalog(db);
+ const matchPlayer=(id,house,hero)=>{
+  const player=known.get(id);
+  const team=Object.keys(groupHero).find(name=>groupHero[name]===hero);
+  return player&&{id,name:player.name,house:house??id[0],team,hero};
+ };
+ const creator=matchPlayer(row.creator_id,row.creator_house,row.white_hero);
+ const recipient=matchPlayer(row.recipient_id,row.recipient_house,row.black_hero);
  if(!creator||!recipient)error('Partida inconsistente.',500);
  const response={
   id:row.id,seasonId:row.season_id,creator,recipient,
@@ -111,47 +129,40 @@ async function inbox(db,player){
  const rows=await all(db,
   'SELECT * FROM matches WHERE creator_id=? OR recipient_id=? ORDER BY created_at DESC LIMIT 120',
   player.id,player.id);
- return Promise.all(rows.map(row=>publicMatch(db,row)));
+ const known=await studentCatalog(db);
+ return Promise.all(rows.map(row=>publicMatch(db,row,false,known)));
 }
 async function ranking(db){
  const active=await season(db);
+ const known=await studentCatalog(db),players=availableStudents(known);
  const completed=await all(db,
-  "SELECT creator_id,recipient_id,result FROM matches WHERE season_id=? AND status='CONCLUIDO' AND result IN ('white','black','draw')",
+  "SELECT creator_id,recipient_id,creator_house,recipient_house,white_hero,black_hero,result FROM matches WHERE season_id=? AND status='CONCLUIDO' AND result IN ('white','black','draw')",
   active.id);
- const playerRows=new Map(players.map(p=>[p.id,{...p,plays:0,wins:0,draws:0,losses:0,points:0}]));
- const groupRows=new Map(Object.keys(groupHero).map(g=>[g,{
-  name:g,hero:groupHero[g],members:players.filter(p=>p.team===g).length,
+ const playerRows=new Map([...known.values()].map(p=>[p.id,{...p,plays:0,wins:0,draws:0,losses:0,points:0}]));
+ const groupRows=new Map(Object.entries(groupHero).map(([name,hero])=>[hero,{
+  name,hero,members:players.filter(p=>p.team===name).length,
   plays:0,wins:0,draws:0,losses:0,points:0
  }]));
- for(const m of completed){
-  const c=known.get(m.creator_id),r=known.get(m.recipient_id);
-  if(!c||!r)continue;
-  for(const [p,side] of [[c,'white'],[r,'black']]){
-   const row=playerRows.get(p.id),win=m.result===side,draw=m.result==='draw';
-   row.plays++;row.wins+=Number(win);row.draws+=Number(draw);
-   row.losses+=Number(!win&&!draw);row.points+=win?3:draw?1:0;
-  }
-  // Colegas do mesmo grupo pontuam individualmente, mas não geram
-  // pontos coletivos contra a própria equipe.
-  if(c.team===r.team)continue;
-  for(const [p,side] of [[c,'white'],[r,'black']]){
-   const row=groupRows.get(p.team);
-   if(!row)continue;
-   const win=m.result===side,draw=m.result==='draw';
-   row.plays++;row.wins+=Number(win);row.draws+=Number(draw);
-   row.losses+=Number(!win&&!draw);row.points+=win?3:draw?1:0;
-  }
- }
- // Ranking por turmas: soma os pontos individuais dos alunos de cada turma,
- // inclusive em partidas internas. Não altera a regra do ranking dos grupos.
  const houseNames={A:'Águia Dourada',B:'Leão de Fogo',C:'Dragão de Esmeralda'};
  const houseRows=new Map(Object.entries(houseNames).map(([id,label])=>[id,{
   id,house:id,name:'4º '+id+' — '+label,members:players.filter(p=>p.house===id).length,
   plays:0,wins:0,draws:0,losses:0,points:0
  }]));
- for(const p of playerRows.values()){
-  const h=houseRows.get(p.house);if(!h)continue;
-  for(const metric of ['plays','wins','draws','losses','points'])h[metric]+=p[metric];
+ function score(row,result,side){
+  if(!row)return;
+  const win=result===side,draw=result==='draw';
+  row.plays++;row.wins+=Number(win);row.draws+=Number(draw);
+  row.losses+=Number(!win&&!draw);row.points+=win?3:draw?1:0;
+ }
+ for(const m of completed){
+  score(playerRows.get(m.creator_id),m.result,'white');
+  score(playerRows.get(m.recipient_id),m.result,'black');
+  score(houseRows.get(m.creator_house??m.creator_id[0]),m.result,'white');
+  score(houseRows.get(m.recipient_house??m.recipient_id[0]),m.result,'black');
+  if(m.white_hero!==m.black_hero){
+   score(groupRows.get(m.white_hero),m.result,'white');
+   score(groupRows.get(m.black_hero),m.result,'black');
+  }
  }
  const order=(a,b)=>b.points-a.points||b.wins-a.wins||a.losses-b.losses||a.name.localeCompare(b.name,'pt-BR');
  return {season:active,games:completed.length,
@@ -164,8 +175,10 @@ function validPath(path){
   p&&Number.isInteger(p.r)&&Number.isInteger(p.c)&&p.r>=0&&p.r<8&&p.c>=0&&p.c<8);
 }
 async function challenge(db,player,data){
+ const known=await studentCatalog(db);
+ player=known.get(player.id);
  const recipient=known.get(normalize(data.to));
- if(!recipient||recipient.id===player.id||recipient.hero===null)error('Adversário inválido.');
+ if(!player||player.inactive||!recipient||recipient.inactive||recipient.id===player.id||recipient.hero===null)error('Adversário inválido.');
  if(recipient.house!==player.house&&!(await isOnline(db,recipient.id)))
   error('Evento entre turmas: o adversário precisa estar online agora.',409);
  const active=await season(db);
@@ -176,12 +189,13 @@ async function challenge(db,player,data){
  const board=initialBoard(player.hero,recipient.hero),id=uid(),at=now();
  const repetitions={[boardSignature(board,'white')]:1};
  // O índice único impede dois convites simultâneos iguais.
- await run(db,"INSERT OR IGNORE INTO matches(id,season_id,creator_id,recipient_id,white_hero,black_hero,status,board_json,turn,ply,version,repetitions_json,created_at,updated_at,no_capture) VALUES(?,?,?,?,?,?,'PENDENTE',?,'white',0,0,?,?,?,0)",
+ await run(db,"INSERT OR IGNORE INTO matches(id,season_id,creator_id,recipient_id,white_hero,black_hero,status,board_json,turn,ply,version,repetitions_json,created_at,updated_at,no_capture,creator_house,recipient_house) SELECT ?,?,?,?,?,?,'PENDENTE',?,'white',0,0,?,?,?,0,?,? WHERE NOT EXISTS (SELECT 1 FROM student_changes WHERE id IN (?,?) AND active=0)",
   id,active.id,player.id,recipient.id,player.hero,recipient.hero,
-  JSON.stringify(board),JSON.stringify(repetitions),at,at);
+  JSON.stringify(board),JSON.stringify(repetitions),at,at,player.house,recipient.house,player.id,recipient.id);
  const created=await getMatch(db,id)||await first(db,
   "SELECT * FROM matches WHERE season_id=? AND creator_id=? AND recipient_id=? AND status IN ('PENDENTE','EM_ANDAMENTO') ORDER BY created_at DESC LIMIT 1",
   active.id,player.id,recipient.id);
+ if(!created)error('Um dos alunos já não está disponível.',409);
  return {match:await publicMatch(db,created),reused:created.id!==id};
 }
 async function answer(db,player,data){
@@ -189,7 +203,7 @@ async function answer(db,player,data){
  if(!m||m.recipient_id!==player.id)error('Convite não encontrado.',404);
  if(m.status!=='PENDENTE')error('Este convite já foi respondido.',409);
  if(!['accept','decline'].includes(data.decision))error('Resposta inválida.');
- if(data.decision==='accept'&&known.get(m.creator_id).house!==player.house&&!(await isOnline(db,m.creator_id)))
+ if(data.decision==='accept'&&(m.creator_house??m.creator_id[0])!==(m.recipient_house??m.recipient_id[0])&&!(await isOnline(db,m.creator_id)))
   error('Evento entre turmas: os dois alunos precisam estar online ao aceitar.',409);
  const newStatus=data.decision==='accept'?'EM_ANDAMENTO':'RECUSADO';
  const update=await run(db,
@@ -286,14 +300,52 @@ async function teacherAuth(req,db){
  const row=await first(db,'SELECT expires_at FROM admin_sessions WHERE token_hash=?',await sha256(raw));
  if(!row||row.expires_at<=Date.now())error('Sessão do professor expirada.',401);
 }
+async function changeStudent(db,action,data){
+ const catalog=await studentCatalog(db);
+ const adding=action==='teacherAddStudent',deleting=action==='teacherDeleteStudent';
+ const id=adding?normalize(data.requestId):normalize(data.id);
+ if(adding&&!/^[a-f0-9-]{36}$/.test(id))error('Código de cadastro inválido.');
+ const current=catalog.get(id);
+ if(!adding&&(!current||current.inactive))error('Aluno não encontrado.',404);
+ if(deleting&&data.confirmation!==id)error('Confirme o código do aluno para excluir.');
+ const name=deleting?current.name:normalize(data.name);
+ const house=deleting?current.house:normalize(data.house);
+ const team=deleting?current.team:normalize(data.team);
+ if(name.length<2||name.length>100||!['A','B','C'].includes(house)||!Object.hasOwn(groupHero,team))
+  error('Preencha um nome válido, a turma e a equipe.');
+ if(adding&&current){
+  if(!current.inactive&&current.name===name&&current.house===house&&current.team===team)
+   return {student:current};
+  error('Este cadastro já foi processado.',409);
+ }
+ const saved=await run(db,`INSERT INTO student_changes(id,name,house,team,active)
+  SELECT ?,?,?,?,? WHERE (?=0 OR NOT EXISTS (
+   SELECT 1 FROM matches WHERE status IN ('PENDENTE','EM_ANDAMENTO')
+    AND (creator_id=? OR recipient_id=?)))
+  ON CONFLICT(id) DO UPDATE SET name=excluded.name,house=excluded.house,
+   team=excluded.team,active=excluded.active WHERE student_changes.active=1 AND ?=0`,
+  id,name,house,team,deleting?0:1,deleting?1:0,id,id,adding?1:0);
+ if(saved.meta?.changes!==1){
+  if(deleting)error('O aluno tem convites pendentes ou partidas em andamento. Resolva-os antes de excluir.',409);
+  const latest=(await studentCatalog(db)).get(id);
+  if(adding&&latest&&!latest.inactive&&latest.name===name&&latest.house===house&&latest.team===team)
+   return {student:latest};
+  error('O cadastro mudou. Atualize a lista e tente novamente.',409);
+ }
+ return {student:{id,name,house,team,hero:groupHero[team]}};
+}
 async function teacherRoute(req,env,action,data){
  const db=env.DB;
  if(action==='teacherLogin')return teacherLogin(req,env,data);
  await teacherAuth(req,db);
+ if(action==='teacherStudents')
+  return {students:availableStudents(await studentCatalog(db)),teams:Object.keys(groupHero)};
+ if(['teacherAddStudent','teacherUpdateStudent','teacherDeleteStudent'].includes(action))
+  return changeStudent(db,action,data);
  const active=await season(db);
  if(action==='teacherStatus'){
   const rows=await all(db,'SELECT id,label,started_at AS startedAt,active FROM seasons ORDER BY started_at DESC');
-  return {seasons:rows,activeSeason:active,students:players.length};
+  return {seasons:rows,activeSeason:active,students:availableStudents(await studentCatalog(db)).length};
  }
  if(action==='teacherRanking')return ranking(db);
  if(action==='teacherNewSeason'){
@@ -322,7 +374,7 @@ async function route(req,env,action,data,query){
   if(!schema)error('Migração D1 ainda não aplicada.',503);
   return {api:'dama-v2',game:'dama',persistent:true,database:'cloudflare-d1',provider:'cloudflare'};
  }
- if(action==='roster')return {players};
+ if(action==='roster')return {players:availableStudents(await studentCatalog(db))};
  if(action==='ranking')return ranking(db);
  if(action==='identify')return playerLogin(db,normalize(data.id));
  const auth=await requireStudent(req,db),player=auth.player;
@@ -375,9 +427,11 @@ async function handler(req,env){
  if(req.method!=='GET'&&req.method!=='POST')
   return respond({ok:false,error:'Método não aceito.'},405,check.headers);
  const url=new URL(req.url),action=url.searchParams.get('action')||'';
- const teacher=['teacherLogin','teacherStatus','teacherRanking','teacherNewSeason'];
- const readOnly=['ping','roster','ranking','me','presence','inbox','match','sync','teacherStatus','teacherRanking'];
- const writeOnly=['identify','heartbeat','challenge','answer','move','teacherLogin','teacherNewSeason'];
+ const teacherReads=['teacherStatus','teacherRanking','teacherStudents'];
+ const teacherWrites=['teacherLogin','teacherNewSeason','teacherAddStudent','teacherUpdateStudent','teacherDeleteStudent'];
+ const teacher=[...teacherReads,...teacherWrites];
+ const readOnly=['ping','roster','ranking','me','presence','inbox','match','sync',...teacherReads];
+ const writeOnly=['identify','heartbeat','challenge','answer','move',...teacherWrites];
  if(req.method==='GET'&&!readOnly.includes(action)||req.method==='POST'&&!writeOnly.includes(action))
   return respond({ok:false,error:'Operação inválida.'},405,check.headers);
  try{
@@ -422,3 +476,4 @@ export default {
   return env.ASSETS.fetch(request);
  }
 };
+

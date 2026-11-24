@@ -546,9 +546,91 @@ function showRankTab(tab){
   $('tab-'+type).setAttribute('aria-selected',String(selected));
  }
 }
-async function teacherLogin(){try{const r=await api.post('teacherLogin',{password:$('teacher-password').value},true);api.teacherToken=r.token;
- $('teacher-password').value='';$('teacher-actions').hidden=false;$('teacher-message').textContent='Acesso administrativo autorizado por 30 minutos.';
- }catch(e){$('teacher-message').textContent=e.message}}
+let teacherStudents=[],studentRequestId='',studentRequestFingerprint='';
+function fillTeacherStudent(){
+ const student=teacherStudents.find(p=>p.id===$('teacher-student').value);
+ $('teacher-student-name').value=student?.name||'';
+ $('teacher-student-house').value=student?.house||$('teacher-student-filter').value;
+ $('teacher-student-team').value=student?.team||'';
+ $('teacher-save-student').textContent=student?'SALVAR ALTERAÇÕES':'CADASTRAR ALUNO';
+ $('teacher-delete-student').hidden=!student;
+ studentRequestId='';
+}
+function listTeacherStudents(selected=''){
+ const house=$('teacher-student-filter').value;
+ const roster=teacherStudents.filter(p=>!house||p.house===house);
+ roster.sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')||a.house.localeCompare(b.house));
+ const select=$('teacher-student');
+ select.replaceChildren(new Option('Cadastrar novo aluno',''));
+ for(const p of roster)select.add(new Option(`${p.name} · 4º ${p.house} · ${p.team}`,p.id));
+ if(roster.some(p=>p.id===selected))select.value=selected;
+ fillTeacherStudent();
+}
+async function teacherLogin(){
+ const button=$('teacher-login'),feedback=$('teacher-message');
+ button.disabled=true;
+ $('teacher-actions').hidden=true;
+ $('teacher-students').hidden=true;
+ try{
+  const r=await api.post('teacherLogin',{password:$('teacher-password').value},true);
+  api.teacherToken=r.token;
+  $('teacher-password').value='';
+  $('teacher-actions').hidden=false;
+  if(api.provider==='cloudflare'){
+   const roster=await api.request('teacherStudents','GET',{},true);
+   teacherStudents=roster.students;
+   $('teacher-student-team').replaceChildren(new Option('Selecione a equipe',''),
+    ...roster.teams.map(team=>new Option(team,team)));
+   listTeacherStudents();
+   $('teacher-students').hidden=false;
+  }
+  feedback.textContent='Acesso administrativo autorizado por 30 minutos.';
+ }catch(e){feedback.textContent=e.message}
+ finally{button.disabled=false}
+}
+async function saveTeacherStudent(event){
+ event.preventDefault();
+ const id=$('teacher-student').value;
+ const details={
+  name:$('teacher-student-name').value.trim(),
+  house:$('teacher-student-house').value,team:$('teacher-student-team').value
+ };
+ if(!id){
+  const fingerprint=JSON.stringify(details);
+  if(!studentRequestId||studentRequestFingerprint!==fingerprint)studentRequestId=crypto.randomUUID();
+  studentRequestFingerprint=fingerprint;
+ }
+ await changeTeacherStudent(id?'teacherUpdateStudent':'teacherAddStudent',
+  {...details,id,requestId:studentRequestId},id?'Cadastro atualizado.':'Aluno cadastrado.');
+}
+async function deleteTeacherStudent(){
+ const id=$('teacher-student').value;
+ const student=teacherStudents.find(p=>p.id===id);
+ if(!student||!window.confirm(`Excluir ${student.name} (4º ${student.house}) da lista de alunos? O histórico de partidas será preservado.`))return;
+ await changeTeacherStudent('teacherDeleteStudent',{id,confirmation:id},'Aluno retirado da lista.');
+}
+async function changeTeacherStudent(action,payload,success){
+ const form=$('teacher-students'),feedback=$('teacher-message'),login=$('teacher-login');
+ const controls=[...form.elements,login];
+ controls.forEach(control=>control.disabled=true);
+ feedback.textContent='Salvando cadastro…';
+ try{
+  const {student}=await api.request(action,'POST',payload,true);
+  const deleted=action==='teacherDeleteStudent';
+  teacherStudents=teacherStudents.filter(p=>p.id!==student.id);
+  if(!deleted)teacherStudents.push(student);
+  players=teacherStudents.slice();
+  if(api.user?.id===student.id){
+   if(deleted)changeStudent();
+   else api.user=student;
+  }
+  if(!deleted&&$('teacher-student-filter').value)$('teacher-student-filter').value=student.house;
+  listTeacherStudents(deleted?'':student.id);
+  populatePlayers();renderIdentity();populateOpponents();
+  feedback.textContent=success;
+ }catch(e){feedback.textContent=e.message}
+ finally{controls.forEach(control=>control.disabled=false)}
+}
 async function newSeason(){try{const r=await api.post('teacherNewSeason',{label:$('season-name').value,confirmation:$('season-confirm').value},true);
  $('teacher-message').textContent='Nova temporada criada. Histórico anterior preservado.';$('season-confirm').value='';await loadRanking();
  }catch(e){$('teacher-message').textContent=e.message}}
@@ -591,6 +673,10 @@ function bind(){
  $('tab-groups').addEventListener('click',()=>showRankTab('groups'));
  $('tab-houses').addEventListener('click',()=>showRankTab('houses'));
  $('tab-players').addEventListener('click',()=>showRankTab('players'));
+ $('teacher-students').addEventListener('submit',saveTeacherStudent);
+ $('teacher-delete-student').addEventListener('click',deleteTeacherStudent);
+ $('teacher-student-filter').addEventListener('change',()=>listTeacherStudents());
+ $('teacher-student').addEventListener('change',fillTeacherStudent);
  $('teacher-login').addEventListener('click',teacherLogin);$('new-season').addEventListener('click',newSeason);
  document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&!$('result-modal').hidden){hideResult();return;}
@@ -652,3 +738,4 @@ async function init(){bind();syncHouseVisual();renderAll();void faceLoad();showR
  },3000);
 }
 init();
+
