@@ -11,7 +11,7 @@ const GROUPS=[
  ['Dragões de Combate','Dragão de Combate','dragao','DC','hero_dragao.png'],
  ['Mágicos e Engenheiros','Maga Engenheira','maga','ME','hero_maga.png']
 ];
-const crestImages={A:'assets/brasao_aguia_hd.png',B:'assets/brasao_leao_hd.png',C:'assets/brasao_dragao_hd.png'};
+const crestImages={A:'assets/brasao_aguia.png?v=20261124',B:'assets/brasao_leao.png?v=20261124',C:'assets/brasao_dragao.png?v=20261124'};
 const HOUSES={A:{name:'Águia Dourada',slug:'aguia',color:'#69b9f9'},B:{name:'Leão de Fogo',slug:'leao',color:'#f0755c'},C:{name:'Dragão de Esmeralda',slug:'dragao',color:'#53d89d'}};
 const tokenKey='classmana-dama-student-token-v2';
 const status=$('connection');
