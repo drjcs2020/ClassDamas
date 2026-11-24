@@ -23,7 +23,8 @@ if (location.hostname.endsWith('.github.io')) {
   <button type="button" id="view-partida" class="cm-nav">♟ <span>PARTIDA</span></button>
   <button type="button" id="view-rankings" class="cm-nav">🏆 <span>RANKINGS</span></button>
  </nav>
- <div class="cm-profile"><img src="assets/brasao_aguia.png?v=20261124" onerror="this.onerror=null;this.src='assets/brasao_aguia.png'" id="headercrest" alt="Brasão da turma"><div><strong id="headName">Identifique-se</strong><span id="headHouse">Escolha sua turma</span></div></div>
+ <div class="cm-profile" id="global-student-profile" aria-live="polite"><img src="assets/brasao_aguia.png?v=20261124" id="headercrest" alt="Brasão da turma"><div class="cm-profile-details"><span class="cm-profile-label">QUEM ESTÁ JOGANDO?</span><strong id="headName">Escolha seu nome</strong><span id="headHouse">Nenhum aluno selecionado</span></div></div>
+ <button type="button" id="global-change-student" class="cm-switch-student" aria-label="Escolher ou trocar aluno">🔄 <span id="global-switch-label">ESCOLHER ALUNO</span></button>
  <button class="notification-bell cm-notification" id="notification-bell" type="button" title="Notificações de desafios" aria-label="Abrir notificações de desafios">🔔 <span class="cm-notif-label">DESAFIOS</span><span id="notification-count" hidden>0</span></button>
  <div class="online-badge cm-connection" id="connection">● CONECTANDO</div>
 </div></header>
@@ -53,9 +54,13 @@ if (location.hostname.endsWith('.github.io')) {
    <div class="cm-identity"> <section class="panel identity-panel"><h2>✦ IDENTIFICAÇÃO DO ALUNO</h2>
   <p class="muted">Como no Torneio das Três Casas: selecione sua turma e seu nome. Sem login, senha ou PIN de aluno.</p>
   <label for="house">Sua turma / Casa</label><select id="house"><option value="A">4º A — Águia Dourada</option><option value="B">4º B — Leão de Fogo</option><option value="C">4º C — Dragão de Esmeralda</option></select>
-  <label for="player">Seu nome</label><select id="player"><option value="">Carregando alunos…</option></select>
-  <div class="hrow"><button class="btn gold" id="confirm-student">CONFIRMAR NOME</button><button class="btn ghost" id="change-student" hidden>TROCAR ALUNO</button></div>
-  <div id="identity" class="boxline">Perfil não selecionado</div>
+  <label for="player">QUAL É O SEU NOME?</label><select id="player"><option value="">Carregando alunos…</option></select>
+  <div id="current-student-card" class="cm-current-student" role="status" hidden>
+   <div class="cm-current-icon">✅</div>
+   <div class="cm-current-info"><span>VOCÊ ESTÁ JOGANDO COMO</span><strong id="current-student-name"></strong><small id="current-student-details"></small></div>
+  </div>
+  <div class="hrow"><button class="btn gold" id="confirm-student">✅ SOU EU! COMEÇAR</button><button class="btn gold cm-change-button" id="change-student" type="button" hidden>🔄 TROCAR DE ALUNO</button></div>
+  <div id="identity" class="boxline">Escolha seu nome acima e confirme para jogar.</div>
  </section>
 </div>
    <div class="cm-house-next"><strong>⚔ BEM-VINDO À SUA CASA</strong><p>Os seis grupos de heróis competem em partidas reais. Identifique-se para receber e enviar desafios.</p><button type="button" id="house-next" class="btn gold">CONTINUAR → DESAFIOS</button></div>
