@@ -95,6 +95,33 @@ jobs:
           }
           throw lastError;
           JS
+      - name: Auditar presença do segredo do professor (nunca revelar valor)
+        run: |
+          node --input-type=module <<'JS'
+          import {spawnSync} from 'node:child_process';
+          const cmd=spawnSync(process.execPath,[
+            'node_modules/wrangler/bin/wrangler.js','secret','list',
+            '--name','classdamas','--format','json'
+          ],{encoding:'utf8',timeout:30000,env:{...process.env,CI:'true'}});
+          if(cmd.status!==0){
+            console.log('AUDITORIA PROFESSOR: não foi possível consultar os nomes dos secrets.');
+            process.exit(0);
+          }
+          try{
+            const list=JSON.parse(cmd.stdout.trim());
+            if(!Array.isArray(list))throw Error('Formato inesperado');
+            const direct=list.some(x=>x.name==='DAMA_TEACHER_PASSWORD');
+            const legacy=list.some(x=>x.name==='DAMA_TEACHER_PASSWORD_SHA256');
+            console.log(direct
+              ?'AUDITORIA PROFESSOR: DAMA_TEACHER_PASSWORD está vinculado ao Worker classdamas.'
+              :legacy
+                ?'AUDITORIA PROFESSOR: só o segredo de hash legado está vinculado.'
+                :'AUDITORIA PROFESSOR: segredo do professor não encontrado no Worker classdamas.');
+            // O CLI revela apenas nomes/tipos; nenhum valor é lido nem impresso.
+          }catch{
+            console.log('AUDITORIA PROFESSOR: resposta da Cloudflare não pôde ser interpretada.');
+          }
+          JS
       - name: Conferir cadastro, ranking e brasões atualizados no site público
         run: |
           node --input-type=module <<'JS'
