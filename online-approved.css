@@ -442,3 +442,90 @@ body.cm-app{display:flex;flex-direction:column;min-height:560px;overflow:hidden;
  #panel-partida>.arena .match-head #black-banner{grid-column:3;grid-row:1}
  #panel-partida>.arena .match-head>.versus{display:block;grid-column:2;grid-row:1;align-self:center}
 }
+
+/* Identificação de aluno para crianças: SEM procurar menus para saber quem joga. */
+.cm-app .cm-header-inner{gap:clamp(5px,.7vw,12px)}
+.cm-app .cm-profile{
+ flex:0 1 230px;min-width:160px;max-width:230px;
+ gap:6px;padding-left:9px;overflow:hidden
+}
+.cm-app .cm-profile .cm-profile-details{min-width:0;overflow:hidden}
+.cm-app .cm-profile img{width:43px;height:54px;flex:none}
+.cm-app .cm-profile .cm-profile-label{
+ display:block;color:#ffe08c;font-size:9px;line-height:1.2;
+ font-weight:1000;letter-spacing:.25px;white-space:nowrap
+}
+.cm-app .cm-profile #headName{
+ display:block;color:#fff5d7;font-size:clamp(12px,1.1vw,16px);
+ line-height:1.18;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.cm-app .cm-profile #headHouse{display:block;font-size:10px;line-height:1.25}
+.cm-app .cm-switch-student{
+ flex:none;display:flex;align-items:center;justify-content:center;gap:4px;
+ min-width:100px;max-width:140px;min-height:43px;
+ padding:7px 10px;color:#152e2a;background:linear-gradient(#ffeaa0,#e7b54c);
+ border:2px solid #ffdf91;border-radius:10px;box-shadow:0 3px 0 #815222;
+ font-size:11px;font-weight:1000;white-space:nowrap;cursor:pointer;
+ transition:filter .15s
+}
+.cm-app .cm-switch-student:hover,.cm-app .cm-switch-student:focus-visible{filter:brightness(1.1);outline-offset:2px}
+.cm-app .cm-switch-student.is-logged-in{border-color:#fff0aa;background:linear-gradient(#ffedb4,#ffc96b)}
+.cm-identity>.identity-panel.is-identified label[for=player],
+.cm-identity>.identity-panel.is-identified #player,
+.cm-identity>.identity-panel.is-identified #confirm-student{display:none!important}
+.cm-identity>.identity-panel .cm-current-student{
+ grid-column:1/-1;display:flex;align-items:center;gap:13px;
+ margin-top:6px;padding:12px 15px;border-radius:12px;border:2px solid #e8ba68;
+ background:linear-gradient(110deg,#164c46,#153859 75%);
+ box-shadow:inset 0 0 12px #e0d18726
+}
+.cm-identity>.identity-panel .cm-current-student[hidden]{display:none!important}
+.cm-identity .cm-current-icon{font-size:29px;flex:none}
+.cm-identity .cm-current-info{min-width:0;display:flex;flex-direction:column;gap:2px}
+.cm-identity .cm-current-info>span{color:#f7d387;font-size:11px;font-weight:1000;letter-spacing:.45px}
+.cm-identity .cm-current-info>strong{
+ color:#fff4cb;font-family:'Cinzel',serif;
+ font-size:clamp(18px,2.15vw,27px);line-height:1.2;overflow-wrap:anywhere
+}
+.cm-identity .cm-current-info>small{color:#d9eff2;font-size:11px;font-weight:800}
+.cm-identity>.identity-panel.is-identified .hrow{margin-top:10px}
+.cm-identity>.identity-panel .cm-change-button{
+ font-size:14px;min-height:43px;flex:1 1 100%;
+ background:linear-gradient(#ffe6a0,#dca341);border-color:#ffefb2;color:#2e2611
+}
+.cm-identity>.identity-panel #identity{color:#d6ecde;font-size:12px}
+@media(max-width:1350px){
+ .cm-app .cm-profile{min-width:130px;max-width:180px;flex-basis:180px}
+ .cm-app .cm-switch-student{min-width:92px;padding:6px;font-size:10px}
+ .cm-app .cm-profile .cm-profile-label{font-size:8px}
+}
+@media(max-width:900px){
+ .cm-app .cm-profile{margin-left:0;min-width:145px;flex-basis:155px;max-width:180px}
+ .cm-app .cm-switch-student{min-width:100px}
+}
+@media(max-width:570px){
+ .cm-app .cm-header-inner{
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto;
+  grid-template-areas:"cmbrand cmbell cmswitch" "cmprofile cmprofile cmprofile" "cmnav cmnav cmnav";
+  gap:5px;padding:5px 8px 7px
+ }
+ .cm-app .cm-header .cm-brand{grid-area:cmbrand;min-width:0}
+ .cm-app .cm-header .cm-brand img{width:145px;height:auto;max-height:45px}
+ .cm-app .cm-topnav{grid-area:cmnav;order:0;width:100%;min-width:0;flex:auto}
+ .cm-app .cm-profile{
+  grid-area:cmprofile;display:flex;max-width:none;min-width:0;width:100%;
+  padding:5px 10px;margin:0;background:#152e51;border:1px solid #bc9858;
+  border-radius:9px;gap:9px
+ }
+ .cm-app .cm-profile img{width:31px;height:37px}
+ .cm-app .cm-profile .cm-profile-label{font-size:9px}
+ .cm-app .cm-profile #headName{font-size:15px}
+ .cm-app .cm-profile #headHouse{font-size:10px}
+ .cm-app .cm-switch-student{
+  grid-area:cmswitch;min-width:96px;max-width:115px;
+  min-height:37px;padding:5px 6px;font-size:10px;white-space:normal;line-height:1.05
+ }
+ .cm-app .cm-notification{grid-area:cmbell;min-width:36px}
+ .cm-identity .cm-current-info>strong{font-size:20px}
+ .cm-identity>.identity-panel .cm-current-student{padding:9px 10px}
+}
