@@ -2,13 +2,20 @@
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ClassMana — Damas dos Heróis</title>
 <meta name="description" content="ClassMana ClassDamas: quatro abas, desafios reais e rankings por turmas, grupos e alunos.">
+<script>
+/* GitHub Pages publica somente arquivos estáticos; o duelo online fica no Worker.
+   Redireciona para o domínio que serve jogo + API + D1 juntos. */
+if (location.hostname.endsWith('.github.io')) {
+  location.replace('https://classdamas.jean-silveira35.workers.dev/online.html'+location.search+location.hash);
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="online.css"><link rel="stylesheet" href="online-v3.css"><link rel="stylesheet" href="online-clean.css"><link rel="stylesheet" href="online-approved.css">
+<link rel="stylesheet" href="online.css"><link rel="stylesheet" href="online-v3.css"><link rel="stylesheet" href="online-clean.css"><link rel="stylesheet" href="online-approved.css?v=20261124">
 </head><body class="cm-app">
 <header class="cm-header header"><div class="cm-header-inner">
- <a class="cm-brand logolink" href="index.html" title="ClassMana — início"><img src="assets/logo_classmana.png" alt="Logotipo ClassMana"></a>
+ <a class="cm-brand logolink" href="index.html" title="ClassMana — início"><img src="assets/logo_classmana.png?v=20261124" alt="Logotipo ClassMana"></a>
  <span class="cm-brand-sub">DAMAS DOS HERÓIS</span>
  <nav class="cm-topnav" aria-label="Navegação do ClassMana">
   <button type="button" id="view-casa" class="cm-nav active" aria-current="page">🏰 <span>MINHA CASA</span></button>
@@ -16,7 +23,7 @@
   <button type="button" id="view-partida" class="cm-nav">♟ <span>PARTIDA</span></button>
   <button type="button" id="view-rankings" class="cm-nav">🏆 <span>RANKINGS</span></button>
  </nav>
- <div class="cm-profile"><img src="assets/brasao_aguia_hd.png" onerror="this.onerror=null;this.src='assets/brasao_aguia.png'" id="headercrest" alt="Brasão da turma"><div><strong id="headName">Identifique-se</strong><span id="headHouse">Escolha sua turma</span></div></div>
+ <div class="cm-profile"><img src="assets/brasao_aguia.png?v=20261124" onerror="this.onerror=null;this.src='assets/brasao_aguia.png'" id="headercrest" alt="Brasão da turma"><div><strong id="headName">Identifique-se</strong><span id="headHouse">Escolha sua turma</span></div></div>
  <button class="notification-bell cm-notification" id="notification-bell" type="button" title="Notificações de desafios" aria-label="Abrir notificações de desafios">🔔 <span class="cm-notif-label">DESAFIOS</span><span id="notification-count" hidden>0</span></button>
  <div class="online-badge cm-connection" id="connection">● CONECTANDO</div>
 </div></header>
@@ -26,19 +33,19 @@
  <div class="cm-heading"><h1>🏰 AS TRÊS CASAS DO CLASSMANA</h1><span>ESCOLHA SUA CASA E IDENTIFIQUE-SE</span></div>
  <div class="cm-house-grid"><button class="cm-house-card house-a selected" type="button" data-house="A" aria-pressed="true">
   <span class="cm-card-selected">✓ SELECIONADA</span>
-  <img src="assets/brasao_aguia_hd.png" onerror="this.onerror=null;this.src='assets/brasao_aguia.png'" alt="Brasão oficial ÁGUIA DOURADA">
+  <img src="assets/brasao_aguia.png?v=20261124" onerror="this.onerror=null;this.src='assets/brasao_aguia.png'" alt="Brasão oficial ÁGUIA DOURADA">
   <span class="cm-house-title">ÁGUIA DOURADA</span>
   <small>4º A · CASTELO DOS CÉUS</small>
  </button>
 <button class="cm-house-card house-b " type="button" data-house="B" aria-pressed="false">
   <span class="cm-card-selected">✓ SELECIONADA</span>
-  <img src="assets/brasao_leao_hd.png" onerror="this.onerror=null;this.src='assets/brasao_leao.png'" alt="Brasão oficial LEÃO DE FOGO">
+  <img src="assets/brasao_leao.png?v=20261124" onerror="this.onerror=null;this.src='assets/brasao_leao.png'" alt="Brasão oficial LEÃO DE FOGO">
   <span class="cm-house-title">LEÃO DE FOGO</span>
   <small>4º B · FORTALEZA DAS CHAMAS</small>
  </button>
 <button class="cm-house-card house-c " type="button" data-house="C" aria-pressed="false">
   <span class="cm-card-selected">✓ SELECIONADA</span>
-  <img src="assets/brasao_dragao_hd.png" onerror="this.onerror=null;this.src='assets/brasao_dragao.png'" alt="Brasão oficial DRAGÃO DE ESMERALDA">
+  <img src="assets/brasao_dragao.png?v=20261124" onerror="this.onerror=null;this.src='assets/brasao_dragao.png'" alt="Brasão oficial DRAGÃO DE ESMERALDA">
   <span class="cm-house-title">DRAGÃO DE ESMERALDA</span>
   <small>4º C · CASTELO DAS ESMERALDAS</small>
  </button></div>
@@ -75,11 +82,11 @@
 <section id="panel-partida" class="cm-view" aria-label="Partida">
  
   <section class="arena">
-  <div class="match-head"><div class="match-side" id="white-banner"><img id="white-portrait" class="avatar" alt=""><div><small>DESAFIANTE · 12 PEÇAS</small><h3 id="white-title">Fada Guerreira</h3><p id="white-meta">Aguardando partida</p></div></div><span class="versus">VS</span><div class="match-side opponent" id="black-banner"><img id="black-portrait" class="avatar" alt=""><div><small>DESAFIADO · 12 PEÇAS</small><h3 id="black-title">Chama Congelante</h3><p id="black-meta">Aguardando partida</p></div><img class="cm-rival-crest" id="crest-black" src="assets/brasao_leao_hd.png" alt="Brasão da casa adversária"></div></div>
+  <div class="match-head"><div class="match-side" id="white-banner"><img id="white-portrait" class="avatar" alt=""><div><small>DESAFIANTE · 12 PEÇAS</small><h3 id="white-title">Fada Guerreira</h3><p id="white-meta">Aguardando partida</p></div></div><span class="versus">VS</span><div class="match-side opponent" id="black-banner"><img id="black-portrait" class="avatar" alt=""><div><small>DESAFIADO · 12 PEÇAS</small><h3 id="black-title">Chama Congelante</h3><p id="black-meta">Aguardando partida</p></div><img class="cm-rival-crest" id="crest-black" src="assets/brasao_leao.png?v=20261124" alt="Brasão da casa adversária"></div></div>
   <div class="board-shell"><div class="board-top"><b>♜ TABULEIRO DOS HERÓIS</b><span id="match-state">DEMONSTRAÇÃO</span></div>
    <div class="board-decoration"><div id="board-overlay" class="board-overlay"><strong>♟️ O TABULEIRO AINDA NÃO ESTÁ EM JOGO</strong><span>Selecione um duelo aceito ou inicie um treino contra o robô.</span></div><div class="board-edge"><div id="board" class="board" role="grid" aria-label="Tabuleiro oficial de damas"></div></div></div>
 <aside class="cm-board-controls" aria-label="Situação e comandos do jogo">
-<div class="cm-status-card"><img class="cm-status-crest" id="crest-white" src="assets/brasao_aguia_hd.png" alt="Brasão do jogador"><div class="duel-status" id="duel-status" role="status">♟️ Escolha um modo de jogo. Para desafiar outro aluno, confirme primeiro seu nome.</div></div>
+<div class="cm-status-card"><img class="cm-status-crest" id="crest-white" src="assets/brasao_aguia.png?v=20261124" alt="Brasão do jogador"><div class="duel-status" id="duel-status" role="status">♟️ Escolha um modo de jogo. Para desafiar outro aluno, confirme primeiro seu nome.</div></div>
    <div class="turn"><span class="turn-gem">✦</span><div><small>TURNO ATUAL</small><strong id="turn-label">Aguardando desafio</strong></div><div id="ply" class="ply">0 jogadas</div></div>
    <p id="message" class="message" role="status">Escolha sua turma e seu nome; depois envie um desafio ou aceite um convite.</p>
    <div class="bar-actions"><button id="reload-match" class="btn ghost" disabled>↻ ATUALIZAR TABULEIRO</button><button id="open-ranking" class="btn gold">🏆 VER RANKING</button></div>
@@ -142,5 +149,5 @@
  </div>
 </div>
 
-<script type="module" src="online-app.js"></script>
+<script type="module" src="online-app.js?v=20261124"></script>
 </body></html>
