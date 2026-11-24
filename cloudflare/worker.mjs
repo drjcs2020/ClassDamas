@@ -250,9 +250,14 @@ async function move(db,player,data){
  return {match:await publicMatch(db,await getMatch(db,m.id),true)};
 }
 async function teacherLogin(req,env,data){
- const configured=normalize(env.DAMA_TEACHER_PASSWORD_SHA256).toLowerCase();
- if(!/^[a-f0-9]{64}$/.test(configured))
-  error('Senha do professor não configurada no Cloudflare.',503);
+ // O professor pode cadastrar diretamente uma senha forte em Cloudflare Secrets.
+ // Compatibilidade mantida com o hash SHA-256 usado nas versões anteriores.
+ const plain=String(env.DAMA_TEACHER_PASSWORD||'');
+ const oldHash=normalize(env.DAMA_TEACHER_PASSWORD_SHA256).toLowerCase();
+ const configured=plain.length>=12?await sha256(plain):
+  /^[a-f0-9]{64}$/.test(oldHash)?oldHash:'';
+ if(!configured)
+  error('Acesso do professor ainda não ativado. Configure o Secret DAMA_TEACHER_PASSWORD na Cloudflare (12 caracteres ou mais).',503);
  const ip=normalize(req.headers.get('CF-Connecting-IP'))||'anonymous';
  const ipHash=await sha256(ip+':'+configured);
  const old=await first(env.DB,'SELECT failures,locked_until FROM teacher_attempts WHERE ip_hash=?',ipHash);
