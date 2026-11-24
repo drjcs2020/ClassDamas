@@ -256,8 +256,11 @@ async function teacherLogin(req,env,data){
  const oldHash=normalize(env.DAMA_TEACHER_PASSWORD_SHA256).toLowerCase();
  const configured=plain.length>=12?await sha256(plain):
   /^[a-f0-9]{64}$/.test(oldHash)?oldHash:'';
- if(!configured)
-  error('Acesso do professor ainda não ativado. Configure o Secret DAMA_TEACHER_PASSWORD na Cloudflare (12 caracteres ou mais).',503);
+ if(!configured){
+  if(plain.length>0 && plain.length<12)
+   error('O Secret DAMA_TEACHER_PASSWORD existe, mas a senha tem menos de 12 caracteres. Atualize apenas o valor do segredo na Cloudflare.',503);
+  error('O Secret DAMA_TEACHER_PASSWORD não chegou ao Worker classdamas em produção. Confirme o Worker e a versão implantada na Cloudflare.',503);
+ }
  const ip=normalize(req.headers.get('CF-Connecting-IP'))||'anonymous';
  const ipHash=await sha256(ip+':'+configured);
  const old=await first(env.DB,'SELECT failures,locked_until FROM teacher_attempts WHERE ip_hash=?',ipHash);
