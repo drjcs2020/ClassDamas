@@ -117,8 +117,8 @@ body.cm-app{display:flex;flex-direction:column;min-height:560px;overflow:hidden;
 .cm-view>.arena .bar-actions{margin:0;display:flex;justify-content:center;gap:10px}
 .cm-view>.arena .bar-actions .btn{padding:8px 12px}
 .cm-view>.arena .history{display:none!important}
-#panel-rankings>.ranking-column{width:100%;max-width:1080px;min-height:0;overflow:auto;margin:0 auto;display:flex;flex-direction:column;gap:13px}
-#panel-rankings>.ranking-column .ranking-panel{flex:1;min-height:0}
+#panel-rankings>.ranking-column{width:100%;max-width:1080px;flex:none;margin:0 auto;display:flex;flex-direction:column;align-items:stretch;gap:13px}
+#panel-rankings>.ranking-column .ranking-panel{flex:none}
 #panel-rankings .ranking-panel .tabs{display:flex;justify-content:center;gap:12px;margin:11px 0}
 #panel-rankings .ranking-panel .tabs button{min-width:145px;font-size:13px;font-weight:900;padding:12px;border:2px solid #b98b4f;color:#ffe0a0;background:linear-gradient(#2a4573,#0c234a);border-radius:10px}
 #panel-rankings .ranking-panel .tabs button.active{color:#15311f;background:linear-gradient(#ffe89f,#d5a344);border-color:#ffe9b0}
@@ -131,6 +131,8 @@ body.cm-app{display:flex;flex-direction:column;min-height:560px;overflow:hidden;
 #panel-rankings .ranking-column>.note{display:none}
 #panel-rankings .ranking-panel .rank-foot{font-size:11px;color:#c7d9e9}
 #panel-rankings .teacher{flex:none}
+#panel-rankings .teacher summary{color:#ffe19f;cursor:pointer;font-weight:900}
+#panel-rankings .teacher [hidden]{display:none!important}
 .cm-app .result-modal{z-index:999}
 @media(max-width:1350px){
  .cm-app .cm-brand img{width:clamp(175px,17vw,235px);max-height:56px}

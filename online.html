@@ -12,7 +12,7 @@ if (location.hostname.endsWith('.github.io')) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="online.css"><link rel="stylesheet" href="online-v3.css"><link rel="stylesheet" href="online-clean.css"><link rel="stylesheet" href="online-approved.css?v=20261124">
+<link rel="stylesheet" href="online.css"><link rel="stylesheet" href="online-v3.css"><link rel="stylesheet" href="online-clean.css"><link rel="stylesheet" href="online-approved.css?v=20261125-teacher-layout">
 </head><body class="cm-app">
 <header class="cm-header header"><div class="cm-header-inner">
  <a class="cm-brand logolink" href="index.html" title="ClassMana — início"><img src="assets/logo_classmana.png?v=20261124" alt="Logotipo ClassMana"></a>
@@ -118,13 +118,6 @@ if (location.hostname.endsWith('.github.io')) {
 <section id="panel-rankings" class="cm-view" aria-label="Rankings">
  <div class="cm-heading"><h1>🏆 SALÃO DOS CAMPEÕES</h1><span>CASAS · SEIS GRUPOS · ALUNOS</span></div>
   <aside class="column ranking-column">
-  <section class="panel ranking-panel"><div class="paneltop"><h2>🏆 SALÃO DOS CAMPEÕES</h2><button class="mini" id="refresh-ranking" title="Atualizar ranking">↻</button></div>
-   <p class="muted" id="season-label">Classificação da temporada</p>
-   <div class="tabs" role="tablist" aria-label="Tipo de ranking"><button id="tab-groups" class="active" role="tab" aria-selected="true">GRUPOS</button><button id="tab-houses" role="tab" aria-selected="false">TURMAS</button><button id="tab-players" role="tab" aria-selected="false">ALUNOS</button></div>
-   <div id="groups-ranking" class="rank-table"></div><div id="houses-ranking" class="rank-table" hidden></div><div id="players-ranking" class="rank-table" hidden></div>
-   <p class="rank-foot">Vitória 3 · Empate 1 · Derrota 0. Turmas somam os resultados individuais (inclusive partidas internas); grupos não pontuam contra integrantes da própria equipe.</p>
-  </section>
-  <section class="panel note"><h2>🛡️ SEIS HERÓIS OFICIAIS</h2><div id="hero-gallery" class="hero-gallery"></div><p class="muted">Cada lado utiliza 12 peças de um único personagem, conforme o grupo do aluno.</p></section>
   <section class="panel teacher"><details><summary>⚙ PAINEL DO PROFESSOR</summary>
    <label for="teacher-password">Senha do professor (somente administração)</label><input id="teacher-password" type="password" autocomplete="current-password" placeholder="Senha do professor">
    <button id="teacher-login" class="btn ghost full">ACESSAR</button>
@@ -147,7 +140,7 @@ if (location.hostname.endsWith('.github.io')) {
      </select>
      <label for="teacher-student-team">Equipe</label>
      <select id="teacher-student-team" required></select>
-     <button id="teacher-save-student" class="btn full" type="submit">CADASTRAR ALUNO</button>
+     <button id="teacher-save-student" class="btn gold full" type="submit">CADASTRAR ALUNO</button>
      <button id="teacher-delete-student" class="btn ghost full" type="button" hidden>EXCLUIR ALUNO</button>
     </form>
     <h2>Temporada</h2>
@@ -158,6 +151,14 @@ if (location.hostname.endsWith('.github.io')) {
    </div>
    <p class="muted" id="teacher-message" role="status"></p>
   </details></section>
+  <section class="panel ranking-panel"><div class="paneltop"><h2>🏆 SALÃO DOS CAMPEÕES</h2><button class="mini" id="refresh-ranking" title="Atualizar ranking">↻</button></div>
+   <p class="muted" id="season-label">Classificação da temporada</p>
+   <div class="tabs" role="tablist" aria-label="Tipo de ranking"><button id="tab-groups" class="active" role="tab" aria-selected="true">GRUPOS</button><button id="tab-houses" role="tab" aria-selected="false">TURMAS</button><button id="tab-players" role="tab" aria-selected="false">ALUNOS</button></div>
+   <div id="groups-ranking" class="rank-table"></div><div id="houses-ranking" class="rank-table" hidden></div><div id="players-ranking" class="rank-table" hidden></div>
+   <p class="rank-foot">Vitória 3 · Empate 1 · Derrota 0. Turmas somam os resultados individuais (inclusive partidas internas); grupos não pontuam contra integrantes da própria equipe.</p>
+  </section>
+  <section class="panel note"><h2>🛡️ SEIS HERÓIS OFICIAIS</h2><div id="hero-gallery" class="hero-gallery"></div><p class="muted">Cada lado utiliza 12 peças de um único personagem, conforme o grupo do aluno.</p></section>
+
  </aside>
 
 </section>
