@@ -67,6 +67,8 @@ jobs:
         run: node scripts/prepare-cloudflare-database.mjs
       - name: Conferir UUID e nome do banco D1 antes das migrações
         run: node scripts/check-cloudflare-database.mjs
+      - name: Verificar conexão com o banco do ClassDamas
+        run: npx wrangler d1 execute classdamas-db --remote --command "SELECT COUNT(*) AS seasons FROM seasons"
       - name: Aplicar somente migrações da base classdamas-db
         run: npx wrangler d1 migrations apply classdamas-db --remote
       - name: Publicar Worker e assets
