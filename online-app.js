@@ -34,15 +34,25 @@ const api={url:DAMA_API_URL,token:sessionStorage.getItem(tokenKey)||'',user:null
      headers:{'Content-Type':'application/json',...(this.token?{'Authorization':'Bearer '+this.token}:{}),
        ...(teacher?{'X-ClassMana-Teacher':this.teacherToken}:{})},
      ...(method==='POST'?{body:JSON.stringify(data)}:{})});
-     const result=await res.json();if(!res.ok||!result.ok)throw Error(result.error||'Erro de conexão.');
+     const result=await res.json().catch(()=>null);
+     if(!res.ok||!result?.ok)throw Object.assign(Error(result?.error||'Erro de conexão.'),{status:res.status});
      return result;
-   }catch(e){throw Error(e.name==='AbortError'?'Tempo de conexão esgotado.':e.message)}
+   }catch(e){if(e.name==='AbortError')throw Error('Tempo de conexão esgotado.');throw e}
    finally{clearTimeout(timer)}
  },
  get(a,d={}){return this.request(a,'GET',d)},
  post(a,d={},teacher=false){return this.request(a,'POST',{
    ...d,...(['teacherLogin','teacherNewSeason','identify'].includes(a)?{}:{requestId:crypto.randomUUID()})},teacher)}
 };
+async function readWithRetry(action){
+ for(const delay of [0,1000,2500]){
+  if(delay)await new Promise(resolve=>setTimeout(resolve,delay));
+  try{return await api.get(action)}
+  catch(error){
+   if(delay===2500||(error.status&&error.status!==429&&error.status<500))throw error;
+  }
+ }
+}
 function setState(value,text){status.className='online-badge '+value;status.textContent=text;}
 function message(s,warn=false){notice=s;$('message').textContent=s;$('message').classList.toggle('warn',warn);}
 function syncHouseVisual(){
@@ -77,7 +87,7 @@ function showView(view){
   nav.setAttribute('aria-current',selected?'page':'false');
   pane.classList.toggle('active',selected);
  }
- if(tab==='rankings'&&apiReady)void loadRanking();
+ if(tab==='rankings')void refreshRanking();
  else if(tab==='desafios'&&api.user)void loadInbox();
 }
 
@@ -511,7 +521,7 @@ async function openMatch(id){try{
  }catch(e){message(e.message,true)}}
 async function reloadMatch(){if(match)await openMatch(match.id)}
 async function loadRanking(preset){try{
- const r=preset||await api.get('ranking');
+ const r=preset||await readWithRetry('ranking');
  $('season-label').textContent=`${r.season.label} · ${r.games} partidas concluídas`;
  // Compatibilidade: se o Railway ainda não oferecer houses, calcular a soma
  // dos alunos no navegador. No D1 o servidor já retorna o ranking pronto.
@@ -656,7 +666,7 @@ function bind(){
   $('view-'+view).addEventListener('click',()=>showView(view));
  }
  $('refresh-inbox').addEventListener('click',()=>loadInbox().catch(e=>message(e.message,true)));
- $('reload-match').addEventListener('click',reloadMatch);$('refresh-ranking').addEventListener('click',loadRanking);
+ $('reload-match').addEventListener('click',reloadMatch);$('refresh-ranking').addEventListener('click',()=>void refreshRanking());
  $('result-close').addEventListener('click',hideResult);
  $('result-ranking').addEventListener('click',()=>{
   hideResult();showRankTab('groups');showView('ranking');
@@ -683,19 +693,38 @@ function bind(){
   if(e.key==='Escape'&&chosen){chosen=null;message('Seleção cancelada.');renderBoard();}
  });
 }
-async function init(){bind();syncHouseVisual();renderAll();void faceLoad();showRankTab('houses');showView('casa');
- try{const ping=await api.get('ping');if(ping.api!=='dama-v2')throw Error('API incorreta — não use o servidor do arco e flecha.');
- api.provider=ping.provider==='cloudflare'?'cloudflare':'legacy';
- apiReady=true;setState('good','● API DE DAMAS CONECTADA');
- const r=await api.get('roster');players=r.players;populatePlayers();renderIdentity();
- if(api.token){try{
-  api.user=(await api.get('me')).player;
-  $('target-house').value=api.user.house;
-  await api.post('heartbeat');renderIdentity();await refreshPresence();await loadInbox();
- }catch{api.token='';sessionStorage.removeItem(tokenKey)}}
+let connecting;
+function connectApi(){
+ if(connecting)return connecting;
+ connecting=(async()=>{
+  try{
+   const ping=await readWithRetry('ping');
+   if(ping.api!=='dama-v2')throw Error('API incorreta para o ClassDamas.');
+   api.provider=ping.provider==='cloudflare'?'cloudflare':'legacy';
+   const {players:roster}=await readWithRetry('roster');
+   players=roster;apiReady=true;setState('good','● API DE DAMAS CONECTADA');
+   populatePlayers();renderIdentity();
+   if(api.token&&!api.user){
+    try{
+     api.user=(await api.get('me')).player;
+     $('target-house').value=api.user.house;
+     renderIdentity();
+     await api.post('heartbeat');await refreshPresence();await loadInbox();
+    }catch(error){
+     if(error.status===401){api.token='';api.user=null;sessionStorage.removeItem(tokenKey);renderIdentity();}
+    }
+   }
+   message('API conectada. Escolha sua turma e seu nome para começar — sem senha.');
+  }catch(error){setState('bad','● API INDISPONÍVEL');message(error.message,true);}
+ })().finally(()=>{connecting=null});
+ return connecting;
+}
+async function refreshRanking(){
+ if(!apiReady)await connectApi();
  await loadRanking();
- message('API conectada. Escolha sua turma e seu nome para começar — sem senha.');
- }catch(e){setState('bad','● API INDISPONÍVEL');message(e.message,true);}
+}
+async function init(){bind();syncHouseVisual();renderAll();void faceLoad();showRankTab('houses');showView('casa');
+ await refreshRanking();
  // Cloudflare: apenas uma chamada "sync" para sininho, presença e turno.
  // Mais consultas na partida ativa; menos consultas quando o aluno aguarda.
  let syncLast=0,rankLast=Date.now(),legacyTick=0,syncInFlight=false;
